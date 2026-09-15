@@ -1,0 +1,33 @@
+Vantara Browser
+Copyright (c) 2026 Vantara contributors
+
+This product is licensed under the Mozilla Public License, v. 2.0.
+See the LICENSE file for the full license text, or obtain a copy at
+https://mozilla.org/MPL/2.0/.
+
+--------------------------------------------------------------------------
+Origin
+--------------------------------------------------------------------------
+
+Vantara is a fork of Mozilla Firefox, which is developed by the Mozilla
+Foundation and its contributors and distributed under the Mozilla Public
+License, v. 2.0. Portions of this software are Copyright (c) Mozilla
+Foundation and contributors.
+
+--------------------------------------------------------------------------
+Trademarks
+--------------------------------------------------------------------------
+
+Vantara is NOT affiliated with, endorsed by, or sponsored by the Mozilla
+Foundation.
+
+"Mozilla", "Firefox", and related names, logos, and product identities are
+trademarks of the Mozilla Foundation. These trademarks are NOT used in
+Vantara builds: all Mozilla branding is replaced with Vantara branding
+during the build process, as required for redistribution of a modified
+Firefox under a different name.
+
+"Vantara", the Vantara shield-and-axes logo, and the Vantara wordmark are
+the marks of the Vantara project. The source code is open under the MPL 2.0;
+the brand assets in brand/ are not covered by that grant and may not be used
+to identify a derivative product as Vantara.

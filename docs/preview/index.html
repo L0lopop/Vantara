@@ -1,0 +1,672 @@
+<!doctype html>
+<html lang="ru" vn-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vantara — превью интерфейса</title>
+
+<!-- Те же токены и анимации, что и в браузере: превью физически не может
+     разойтись с продуктом, потому что читает те же файлы. -->
+<link rel="stylesheet" href="../../ui/chrome/vantara/tokens.css">
+<link rel="stylesheet" href="../../ui/chrome/vantara/animations.css">
+
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: light-dark(#DDD5C9, #0B0D10);
+    color: var(--vn-fg-primary);
+    font-family: var(--vn-font-ui);
+    font-size: var(--vn-text-md);
+    padding: 40px 24px 72px;
+    transition: background-color var(--vn-dur-slow) var(--vn-ease-standard);
+  }
+
+  .sheet { width: min(1120px, 100%); margin-inline: auto; }
+
+  /* ===== Шапка превью ===================================================== */
+  .head {
+    display: flex;
+    align-items: baseline;
+    gap: var(--vn-space-4);
+    margin-bottom: var(--vn-space-6);
+  }
+  .head h1 {
+    font-size: var(--vn-text-md);
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .head .sub { color: var(--vn-fg-muted); font-size: var(--vn-text-sm); }
+  .head .spacer { flex: 1; }
+
+  .theme-switch {
+    display: flex;
+    gap: 2px;
+    padding: 2px;
+    background: var(--vn-bg-surface);
+    border: 1px solid var(--vn-border);
+    border-radius: var(--vn-radius-sm);
+  }
+  .theme-switch button {
+    font: inherit;
+    font-size: var(--vn-text-xs);
+    color: var(--vn-fg-muted);
+    background: none;
+    border: 0;
+    padding: 4px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color var(--vn-dur-fast) var(--vn-ease-standard),
+                color var(--vn-dur-fast) var(--vn-ease-standard);
+  }
+  .theme-switch button[aria-pressed="true"] {
+    background: var(--vn-bg-raised);
+    color: var(--vn-fg-primary);
+  }
+
+  /* ===== Окно браузера ==================================================== */
+  .window {
+    background: var(--vn-bg-window);
+    border: 1px solid var(--vn-border);
+    border-radius: var(--vn-radius-lg);
+    box-shadow: var(--vn-shadow-lg);
+    overflow: hidden;
+  }
+
+  .chrome {
+    background: var(--vn-bg-chrome);
+    border-bottom: 1px solid var(--vn-border);
+  }
+
+  .icon { width: 18px; height: 18px; display: block; flex: none; }
+  .icon-sm { width: 15px; height: 15px; }
+
+  /* ===== Вкладки ========================================================== */
+  .tabstrip {
+    display: flex;
+    align-items: center;
+    gap: var(--vn-space-2);
+    padding: var(--vn-space-3) var(--vn-space-3) 0;
+  }
+
+  .tab {
+    display: flex;
+    align-items: center;
+    gap: var(--vn-space-3);
+    height: 34px;
+    padding: 0 var(--vn-space-3) 0 10px;
+    flex: 0 1 200px;
+    min-width: 56px;
+    border: 1px solid transparent;
+    border-radius: var(--vn-radius-md);
+    font-size: var(--vn-text-sm);
+    color: var(--vn-fg-secondary);
+    cursor: default;
+    position: relative;
+    user-select: none;
+    transition: background-color var(--vn-dur-fast) var(--vn-ease-standard),
+                color var(--vn-dur-fast) var(--vn-ease-standard);
+  }
+
+  .tab:hover { background: var(--vn-bg-hover); color: var(--vn-fg-primary); }
+
+  /* Активная вкладка светлее полосы и приподнята тенью — та же модель,
+     что в ui/chrome/vantara/tabs.css. */
+  .tab.is-active {
+    background: var(--vn-bg-selected);
+    border-color: var(--vn-border);
+    color: var(--vn-fg-primary);
+    box-shadow: var(--vn-shadow-sm);
+  }
+
+  /* Кромка активной вкладки — кремовый с логотипа. Растёт из центра. */
+  .tab.is-active::after {
+    content: "";
+    position: absolute;
+    inset-block: 5px;
+    left: 0;
+    width: 2px;
+    border-radius: var(--vn-radius-pill);
+    background: var(--vn-edge);
+    transform-origin: center;
+    animation: vn-edge-grow var(--vn-dur-slow) var(--vn-ease-decel);
+  }
+
+  .tab .dot {
+    width: 13px; height: 13px;
+    border-radius: 3px;
+    flex: none;
+    transition: transform var(--vn-dur-base) var(--vn-ease-spring);
+  }
+  .tab.is-active .dot { transform: scale(1.1); }
+
+  .tab .label { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  .tab .close {
+    display: grid; place-items: center;
+    width: 18px; height: 18px;
+    border-radius: var(--vn-radius-xs);
+    color: var(--vn-fg-muted);
+    opacity: 0;
+    flex: none;
+    transition: opacity var(--vn-dur-fast) var(--vn-ease-standard),
+                background-color var(--vn-dur-fast) var(--vn-ease-standard),
+                color var(--vn-dur-fast) var(--vn-ease-standard);
+  }
+  .tab:hover .close, .tab.is-active .close { opacity: 1; }
+  .tab .close:hover {
+    background: color-mix(in srgb, var(--vn-threat) 22%, transparent);
+    color: var(--vn-fg-primary);
+  }
+  .tab .close .icon { width: 12px; height: 12px; }
+
+  .newtab {
+    display: grid; place-items: center;
+    width: 30px; height: 30px;
+    border-radius: var(--vn-radius-sm);
+    color: var(--vn-fg-secondary);
+    flex: none;
+    transition: background-color var(--vn-dur-fast) var(--vn-ease-standard),
+                color var(--vn-dur-fast) var(--vn-ease-standard);
+  }
+  .newtab:hover { background: var(--vn-bg-hover); color: var(--vn-fg-primary); }
+  .newtab .icon { transition: transform var(--vn-dur-slow) var(--vn-ease-spring); }
+  .newtab:hover .icon { transform: rotate(90deg); }
+
+  /* ===== Панель навигации ================================================= */
+  .navbar {
+    display: flex;
+    align-items: center;
+    gap: var(--vn-space-1);
+    padding: var(--vn-space-3);
+  }
+
+  .navbtn {
+    display: grid; place-items: center;
+    width: 32px; height: 32px;
+    border-radius: var(--vn-radius-sm);
+    color: var(--vn-fg-secondary);
+    flex: none;
+    transition: background-color var(--vn-dur-fast) var(--vn-ease-standard),
+                color var(--vn-dur-fast) var(--vn-ease-standard),
+                transform var(--vn-dur-instant) var(--vn-ease-standard);
+  }
+  .navbtn:hover { background: var(--vn-bg-hover); color: var(--vn-fg-primary); }
+  .navbtn:active { transform: scale(0.92); background: var(--vn-bg-active); }
+  .navbtn.is-off { opacity: 0.32; }
+  .navbtn.is-off:hover { background: none; color: var(--vn-fg-secondary); }
+
+  /* ===== Адресная строка ================================================== */
+  .urlbar-wrap { flex: 1; position: relative; margin-inline: var(--vn-space-3); }
+
+  .urlbar {
+    display: flex;
+    align-items: center;
+    gap: var(--vn-space-2);
+    height: 34px;
+    padding-inline: var(--vn-space-2) var(--vn-space-2);
+    background: var(--vn-bg-surface);
+    border: 1px solid var(--vn-border);
+    border-radius: var(--vn-radius-md);
+    position: relative;
+    overflow: hidden;
+    cursor: text;
+    transition: background-color var(--vn-dur-fast) var(--vn-ease-standard),
+                border-color var(--vn-dur-fast) var(--vn-ease-standard),
+                box-shadow var(--vn-dur-base) var(--vn-ease-standard);
+  }
+  .urlbar:hover { border-color: var(--vn-border-strong); }
+  .urlbar.is-focused {
+    background: var(--vn-bg-raised);
+    border-color: var(--vn-accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--vn-accent) 20%, transparent);
+  }
+
+  /* Загрузка: волна по нижней кромке вместо отдельной полосы прогресса. */
+  .urlbar.is-loading::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent,
+                var(--vn-accent) 42%, var(--vn-ember-200) 50%,
+                var(--vn-accent) 58%, transparent);
+    animation: vn-progress-sweep 1.15s var(--vn-ease-standard) infinite;
+  }
+
+  /* Щит: фирменный элемент. Отделён от адреса тонкой чертой. */
+  .shield {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    height: 24px;
+    padding-inline: 6px;
+    border-radius: var(--vn-radius-xs);
+    color: var(--vn-guard);
+    cursor: default;
+    flex: none;
+    transition: background-color var(--vn-dur-fast) var(--vn-ease-standard);
+  }
+  .shield:hover { background: var(--vn-bg-hover); }
+  .shield .icon { transition: transform var(--vn-dur-fast) var(--vn-ease-standard); }
+  .shield.is-blocking .icon { animation: vn-shield-pulse var(--vn-dur-slower) var(--vn-ease-spring); }
+  .shield .count {
+    font-size: var(--vn-text-xs);
+    font-variant-numeric: tabular-nums;
+    min-width: 14px;
+  }
+  .shield.is-blocking .count { animation: vn-counter-tick var(--vn-dur-base) var(--vn-ease-decel); }
+
+  .divider {
+    width: 1px; height: 16px;
+    background: var(--vn-border);
+    flex: none;
+  }
+
+  .lock { color: var(--vn-guard); flex: none; }
+
+  .url {
+    flex: 1;
+    color: var(--vn-fg-muted);
+    font-size: var(--vn-text-md);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  /* Домен читается, путь приглушён — подмену домена видно сразу. */
+  .url b { color: var(--vn-fg-primary); font-weight: 500; }
+
+  /* ===== Панель защиты ==================================================== */
+  .protections {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    width: 320px;
+    background: var(--vn-bg-surface);
+    border: 1px solid var(--vn-border);
+    border-radius: var(--vn-radius-lg);
+    box-shadow: var(--vn-shadow-lg);
+    padding: var(--vn-space-4);
+    z-index: 10;
+    transform-origin: top left;
+  }
+  .protections[hidden] { display: none; }
+  .protections.is-open { animation: vn-drop-in var(--vn-dur-base) var(--vn-ease-decel); }
+
+  .protections h3 {
+    font-size: var(--vn-text-md);
+    font-weight: 600;
+    margin-bottom: var(--vn-space-2);
+  }
+  .protections .lead {
+    font-size: var(--vn-text-sm);
+    color: var(--vn-fg-muted);
+    line-height: 1.5;
+    margin-bottom: var(--vn-space-4);
+  }
+
+  .prot-row {
+    display: flex;
+    align-items: center;
+    gap: var(--vn-space-3);
+    padding: 7px var(--vn-space-2);
+    border-radius: var(--vn-radius-sm);
+    font-size: var(--vn-text-sm);
+    transition: background-color var(--vn-dur-instant) var(--vn-ease-standard);
+  }
+  .prot-row:hover { background: var(--vn-bg-hover); }
+  .prot-row .name { flex: 1; color: var(--vn-fg-secondary); }
+  .prot-row .n {
+    font-variant-numeric: tabular-nums;
+    color: var(--vn-guard);
+  }
+  .prot-row .bar {
+    width: 52px; height: 3px;
+    border-radius: var(--vn-radius-pill);
+    background: var(--vn-border);
+    overflow: hidden;
+  }
+  .prot-row .bar i {
+    display: block; height: 100%;
+    background: var(--vn-guard);
+    border-radius: inherit;
+    transform-origin: left;
+    animation: vn-bar-grow var(--vn-dur-slow) var(--vn-ease-decel) backwards;
+  }
+
+  /* ===== Область контента ================================================= */
+  .content {
+    min-height: 250px;
+    padding: 52px var(--vn-space-6) 40px;
+    background: var(--vn-bg-window);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .search-box {
+    width: min(520px, 100%);
+    display: flex;
+    align-items: center;
+    gap: var(--vn-space-3);
+    height: 44px;
+    padding-inline: var(--vn-space-4);
+    background: var(--vn-bg-surface);
+    border: 1px solid var(--vn-border);
+    border-radius: var(--vn-radius-md);
+    color: var(--vn-fg-muted);
+    transition: border-color var(--vn-dur-fast) var(--vn-ease-standard),
+                box-shadow var(--vn-dur-base) var(--vn-ease-standard);
+  }
+  .search-box:hover { border-color: var(--vn-border-strong); }
+
+  /* Строка состояния: сдержанная, без «карточек с цифрами». */
+  .status {
+    margin-top: 40px;
+    display: flex;
+    align-items: center;
+    gap: var(--vn-space-5);
+    font-size: var(--vn-text-sm);
+    color: var(--vn-fg-muted);
+  }
+  .status b {
+    color: var(--vn-fg-secondary);
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+  }
+  .status .sep { width: 1px; height: 12px; background: var(--vn-border); }
+
+  /* ===== Секции превью =================================================== */
+  section { margin-top: 56px; }
+  section > h2 {
+    font-size: var(--vn-text-sm);
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--vn-fg-muted);
+    padding-bottom: var(--vn-space-3);
+    border-bottom: 1px solid var(--vn-border);
+    margin-bottom: var(--vn-space-5);
+  }
+
+  .grid-icons {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+    gap: var(--vn-space-2);
+  }
+  .icon-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--vn-space-3);
+    padding: var(--vn-space-4) var(--vn-space-2);
+    border-radius: var(--vn-radius-md);
+    color: var(--vn-fg-secondary);
+    transition: background-color var(--vn-dur-fast) var(--vn-ease-standard),
+                color var(--vn-dur-fast) var(--vn-ease-standard);
+  }
+  .icon-cell:hover { background: var(--vn-bg-hover); color: var(--vn-fg-primary); }
+  .icon-cell .icon { width: 22px; height: 22px; }
+  .icon-cell .n {
+    font-size: 10px;
+    font-family: var(--vn-font-mono);
+    color: var(--vn-fg-muted);
+    text-align: center;
+  }
+
+  .grid-palette {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(104px, 1fr));
+    gap: var(--vn-space-3);
+  }
+  .swatch { border-radius: var(--vn-radius-md); overflow: hidden; border: 1px solid var(--vn-border); }
+  .swatch .chip { height: 48px; }
+  .swatch .meta { padding: 7px var(--vn-space-3); background: var(--vn-bg-surface); }
+  .swatch .meta b { display: block; font-size: var(--vn-text-xs); font-weight: 500; }
+  .swatch .meta span { font-family: var(--vn-font-mono); font-size: 10px; color: var(--vn-fg-muted); }
+
+  .note {
+    margin-top: var(--vn-space-5);
+    font-size: var(--vn-text-sm);
+    color: var(--vn-fg-muted);
+    line-height: 1.7;
+    max-width: 66ch;
+  }
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="head">
+    <h1>Vantara</h1>
+    <span class="sub">превью интерфейса</span>
+    <span class="spacer"></span>
+    <div class="theme-switch" id="theme">
+      <button data-theme="dark"  aria-pressed="true">Тёмная</button>
+      <button data-theme="light" aria-pressed="false">Светлая</button>
+    </div>
+  </div>
+
+  <!-- ===================== Окно браузера ===================== -->
+  <div class="window">
+    <div class="chrome">
+
+      <div class="tabstrip">
+        <div class="tab is-active">
+          <img class="dot" src="../../brand/icons/vantara-32.png" alt="">
+          <span class="label">Новая вкладка</span>
+          <span class="close"><svg class="icon"><use href="../../ui/chrome/vantara/icons/sprite.svg#vn-close"/></svg></span>
+        </div>
+        <div class="tab">
+          <span class="dot" style="background:var(--vn-steel-500)"></span>
+          <span class="label">Firefox Source Docs</span>
+          <span class="close"><svg class="icon"><use href="../../ui/chrome/vantara/icons/sprite.svg#vn-close"/></svg></span>
+        </div>
+        <div class="tab">
+          <span class="dot" style="background:var(--vn-wood-500)"></span>
+          <span class="label">GitHub — Vantara</span>
+          <span class="close"><svg class="icon"><use href="../../ui/chrome/vantara/icons/sprite.svg#vn-close"/></svg></span>
+        </div>
+        <div class="newtab"><svg class="icon"><use href="../../ui/chrome/vantara/icons/sprite.svg#vn-plus"/></svg></div>
+      </div>
+
+      <div class="navbar">
+        <div class="navbtn is-off"><svg class="icon"><use href="../../ui/chrome/vantara/icons/sprite.svg#vn-back"/></svg></div>
+        <div class="navbtn is-off"><svg class="icon"><use href="../../ui/chrome/vantara/icons/sprite.svg#vn-forward"/></svg></div>
+        <div class="navbtn"><svg class="icon"><use href="../../ui/chrome/vantara/icons/sprite.svg#vn-reload"/></svg></div>
+
+        <div class="urlbar-wrap">
+          <div class="urlbar" id="urlbar">
+            <div class="shield" id="shield" title="Заблокировано на этой странице">
+              <svg class="icon icon-sm"><use href="../../ui/chrome/vantara/icons/sprite.svg#vn-shield"/></svg>
+              <span class="count" id="count">14</span>
+            </div>
+            <span class="divider"></span>
+            <svg class="icon icon-sm lock"><use href="../../ui/chrome/vantara/icons/sprite.svg#vn-lock"/></svg>
+            <span class="url"><b>vantara.browser</b>/privacy/threat-model</span>
+            <div class="navbtn" style="width:24px;height:24px">
+              <svg class="icon icon-sm"><use href="../../ui/chrome/vantara/icons/sprite.svg#vn-star"/></svg>
+            </div>
+          </div>
+
+          <div class="protections" id="prot" hidden>
+            <h3>Защита включена</h3>
+            <p class="lead">На этой странице заблокировано <b id="prot-total">14</b> попыток
+               отследить вас. Ни одна не ушла в сеть.</p>
+            <div class="prot-row">
+              <span class="name">Трекеры</span>
+              <span class="bar"><i style="width:80%;animation-delay:40ms"></i></span>
+              <span class="n">8</span>
+            </div>
+            <div class="prot-row">
+              <span class="name">Сторонние куки</span>
+              <span class="bar"><i style="width:40%;animation-delay:100ms"></i></span>
+              <span class="n">4</span>
+            </div>
+            <div class="prot-row">
+              <span class="name">Снятие отпечатка</span>
+              <span class="bar"><i style="width:20%;animation-delay:160ms"></i></span>
+              <span class="n">2</span>
+            </div>
+            <div class="prot-row">
+              <span class="name">Майнеры</span>
+              <span class="bar"><i style="width:0%;animation-delay:220ms"></i></span>
+              <span class="n" style="color:var(--vn-fg-muted)">0</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="navbtn"><svg class="icon"><use href="../../ui/chrome/vantara/icons/sprite.svg#vn-sidebar"/></svg></div>
+        <div class="navbtn"><svg class="icon"><use href="../../ui/chrome/vantara/icons/sprite.svg#vn-download"/></svg></div>
+        <div class="navbtn"><svg class="icon"><use href="../../ui/chrome/vantara/icons/sprite.svg#vn-menu"/></svg></div>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="search-box">
+        <svg class="icon icon-sm"><use href="../../ui/chrome/vantara/icons/sprite.svg#vn-search"/></svg>
+        <span>Поиск или адрес</span>
+      </div>
+
+      <div class="status">
+        <span>Заблокировано за всё время <b id="total">1 284</b></span>
+        <span class="sep"></span>
+        <span>Отправлено о вас <b>0</b></span>
+      </div>
+    </div>
+  </div>
+
+  <p class="note">
+    Щит слева в адресной строке — по клику открывается панель защиты. Счётчик
+    растёт в реальном времени, адресная строка показывает загрузку волной
+    по нижней кромке. Наведите курсор на вкладки и кнопки: отклик на наведение
+    и нажатие — часть интерфейса, а не украшение.
+  </p>
+
+  <!-- ===================== Иконки ===================== -->
+  <section>
+    <h2>Набор иконок</h2>
+    <div class="grid-icons" id="icons"></div>
+    <p class="note">
+      Сетка 24×24, обводка 1.6, рубленая геометрия — форма перекликается
+      со скандинавскими линиями логотипа. Щит с диагональным крестом —
+      прямая отсылка к скрещённым топорам. Набор генерируется скриптом
+      из одного описания, поэтому иконки не могут разъехаться по стилю.
+    </p>
+  </section>
+
+  <!-- ===================== Палитра ===================== -->
+  <section>
+    <h2>Палитра</h2>
+    <div class="grid-palette" id="palette"></div>
+  </section>
+
+</div>
+
+<script>
+  const SPRITE = '../../ui/chrome/vantara/icons/sprite.svg';
+
+  /* --- Переключатель темы ------------------------------------------------- */
+  document.getElementById('theme').addEventListener('click', e => {
+    const btn = e.target.closest('button');
+    if (!btn) return;
+    document.documentElement.setAttribute('vn-theme', btn.dataset.theme);
+    for (const b of e.currentTarget.children) {
+      b.setAttribute('aria-pressed', String(b === btn));
+    }
+  });
+
+  /* --- Адресная строка: фокус -------------------------------------------- */
+  const urlbar = document.getElementById('urlbar');
+  const shield = document.getElementById('shield');
+  const prot   = document.getElementById('prot');
+
+  urlbar.addEventListener('click', e => {
+    if (shield.contains(e.target)) return;
+    urlbar.classList.add('is-focused');
+  });
+
+  /* --- Панель защиты ------------------------------------------------------ */
+  shield.addEventListener('click', e => {
+    e.stopPropagation();
+    const open = !prot.hidden;
+    prot.hidden = open;
+    if (!open) {
+      prot.classList.remove('is-open');
+      void prot.offsetWidth;          // перезапуск анимации
+      prot.classList.add('is-open');
+    }
+  });
+
+  document.addEventListener('click', e => {
+    if (!urlbar.contains(e.target)) urlbar.classList.remove('is-focused');
+    if (!prot.contains(e.target) && !shield.contains(e.target)) prot.hidden = true;
+  });
+
+  /* --- Живые счётчики -----------------------------------------------------
+     В браузере это придёт событиями движка; здесь — имитация, чтобы видеть
+     поведение анимаций в динамике.                                          */
+  const count = document.getElementById('count');
+  const total = document.getElementById('total');
+  const protTotal = document.getElementById('prot-total');
+
+  let blocked = 14, allTime = 1284;
+
+  setInterval(() => {
+    blocked++; allTime++;
+    count.textContent = blocked;
+    protTotal.textContent = blocked;
+    total.textContent = allTime.toLocaleString('ru-RU');
+    shield.classList.add('is-blocking');
+    setTimeout(() => shield.classList.remove('is-blocking'), 560);
+  }, 3000);
+
+  setInterval(() => {
+    urlbar.classList.add('is-loading');
+    setTimeout(() => urlbar.classList.remove('is-loading'), 2300);
+  }, 8000);
+
+  /* --- Каталог иконок: читается из самого спрайта ------------------------- */
+  fetch(SPRITE)
+    .then(r => r.text())
+    .then(text => {
+      const doc = new DOMParser().parseFromString(text, 'image/svg+xml');
+      const names = [...doc.querySelectorAll('symbol')].map(s => s.id.replace(/^vn-/, ''));
+      document.getElementById('icons').innerHTML = names.map(n => `
+        <div class="icon-cell" title="${n}">
+          <svg class="icon"><use href="${SPRITE}#vn-${n}"/></svg>
+          <span class="n">${n}</span>
+        </div>`).join('');
+    });
+
+  /* --- Палитра строится из токенов, а не из отдельного списка ------------- */
+  const TOKENS = [
+    ['--vn-bg-window',  'Корпус'],
+    ['--vn-bg-surface', 'Поверхность'],
+    ['--vn-bg-raised',  'Над слоем'],
+    ['--vn-wood-600',   'Дуб'],
+    ['--vn-accent',     'Акцент'],
+    ['--vn-ember-200',  'Кромка'],
+    ['--vn-guard',      'Защита'],
+    ['--vn-warn',       'Внимание'],
+    ['--vn-threat',     'Угроза'],
+  ];
+
+  function paintPalette() {
+    const css = getComputedStyle(document.documentElement);
+    document.getElementById('palette').innerHTML = TOKENS.map(([t, name]) => {
+      const v = css.getPropertyValue(t).trim();
+      return `<div class="swatch">
+                <div class="chip" style="background:${v}"></div>
+                <div class="meta"><b>${name}</b><span>${v}</span></div>
+              </div>`;
+    }).join('');
+  }
+  paintPalette();
+  new MutationObserver(paintPalette).observe(document.documentElement,
+    { attributes: true, attributeFilter: ['vn-theme'] });
+</script>
+</body>
+</html>

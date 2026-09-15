@@ -1,0 +1,147 @@
+"""Набор иконок Vantara.
+
+Источник правды — словарь ICONS ниже. Скрипт генерирует из него
+отдельные SVG-файлы и общий спрайт.
+
+Правила набора (нарушать нельзя, иначе набор развалится на «почти похожие»):
+  * Сетка 24x24, рабочая область 20x20 — по 2px поля со всех сторон.
+  * Обводка 1.6, без заливок. Заливка только у парных «активных»
+    состояний (звезда, закладка), и тогда обводка убирается.
+  * Геометрия рубленая: прямые, углы 45 и 90 градусов, минимум кривых.
+    Это перекликается со скандинавскими формами логотипа.
+  * Скругление на стыках — round. Голая геометрия в мелком размере
+    выглядит дёшево, скругление даёт мягкость без потери характера.
+  * Оптическая компенсация: диагональные и круглые формы делаются
+    на 3-5% крупнее прямоугольных, иначе кажутся мельче соседей.
+"""
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+OUT = ROOT / "ui" / "chrome" / "vantara" / "icons"
+
+STROKE = "1.6"
+
+# Каждое значение: (описание, содержимое SVG, залитая ли иконка)
+ICONS: dict[str, tuple[str, str, bool]] = {
+
+    # --- Навигация ---------------------------------------------------------
+    "back": ("Назад", '<path d="M14.5 5.5 8 12l6.5 6.5"/>', False),
+    "forward": ("Вперёд", '<path d="M9.5 5.5 16 12l-6.5 6.5"/>', False),
+
+    # Дуга разомкнута сверху справа — там, где стрелка, иначе стык
+    # обводки и наконечника даёт утолщение.
+    "reload": ("Обновить",
+               '<path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3"/>'
+               '<path d="M19.5 4.5V9H15"/>', False),
+    "stop": ("Остановить", '<path d="M6.5 6.5 17.5 17.5M17.5 6.5 6.5 17.5"/>', False),
+    "home": ("Домой",
+             '<path d="M3.5 11 12 4l8.5 7"/>'
+             '<path d="M6 9.8V19.5h12V9.8"/>', False),
+
+    # --- Безопасность ------------------------------------------------------
+    # Щит с диагональным крестом — прямая отсылка к скрещённым топорам
+    # логотипа. Главный фирменный знак интерфейса.
+    "shield": ("Щит: защита активна",
+               '<path d="M12 3.2 19 6v5.6c0 4.3-2.8 8-7 9.2-4.2-1.2-7-4.9-7-9.2V6l7-2.8z"/>'
+               '<path d="m9.6 9.6 4.8 4.8M14.4 9.6l-4.8 4.8"/>', False),
+    "shield-off": ("Щит: защита снята",
+                   '<path d="M12 3.2 19 6v5.6c0 4.3-2.8 8-7 9.2-4.2-1.2-7-4.9-7-9.2V6l7-2.8z"/>'
+                   '<path d="M8.5 12h7"/>', False),
+    "lock": ("Соединение защищено",
+             '<rect x="5" y="10.5" width="14" height="9" rx="2.2"/>'
+             '<path d="M8.2 10.5V7.8a3.8 3.8 0 0 1 7.6 0v2.7"/>', False),
+    "lock-open": ("Соединение не защищено",
+                  '<rect x="5" y="10.5" width="14" height="9" rx="2.2"/>'
+                  '<path d="M8.2 10.5V7.8a3.8 3.8 0 0 1 7.3-1.3"/>', False),
+
+    # --- Вкладки и окна ----------------------------------------------------
+    "plus": ("Новая вкладка", '<path d="M12 5.5v13M5.5 12h13"/>', False),
+    "close": ("Закрыть", '<path d="M7 7l10 10M17 7L7 17"/>', False),
+    "sidebar": ("Боковая панель",
+                '<rect x="3.5" y="4.5" width="17" height="15" rx="2.2"/>'
+                '<path d="M9.5 4.5v15"/>', False),
+    "split": ("Разделить экран",
+              '<rect x="3.5" y="4.5" width="17" height="15" rx="2.2"/>'
+              '<path d="M12 4.5v15"/>', False),
+    "pin": ("Закрепить",
+            '<path d="M9.2 4h5.6l-.9 5.8 2.9 2.9H7.2l2.9-2.9L9.2 4z"/>'
+            '<path d="M12 12.7v7.3"/>', False),
+
+    # --- Панель ------------------------------------------------------------
+    "menu": ("Меню", '<path d="M4.5 7h15M4.5 12h15M4.5 17h15"/>', False),
+    "search": ("Поиск",
+               '<circle cx="11" cy="11" r="6.2"/>'
+               '<path d="m15.6 15.6 4 4"/>', False),
+    "download": ("Загрузки",
+                 '<path d="M12 4v10.5m0 0L8.2 10.7M12 14.5l3.8-3.8"/>'
+                 '<path d="M5 18.5h14"/>', False),
+    "history": ("История",
+                '<path d="M4.2 12a7.8 7.8 0 1 0 2.4-5.6"/>'
+                '<path d="M3.8 4.6V9h4.4"/>'
+                '<path d="M12 7.8V12l2.9 1.9"/>', False),
+    "settings": ("Настройки",
+                 '<path d="M4 7.5h8M16.5 7.5h3.5"/>'
+                 '<path d="M4 16.5h3.5M12 16.5h8"/>'
+                 '<circle cx="14.2" cy="7.5" r="2.3"/>'
+                 '<circle cx="9.8" cy="16.5" r="2.3"/>', False),
+
+    # --- Закладки: парные состояния ---------------------------------------
+    "bookmark": ("Закладка",
+                 '<path d="M6.5 4.5h11v15l-5.5-4.2-5.5 4.2v-15z"/>', False),
+    "bookmark-on": ("Закладка сохранена",
+                    '<path d="M6.5 4.5h11v15l-5.5-4.2-5.5 4.2v-15z"/>', True),
+    "star": ("В избранное",
+             '<path d="m12 4 2.6 5.4 5.9.8-4.3 4.1 1 5.9L12 17.4 6.8 20.2l1-5.9-4.3-4.1 5.9-.8L12 4z"/>',
+             False),
+    "star-on": ("В избранном",
+                '<path d="m12 4 2.6 5.4 5.9.8-4.3 4.1 1 5.9L12 17.4 6.8 20.2l1-5.9-4.3-4.1 5.9-.8L12 4z"/>',
+                True),
+
+    # --- Приватность -------------------------------------------------------
+    "private": ("Приватное окно",
+                '<path d="M3.5 13h17"/>'
+                '<path d="M5.5 13 7.2 7.5h9.6L18.5 13"/>'
+                '<circle cx="7.8" cy="16.2" r="2.6"/>'
+                '<circle cx="16.2" cy="16.2" r="2.6"/>', False),
+    "eye-off": ("Скрыто",
+                '<path d="M4 12s3.2-5.5 8-5.5c1.5 0 2.8.5 3.9 1.2"/>'
+                '<path d="M18.6 9.4A13 13 0 0 1 20 12s-3.2 5.5-8 5.5c-1 0-1.9-.2-2.7-.5"/>'
+                '<path d="M5 19 19 5"/>', False),
+}
+
+SVG_OPEN = ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" '
+            'width="24" height="24" fill="none" stroke="currentColor" '
+            f'stroke-width="{STROKE}" stroke-linecap="round" stroke-linejoin="round">')
+
+SVG_OPEN_FILLED = ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" '
+                   'width="24" height="24" fill="currentColor" stroke="currentColor" '
+                   f'stroke-width="{STROKE}" stroke-linejoin="round">')
+
+
+def build() -> None:
+    OUT.mkdir(parents=True, exist_ok=True)
+
+    for name, (title, body, filled) in ICONS.items():
+        head = SVG_OPEN_FILLED if filled else SVG_OPEN
+        svg = f'{head}\n  <title>{title}</title>\n  {body}\n</svg>\n'
+        (OUT / f"{name}.svg").write_text(svg, encoding="utf-8")
+
+    # Спрайт: один файл для превью и веб-страниц проекта.
+    parts = ['<svg xmlns="http://www.w3.org/2000/svg" style="display:none">']
+    for name, (title, body, filled) in ICONS.items():
+        attrs = ('fill="currentColor" stroke="currentColor" stroke-linejoin="round"'
+                 if filled else
+                 'fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"')
+        parts.append(
+            f'  <symbol id="vn-{name}" viewBox="0 0 24 24" {attrs} '
+            f'stroke-width="{STROKE}"><title>{title}</title>{body}</symbol>')
+    parts.append('</svg>\n')
+    (OUT / "sprite.svg").write_text("\n".join(parts), encoding="utf-8")
+
+    print(f"Иконок: {len(ICONS)}")
+    print(f"Каталог: {OUT.relative_to(ROOT)}")
+    print("Спрайт: sprite.svg")
+
+
+if __name__ == "__main__":
+    build()

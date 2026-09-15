@@ -1,0 +1,16 @@
+# Нормализация переводов строк.
+# В репозитории всегда LF: браузер будет собираться и на Linux, где CRLF
+# ломает shell-скрипты и патчи Mozilla.
+* text=auto eol=lf
+
+# Скрипты PowerShell остаются с CRLF: это их родной формат на Windows.
+*.ps1 text eol=crlf
+
+# Бинарные файлы не трогать.
+*.png  binary
+*.ico  binary
+*.icns binary
+*.jpg  binary
+*.webp binary
+*.woff  binary
+*.woff2 binary
