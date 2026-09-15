@@ -1,0 +1,110 @@
+name: Проверки
+
+# Быстрые проверки на каждое изменение. Сборку браузера они не трогают:
+# она требует часов и десятков гигабайт, для неё будет отдельный запуск
+# по тегу. Здесь только то, что успевает отработать за минуту.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  tests:
+    name: Разбор адресной строки
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      # Логика решает, уйдёт ли введённое в поисковую систему. Ошибка
+      # здесь — утечка внутреннего адреса наружу, поэтому проверка
+      # обязательная, а не опциональная.
+      - name: Тесты
+        run: node tools/test-url-parse.mjs
+
+  styles:
+    name: Целостность интерфейса
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # Незакрытая скобка в CSS не ломает сборку — она тихо отключает
+      # часть правил. Поэтому проверяется отдельно.
+      - name: Синтаксис и токены
+        run: |
+          python - <<'EOF'
+          import re, sys
+          from pathlib import Path
+
+          root = Path("ui/chrome")
+          problems = []
+
+          for f in sorted(root.rglob("*.css")):
+              text = f.read_text(encoding="utf-8")
+              stripped = re.sub(r'/\*.*?\*/', '', text, flags=re.S)
+              braces = stripped.count("{") - stripped.count("}")
+              comments = text.count("/*") - text.count("*/")
+              if braces:
+                  problems.append(f"{f}: дисбаланс скобок {braces:+d}")
+              if comments:
+                  problems.append(f"{f}: незакрытый комментарий")
+
+          # Точка входа: @import обязан идти раньше @namespace, иначе
+          # все импорты молча игнорируются и интерфейс не применяется.
+          entry = (root / "userChrome.css").read_text(encoding="utf-8")
+          ns = entry.find("@namespace")
+          last_import = entry.rfind("@import")
+          if ns != -1 and last_import > ns:
+              problems.append("userChrome.css: @import после @namespace — импорты не сработают")
+
+          # Каждый использованный токен должен быть объявлен.
+          declared = set(re.findall(r'(--vn-[\w-]+)\s*:',
+                                    (root / "vantara" / "tokens.css").read_text(encoding="utf-8")))
+          used = set()
+          for f in list(root.rglob("*.css")) + list(Path("ui/pages").rglob("*.css")):
+              used |= set(re.findall(r'var\((--vn-[\w-]+)', f.read_text(encoding="utf-8")))
+          for token in sorted(used - declared):
+              problems.append(f"токен не объявлен: {token}")
+
+          if problems:
+              print("\n".join(problems))
+              sys.exit(1)
+          print("Интерфейс цел")
+          EOF
+
+  icons:
+    name: Набор иконок
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - run: pip install pillow
+
+      # Иконки генерируются из одного описания. Если сгенерированное
+      # разошлось с тем, что в репозитории, значит файлы правили руками —
+      # и набор начал расползаться по стилю.
+      - name: Иконки соответствуют описанию
+        run: |
+          python tools/build_icons.py
+          if ! git diff --quiet ui/chrome/vantara/icons/; then
+            echo "Иконки в репозитории отличаются от сгенерированных:"
+            git diff --stat ui/chrome/vantara/icons/
+            echo
+            echo "Править нужно tools/build_icons.py, а не сами SVG."
+            exit 1
+          fi
+          echo "Набор иконок согласован"
