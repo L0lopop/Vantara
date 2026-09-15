@@ -75,10 +75,15 @@ $machArgs   = ($Arguments | ForEach-Object { "'$_'" }) -join ' '
 # Без этого сборка падает на "Could not determine home directory".
 $userProfile = $env:USERPROFILE
 
+# DISABLE_TELEMETRY=1 обязателен, и не только из принципа. Без него mach
+# при первом запуске обращается к Bugzilla и спрашивает согласие на сбор
+# данных о сборке. В неинтерактивном запуске ответить некому, и процесс
+# просто висит: ни вывода, ни нагрузки на процессор, ни ошибки.
 $command = @(
     "export PATH=/c/mozilla-build/python3:/c/mozilla-build/bin:`$PATH",
     "export USERPROFILE='$userProfile'",
     "export MOZBUILD_STATE_PATH='$stateMsys'",
+    "export DISABLE_TELEMETRY=1",
     "cd '$engineMsys'",
     "./mach $machArgs"
 ) -join ' && '
@@ -88,5 +93,37 @@ Write-Host "  состояние сборки: $StateDir" -ForegroundColor DarkG
 Write-Host ''
 
 $env:MOZILLABUILD = $MozBuild
-& $Bash -l -c $command
-exit $LASTEXITCODE
+
+# Запуск через Start-Process, а не через `& $Bash`: PowerShell 5.1
+# превращает любую строку из stderr нативной программы в ошибку и обрывает
+# выполнение. Профиль msys2 пишет туда безобидное сообщение stty, и этого
+# достаточно, чтобы сборка «падала» на первой секунде.
+#
+# Вывод идёт в файлы и одновременно печатается: сборка длится часами,
+# и смотреть на неё надо по ходу дела, а не после.
+$outLog = Join-Path $StateDir 'mach-out.log'
+$errLog = Join-Path $StateDir 'mach-err.log'
+
+$process = Start-Process -FilePath $Bash `
+    -ArgumentList '-l', '-c', $command `
+    -NoNewWindow -Wait -PassThru `
+    -RedirectStandardOutput $outLog `
+    -RedirectStandardError $errLog
+
+if (Test-Path $outLog) { Get-Content $outLog }
+
+# stty из профиля msys2 — не ошибка, показывать его незачем.
+if (Test-Path $errLog) {
+    Get-Content $errLog | Where-Object { $_ -notmatch 'stty:|Inappropriate ioctl' } |
+        ForEach-Object { Write-Host $_ -ForegroundColor Yellow }
+}
+
+Write-Host ''
+if ($process.ExitCode -eq 0) {
+    Write-Host '  Готово' -ForegroundColor Green
+} else {
+    Write-Host "  mach завершился с кодом $($process.ExitCode)" -ForegroundColor Red
+    Write-Host "  Полный вывод: $outLog" -ForegroundColor DarkGray
+}
+
+exit $process.ExitCode

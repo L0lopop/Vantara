@@ -15,8 +15,11 @@ ac_add_options --with-branding=${brandingDir}
 
 export MOZ_USER_DIR="${name}"
 export MOZ_APP_BASENAME=${binName}
-export MOZ_APP_VENDOR="${vendor}"
 export MOZ_DISTRIBUTION_ID=${appId}
+
+# MOZ_APP_VENDOR здесь не задаётся: configure принимает его только как
+# производное значение и отвергает любую установку из mozconfig.
+# Вендор приходит из брендинга — browser/branding/stable/configure.sh.
 
 # --- Происхождение сборки ----------------------------------------------------
 # MPL 2.0 требует, чтобы получатель мог найти исходники изменённых файлов.
@@ -28,17 +31,17 @@ export MOZ_SOURCE_CHANGESET=${changeset}
 # --- Сбор данных: вырезано на уровне компиляции ------------------------------
 # Пустое значение переменной означает, что подсистема не собирается вовсе.
 mk_add_options MOZ_TELEMETRY_REPORTING=
-mk_add_options MOZ_DATA_REPORTING=
-mk_add_options MOZ_SERVICES_HEALTHREPORT=
-
 export MOZ_TELEMETRY_REPORTING=
-export MOZ_DATA_REPORTING=
-export MOZ_SERVICES_HEALTHREPORT=
 
-# Normandy — система удалённого включения экспериментов на машине
-# пользователя. Для браузера о приватности это посторонний канал
-# управления, поэтому его нет в сборке.
-export MOZ_NORMANDY=
+# Остальные подсистемы сбора данных отсюда не отключить. Их значения
+# заданы в исходниках Firefox как implied, и попытка установить их в
+# mozconfig не игнорируется, а останавливает сборку:
+#
+#   MOZ_SERVICES_HEALTHREPORT  — browser/moz.configure, снят патчем
+#   MOZ_NORMANDY               — browser/moz.configure, снят патчем
+#   MOZ_DATA_REPORTING         — вычисляется из двух предыдущих
+#
+# См. src/browser/moz-configure.patch.
 
 # --- Сборка ------------------------------------------------------------------
 ac_add_options --enable-optimize

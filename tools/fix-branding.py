@@ -108,6 +108,31 @@ def fix_nsis() -> int:
     return before - after
 
 
+def fix_vendor() -> None:
+    """Убирает MOZ_APP_VENDOR из configure.sh брендинга.
+
+    Задать вендора здесь нельзя: configure принимает это значение только
+    как производное и падает с «can not be set by confvars». Ни mozconfig,
+    ни брендинг его не перекрывают — оно вшито прямо в исходники Firefox,
+    в browser/moz.configure, и меняется патчем (см. patches/).
+
+    Строка появляется, если её добавили по ошибке; функция её снимает,
+    чтобы сборка не падала.
+    """
+    path = BRANDING / "configure.sh"
+    if not path.exists():
+        print(f"  ПРОПУСК: нет {path.relative_to(ROOT)}")
+        return
+
+    text = path.read_text(encoding="utf-8")
+    if "MOZ_APP_VENDOR" not in text:
+        return
+
+    text = re.sub(r'^MOZ_APP_VENDOR=.*\n?', '', text, flags=re.M)
+    path.write_text(text, encoding="utf-8")
+    print("  configure.sh: убран MOZ_APP_VENDOR (здесь он недопустим)")
+
+
 def scan_rest() -> list[str]:
     """Ищет чужие адреса, оставшиеся где-то ещё в каталоге брендинга."""
     leftovers = []
@@ -132,6 +157,7 @@ def main() -> int:
 
     print("Чистка брендинга")
     fixed = fix_prefs() + fix_nsis()
+    fix_vendor()
 
     leftovers = scan_rest()
     print()

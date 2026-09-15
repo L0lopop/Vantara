@@ -1,0 +1,36 @@
+diff --git a/browser/moz.configure b/browser/moz.configure
+index 446e8637d053b1d6972d0a1b712d75322b011a17..e85913b4ef75f559f7e331ad332b4c1bd097a271 100644
+--- a/browser/moz.configure
++++ b/browser/moz.configure
+@@ -3,16 +3,27 @@
+ # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ 
+ imply_option("MOZ_PLACES", True)
+-imply_option("MOZ_SERVICES_HEALTHREPORT", True)
++# Vantara: Health Report — канал отправки данных о состоянии браузера.
++# Отключается только здесь: значение задано implied, и mozconfig его
++# не перекрывает, а попытка установки останавливает сборку.
++imply_option("MOZ_SERVICES_HEALTHREPORT", False)
+ imply_option("MOZ_SERVICES_SYNC", True)
+ imply_option("MOZ_DEDICATED_PROFILES", True)
+ imply_option("MOZ_BLOCK_PROFILE_DOWNGRADE", True)
+-imply_option("MOZ_NORMANDY", True)
++# Vantara: Normandy отключён. Это канал, по которому производитель
++# удалённо включает эксперименты на машине пользователя. Отключения
++# в mozconfig недостаточно — значение задаётся здесь и перекрывает его.
++imply_option("MOZ_NORMANDY", False)
+ imply_option("MOZ_PROFILE_MIGRATOR", True)
+ 
+ 
+-imply_option("MOZ_APP_VENDOR", "Mozilla")
+-imply_option("MOZ_APP_ID", "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}")
++# Vantara: вендор попадает в application.ini, в путь профиля и в
++# видимые пользователю поля. Значение вшито здесь, и ни mozconfig,
++# ни брендинг его не перекрывают — только правка этой строки.
++imply_option("MOZ_APP_VENDOR", "Vantara")
++# Vantara: свой идентификатор приложения. С идентификатором Firefox
++# форк делил бы с ним профили, установки и канал обновлений.
++imply_option("MOZ_APP_ID", "{911e60a9-5c4d-541e-a683-aa13da7cd6a9}")
+ # Include the DevTools client, not just the server (which is the default)
+ imply_option("MOZ_DEVTOOLS", "all")
+ imply_option("BROWSER_CHROME_URL", "chrome://browser/content/browser.xhtml")
