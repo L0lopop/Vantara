@@ -7,7 +7,9 @@
    как chrome://vantara/skin/, см. docs/ARCHITECTURE.md.
    ========================================================================== */
 
-@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+/* Порядок правил задан спецификацией CSS: сначала @import, только потом
+   @namespace. При обратном порядке все импорты молча игнорируются —
+   файл выглядит рабочим, а интерфейс остаётся стандартным. */
 
 @import url("vantara/tokens.css");
 @import url("vantara/animations.css");
@@ -15,3 +17,5 @@
 @import url("vantara/tabs.css");
 @import url("vantara/navbar.css");
 @import url("vantara/menus.css");
+
+@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");

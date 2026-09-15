@@ -14,3 +14,7 @@
 *.webp binary
 *.woff  binary
 *.woff2 binary
+
+# PowerShell 5.1 читает .ps1 как ANSI, если в файле нет BOM, и кириллица
+# в строках ломает разбор скрипта. Держим BOM: git не должен его трогать.
+*.ps1 -text

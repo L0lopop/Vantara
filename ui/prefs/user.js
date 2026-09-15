@@ -169,9 +169,36 @@ user_pref("browser.urlbar.suggest.quicksuggest.nonsponsored", false);
 user_pref("browser.urlbar.trending.featureGate", false);
 user_pref("browser.topsites.contile.enabled", false);
 
-/* == 10. Прототипирование интерфейса =======================================
+/* == 10. Первый запуск =====================================================
+ * Firefox на первом старте открывает mozilla.org и показывает экран
+ * согласия с отправкой «данных диагностики и взаимодействия». То есть
+ * браузер выходит в сеть и заводит разговор о телеметрии раньше, чем
+ * пользователь успел что-либо открыть.
+ *
+ * Vantara не собирает телеметрию вовсе, поэтому и согласия спрашивать не о
+ * чем, и ходить за приветственной страницей некуда. Первый запуск должен
+ * быть неотличим от любого следующего: пустая вкладка, ноль запросов.
+ * ========================================================================== */
+user_pref("browser.preonboarding.enabled", false);          /* экран «Условия использования» */
+user_pref("browser.aboutwelcome.enabled", false);           /* обучающий экран */
+user_pref("datareporting.policy.dataSubmissionPolicyBypassNotification", true);
+user_pref("browser.startup.firstrunSkipsHomepage", true);
+user_pref("startup.homepage_welcome_url", "");
+user_pref("startup.homepage_welcome_url.additional", "");
+user_pref("startup.homepage_override_url", "");
+user_pref("browser.startup.homepage_override.mstone", "ignore");  /* нет «что нового» после обновления */
+user_pref("browser.messaging-system.whatsNewPanel.enabled", false);
+user_pref("browser.shell.checkDefaultBrowser", false);
+user_pref("browser.rights.3.shown", true);
+user_pref("toolkit.telemetry.reportingpolicy.firstRun", false);
+
+/* == 11. Прототипирование интерфейса =======================================
  * Нужны, чтобы userChrome.css вообще применялся к готовому Firefox.
  * В собранном форке не требуются: стили там часть пакета.
+ *
+ * Важно: этот флаг начинает действовать только со следующего запуска.
+ * На только что созданном профиле интерфейс останется стандартным —
+ * dev-profile.ps1 из-за этого делает короткий прогревочный запуск.
  * ========================================================================== */
 user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", true);
 user_pref("browser.uidensity", 0);

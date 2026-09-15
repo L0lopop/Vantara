@@ -11,13 +11,18 @@
   padding: var(--vn-space-2) var(--vn-space-3) var(--vn-space-3) !important;
 }
 
-/* --- Адресная строка ------------------------------------------------------- */
+/* --- Адресная строка -------------------------------------------------------
+   Разметка адресной строки менялась в Firefox 157: фон переехал с id
+   #urlbar-background на класс .urlbar-background, а скругление появилось
+   ещё и на .urlbar-input-container. Проверять после обновления движка:
+       python tools/audit-selectors.py
+   -------------------------------------------------------------------------- */
 #urlbar {
   --urlbar-height: var(--vn-urlbar-height) !important;
   font-size: var(--vn-text-md) !important;
 }
 
-#urlbar-background {
+.urlbar-background {
   background: var(--vn-bg-surface) !important;
   border: 1px solid var(--vn-border) !important;
   border-radius: var(--vn-radius-md) !important;
@@ -27,14 +32,22 @@
               box-shadow       var(--vn-dur-base) var(--vn-ease-standard);
 }
 
-#urlbar:hover > #urlbar-background {
+#urlbar:hover > .urlbar-background {
   border-color: var(--vn-border-strong) !important;
 }
 
-#urlbar[focused] > #urlbar-background {
+#urlbar[focused] > .urlbar-background {
   background: var(--vn-bg-raised) !important;
   border-color: var(--vn-accent) !important;
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--vn-accent) 22%, transparent) !important;
+}
+
+/* Внутренний контейнер несёт собственное скругление (24px в Firefox 157).
+   Без этого правила адресная строка остаётся «таблеткой» независимо от
+   того, что задано на фоне. */
+.urlbar-input-container {
+  border-radius: var(--vn-radius-md) !important;
+  padding-inline-start: var(--vn-space-2) !important;
 }
 
 #urlbar-input {
@@ -65,6 +78,17 @@
 
 #identity-box[pageproxystate="valid"].notSecure #identity-icon {
   fill: var(--vn-threat) !important;
+}
+
+/* Индикатор доверия к странице появился в Firefox 157 и стоит левее щита.
+   Приводим к нашей форме, иначе он выбивается скруглением в 15px. */
+#trust-icon-container {
+  border-radius: var(--vn-radius-sm) !important;
+  transition: background-color var(--vn-dur-fast) var(--vn-ease-standard);
+}
+
+#trust-icon-container:hover {
+  background-color: var(--vn-bg-hover) !important;
 }
 
 /* --- Щит защиты: фирменный элемент Vantara --------------------------------- */
@@ -101,7 +125,7 @@
 
 /* --- Индикатор загрузки ---------------------------------------------------- */
 /* Вместо отдельной полосы прогресса — волна по нижней кромке адресной строки. */
-#urlbar[vn-loading] > #urlbar-background::after {
+#urlbar[vn-loading] .urlbar-background::after {
   content: "";
   position: absolute;
   inset-inline: 0;

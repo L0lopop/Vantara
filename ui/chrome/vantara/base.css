@@ -36,8 +36,7 @@
 
 #navigator-toolbox::after,
 #nav-bar::before,
-.titlebar-spacer[type="pre-tabs"],
-#TabsToolbar .titlebar-spacer[type="post-tabs"] {
+.titlebar-spacer[type="pre-tabs"] {
   border: none !important;
 }
 

@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     Поднимает dev-окружение Vantara: профиль Gecko с нашим интерфейсом.
 
@@ -22,6 +22,11 @@
 .PARAMETER NoLaunch
     Только подготовить профиль, не запускать браузер.
 
+.PARAMETER Inspect
+    Запустить с Marionette — протоколом автоматизации Mozilla. Открывает
+    доступ к интерфейсу браузера из кода, чем пользуются tools/inspect-ui.py
+    и tools/audit-selectors.py. Без него они подключиться не смогут.
+
 .EXAMPLE
     .\tools\dev-profile.ps1
     .\tools\dev-profile.ps1 -Reset
@@ -31,7 +36,8 @@
 param(
     [switch]$Fetch,
     [switch]$Reset,
-    [switch]$NoLaunch
+    [switch]$NoLaunch,
+    [switch]$Inspect
 )
 
 $ErrorActionPreference = 'Stop'
@@ -74,9 +80,27 @@ if (-not $gecko -and $Fetch) {
     $url = 'https://download.mozilla.org/?product=firefox-devedition-latest-ssl&os=win64&lang=en-US'
     $installer = Join-Path $RuntimeDir 'devedition.exe'
     Invoke-WebRequest -Uri $url -OutFile $installer -UseBasicParsing
+
     Write-Step 'Распаковываю...'
-    # Установщик Firefox умеет распаковываться без установки в систему.
-    Start-Process -FilePath $installer -ArgumentList '/extract', $RuntimeDir -Wait
+    # Установщик Firefox — это архив 7-Zip SFX, поэтому его содержимое
+    # достаётся без запуска установки: система остаётся нетронутой,
+    # движок лежит внутри проекта.
+    $7z = @(
+        "$env:ProgramFiles\7-Zip\7z.exe",
+        "${env:ProgramFiles(x86)}\7-Zip\7z.exe",
+        "$env:USERPROFILE\scoop\shims\7z.exe"
+    ) | Where-Object { Test-Path $_ } | Select-Object -First 1
+
+    if ($7z) {
+        & $7z x $installer "-o$RuntimeDir" -y | Out-Null
+    } else {
+        # Без 7-Zip остаётся тихая установка в каталог проекта.
+        # Она пишет записи в реестр, поэтому это запасной путь, а не основной.
+        Write-Warn '7-Zip не найден, ставлю установщиком в каталог проекта'
+        Start-Process -FilePath $installer `
+            -ArgumentList '/S', "/D=$(Join-Path $RuntimeDir 'core')" -Wait
+    }
+
     Remove-Item $installer -Force
     $gecko = Find-Gecko
 }
@@ -102,7 +126,9 @@ if ($Reset -and (Test-Path $ProfileDir)) {
     Remove-Item $ProfileDir -Recurse -Force
 }
 
-if (-not (Test-Path $ProfileDir)) {
+$freshProfile = -not (Test-Path $ProfileDir)
+
+if ($freshProfile) {
     New-Item -ItemType Directory -Force -Path $ProfileDir | Out-Null
     Write-Ok 'Профиль создан'
 } else {
@@ -147,6 +173,22 @@ user_pref("datareporting.policy.firstRunURL", "");
 Add-Content -Path (Join-Path $ProfileDir 'user.js') -Value $devPrefs -Encoding utf8
 Write-Ok 'Включены инструменты разработки chrome'
 
+# --- 4a. Прогрев нового профиля ---------------------------------------------
+# toolkit.legacyUserProfileCustomizations.stylesheets начинает действовать
+# только со следующего запуска: на свежем профиле Firefox успевает построить
+# интерфейс раньше, чем настройка попадает в prefs.js. Без прогрева первый
+# запуск показывает стандартный Firefox, и это каждый раз сбивает с толку.
+if ($freshProfile) {
+    Write-Step 'Прогреваю профиль (настройки вступают в силу со второго старта)...'
+    $warm = Start-Process -FilePath $gecko -PassThru -ArgumentList @(
+        '--headless', '--profile', "`"$ProfileDir`"", '--no-remote', '--new-instance'
+    )
+    Start-Sleep -Seconds 6
+    if (-not $warm.HasExited) { $warm | Stop-Process -Force }
+    Start-Sleep -Seconds 2
+    Write-Ok 'Профиль прогрет'
+}
+
 # --- 5. Запуск --------------------------------------------------------------
 if ($NoLaunch) {
     Write-Host ''
@@ -162,8 +204,20 @@ Write-Host '    Ctrl+Alt+R      перечитать userChrome.css' -Foreground
 Write-Host '    Ctrl+Alt+Shift+I отладчик интерфейса (Browser Toolbox)' -ForegroundColor DarkGray
 Write-Host ''
 
-Start-Process -FilePath $gecko -ArgumentList @(
+$launchArgs = @(
     '--profile', "`"$ProfileDir`"",
     '--no-remote',
     '--new-instance'
 )
+
+if ($Inspect) {
+    # Marionette открывает доступ к интерфейсу браузера из кода.
+    # Второй ключ обязателен: без него chrome-контекст закрыт.
+    $launchArgs = @('--marionette', '-remote-allow-system-access') + $launchArgs
+    Write-Host '  Marionette: 127.0.0.1:2828' -ForegroundColor DarkGray
+    Write-Host '    python tools/inspect-ui.py       проверка применённых стилей' -ForegroundColor DarkGray
+    Write-Host '    python tools/audit-selectors.py  поиск мёртвых селекторов' -ForegroundColor DarkGray
+    Write-Host ''
+}
+
+Start-Process -FilePath $gecko -ArgumentList $launchArgs
