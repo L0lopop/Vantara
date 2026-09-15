@@ -1,0 +1,39 @@
+{
+  "name": "Vantara",
+  "vendor": "Vantara",
+  "appId": "vantara@vantara.browser",
+  "binaryName": "vantara",
+  "version": {
+    "product": "firefox",
+    "version": "156.0"
+  },
+  "buildOptions": {
+    "windowsUseSymbolicLinks": false,
+    "generateBranding": true
+  },
+  "addons": {},
+  "brands": {
+    "stable": {
+      "backgroundColor": "#16181D",
+      "brandShorterName": "Vantara",
+      "brandShortName": "Vantara",
+      "brandFullName": "Vantara Browser",
+      "release": {
+        "displayVersion": "0.1.0",
+        "github": {
+          "repo": "L0lopop/Vantara"
+        }
+      }
+    }
+  },
+  "license": {
+    "ignoredFiles": [
+      ".*\\.json",
+      ".*\\.svg",
+      ".*\\.png",
+      ".*\\.ico",
+      ".*\\.ftl"
+    ],
+    "licenseType": "MPL-2.0"
+  }
+}
