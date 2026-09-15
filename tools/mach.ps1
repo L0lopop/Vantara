@@ -66,27 +66,47 @@ $engineMsys = ConvertTo-MsysPath $EngineDir
 $stateMsys  = ConvertTo-MsysPath $StateDir
 $machArgs   = ($Arguments | ForEach-Object { "'$_'" }) -join ' '
 
-# Прямой вызов bash минует msys2_shell.cmd, который обычно собирает PATH
-# для MozillaBuild. Поэтому нужные каталоги добавляем сами: без python3
-# mach падает с «/usr/bin/env: python3: No such file or directory».
-# USERPROFILE передаём явно: bash -l поднимает чистое окружение, а mach
-# вычисляет домашний каталог всегда — даже когда MOZBUILD_STATE_PATH задан,
-# потому что значение по умолчанию считается до проверки переменной.
-# Без этого сборка падает на "Could not determine home directory".
-$userProfile = $env:USERPROFILE
+# Команда собирается в файл, а не в цепочку через `&&`. Передавать её
+# строкой в `bash -c` оказалось нерабочим: значения с пробелами и
+# обратными слешами (пути Windows) разваливают цепочку, и вместо сборки
+# выполняется `export` без аргументов — он молча печатает всё окружение
+# и завершается успешно. Сборка при этом выглядит «прошедшей».
+#
+# Переменные Windows приходится передавать явно: bash -l поднимает чистое
+# окружение, и каждая потерянная переменная даёт свою ошибку, ни одна из
+# которых не называет причину:
+#   USERPROFILE   -> "Could not determine home directory"
+#   ProgramFiles  -> "TypeError: expected str ... not NoneType" при поиске Node.js
+#
+# DISABLE_TELEMETRY=1 тоже обязателен: без него mach при первом запуске
+# обращается к Bugzilla и спрашивает согласие на сбор данных о сборке.
+# Отвечать некому, и процесс просто висит — без вывода и без нагрузки.
+$scriptPath = Join-Path $StateDir 'run-mach.sh'
 
-# DISABLE_TELEMETRY=1 обязателен, и не только из принципа. Без него mach
-# при первом запуске обращается к Bugzilla и спрашивает согласие на сбор
-# данных о сборке. В неинтерактивном запуске ответить некому, и процесс
-# просто висит: ни вывода, ни нагрузки на процессор, ни ошибки.
-$command = @(
-    "export PATH=/c/mozilla-build/python3:/c/mozilla-build/bin:`$PATH",
-    "export USERPROFILE='$userProfile'",
+$lines = @(
+    '#!/usr/bin/env bash',
+    '# Создаётся tools/mach.ps1 при каждом запуске. Править бессмысленно.',
+    'set -e',
+    '',
+    'export PATH="/c/mozilla-build/python3:/c/mozilla-build/bin:$PATH"',
+    "export USERPROFILE='$($env:USERPROFILE)'",
+    "export APPDATA='$($env:APPDATA)'",
+    "export LOCALAPPDATA='$($env:LOCALAPPDATA)'",
+    "export ProgramFiles='$($env:ProgramFiles)'",
+    "export ProgramData='$($env:ProgramData)'",
+    "export SystemRoot='$($env:SystemRoot)'",
     "export MOZBUILD_STATE_PATH='$stateMsys'",
-    "export DISABLE_TELEMETRY=1",
+    'export DISABLE_TELEMETRY=1',
+    '',
     "cd '$engineMsys'",
-    "./mach $machArgs"
-) -join ' && '
+    "exec ./mach $machArgs"
+)
+
+# Перевод строки только LF: с CRLF bash спотыкается на возврате каретки.
+[System.IO.File]::WriteAllText($scriptPath, ($lines -join "`n") + "`n",
+    (New-Object System.Text.UTF8Encoding $false))
+
+$command = ConvertTo-MsysPath $scriptPath
 
 Write-Host "  mach $($Arguments -join ' ')" -ForegroundColor Cyan
 Write-Host "  состояние сборки: $StateDir" -ForegroundColor DarkGray
@@ -105,7 +125,7 @@ $outLog = Join-Path $StateDir 'mach-out.log'
 $errLog = Join-Path $StateDir 'mach-err.log'
 
 $process = Start-Process -FilePath $Bash `
-    -ArgumentList '-l', '-c', $command `
+    -ArgumentList '-l', $command `
     -NoNewWindow -Wait -PassThru `
     -RedirectStandardOutput $outLog `
     -RedirectStandardError $errLog

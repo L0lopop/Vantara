@@ -1,0 +1,105 @@
+/* ==========================================================================
+   Vantara — боковая панель
+
+   Селекторы выверены по исходникам Firefox 156:
+   browser/base/content/browser-box.inc.xhtml
+
+   Структура там такая:
+     #sidebar-container            внешний контейнер
+       sidebar-main                веб-компонент с кнопками панелей
+     #sidebar-launcher-splitter    разделитель у кнопок
+     #sidebar-box                  сама панель
+       #sidebar-header             шапка с переключателем
+         #sidebar-switcher-target  кнопка выбора панели
+         #sidebar-title            название текущей панели
+       #sidebar                    содержимое (browser)
+     #sidebar-splitter             разделитель панели и страницы
+
+   Панель переписана на веб-компоненты, поэтому часть внутренних элементов
+   живёт в теневом дереве и снаружи недоступна. Всё, что здесь задано,
+   относится к внешнему слою — его достаточно, чтобы панель выглядела
+   частью Vantara. Замена внутренностей — задача этапа со своей разметкой.
+   ========================================================================== */
+
+/* --- Контейнер и полоса запуска -------------------------------------------- */
+#sidebar-container,
+#sidebar-box {
+  background-color: var(--vn-bg-chrome) !important;
+  color: var(--vn-fg-primary) !important;
+  border-inline-end: 1px solid var(--vn-border) !important;
+}
+
+/* Панель справа — кромка переезжает на другую сторону. */
+#sidebar-box[positionend],
+#sidebar-container[positionend] {
+  border-inline-end: none !important;
+  border-inline-start: 1px solid var(--vn-border) !important;
+}
+
+/* --- Шапка ----------------------------------------------------------------- */
+#sidebar-header {
+  padding: var(--vn-space-3) !important;
+  border-bottom: 1px solid var(--vn-border) !important;
+  font-size: var(--vn-text-md) !important;
+}
+
+#sidebar-title {
+  color: var(--vn-fg-primary) !important;
+  font-size: var(--vn-text-md) !important;
+  font-weight: 500 !important;
+  margin-inline-start: var(--vn-space-2) !important;
+}
+
+#sidebar-switcher-target {
+  border-radius: var(--vn-radius-sm) !important;
+  padding: var(--vn-space-2) var(--vn-space-3) !important;
+  transition: background-color var(--vn-dur-fast) var(--vn-ease-standard);
+}
+
+#sidebar-switcher-target:hover {
+  background-color: var(--vn-bg-hover) !important;
+}
+
+/* Стрелка переключателя поворачивается при раскрытии списка панелей. */
+#sidebar-switcher-arrow {
+  fill: var(--vn-fg-muted) !important;
+  transition: transform var(--vn-dur-base) var(--vn-ease-standard);
+}
+
+#sidebar-switcher-target[aria-expanded="true"] #sidebar-switcher-arrow {
+  transform: rotate(180deg);
+}
+
+#sidebar-icon {
+  fill: var(--vn-fg-secondary) !important;
+}
+
+/* --- Содержимое ------------------------------------------------------------ */
+#sidebar {
+  background-color: var(--vn-bg-chrome) !important;
+}
+
+/* --- Разделители -----------------------------------------------------------
+   Разделитель тонкий, но зона захвата шире полосы: иначе в него трудно
+   попасть курсором. Подсветка появляется только при наведении. */
+#sidebar-splitter,
+#sidebar-launcher-splitter {
+  border: none !important;
+  background-color: var(--vn-border) !important;
+  width: 1px !important;
+  min-width: 1px !important;
+  transition: background-color var(--vn-dur-fast) var(--vn-ease-standard);
+}
+
+#sidebar-splitter:hover,
+#sidebar-launcher-splitter:hover {
+  background-color: var(--vn-accent) !important;
+}
+
+/* --- Веб-компонент с кнопками панелей -------------------------------------- */
+sidebar-main {
+  background-color: var(--vn-bg-chrome) !important;
+  --sidebar-background-color: var(--vn-bg-chrome) !important;
+  --sidebar-text-color: var(--vn-fg-primary) !important;
+  --sidebar-border-color: var(--vn-border) !important;
+}
