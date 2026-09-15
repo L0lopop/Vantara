@@ -55,6 +55,28 @@ if (-not $Arguments) {
 
 New-Item -ItemType Directory -Force -Path $StateDir | Out-Null
 
+# Движку нужен собственный git-репозиторий. Firefox берёт дату последнего
+# изменения config/milestone.txt, чтобы построить версию для ресурсов DLL.
+# Он находит репозиторий проекта (engine лежит внутри него) и спрашивает про
+# файл, который перечислен в .gitignore — git отвечает ошибкой, и сборка
+# падает на двадцать второй минуте.
+#
+# Достаточно одного файла в коммите: остальные 3,4 ГБ остаются неотслеженными.
+if (-not (Test-Path (Join-Path $EngineDir '.git'))) {
+    Write-Step 'Создаю git-репозиторий движка (нужен для версии сборки)...'
+    Push-Location $EngineDir
+    try {
+        git init -q
+        git config user.name 'Vantara Build'
+        git config user.email 'build@vantara.local'
+        git add -f config/milestone.txt
+        git commit -q -m 'Milestone marker for build versioning'
+        Write-Ok 'Репозиторий движка готов'
+    } finally {
+        Pop-Location
+    }
+}
+
 # Пути внутри msys2: D:\Vantara -> /d/Vantara
 function ConvertTo-MsysPath([string]$WindowsPath) {
     $drive = $WindowsPath.Substring(0, 1).ToLower()
