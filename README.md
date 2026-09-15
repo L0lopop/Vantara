@@ -97,6 +97,17 @@ src/       оверлей поверх исходников Firefox (сборк�
 tools/     скрипты разработки и сборки
 ```
 
+## История звёзд
+
+<a href="https://star-history.com/#L0lopop/Vantara&Date">
+  <picture>
+    <source media="(prefers-color-scheme: dark)"
+            srcset="https://api.star-history.com/svg?repos=L0lopop/Vantara&type=Date&theme=dark">
+    <img src="https://api.star-history.com/svg?repos=L0lopop/Vantara&type=Date"
+         alt="График истории звёзд Vantara" width="600">
+  </picture>
+</a>
+
 ## Лицензия
 
 [MPL 2.0](LICENSE) — та же лицензия, что у Firefox, как того требует форк.
