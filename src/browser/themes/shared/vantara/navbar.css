@@ -1,0 +1,180 @@
+/* ==========================================================================
+   Vantara — панель навигации и адресная строка
+   Адресная строка — главный индикатор безопасности. Её левый край всегда
+   отвечает на один вопрос: защищено ли текущее соединение и что заблокировано.
+   ========================================================================== */
+
+#nav-bar {
+  background: var(--vn-bg-chrome) !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: var(--vn-space-2) var(--vn-space-3) var(--vn-space-3) !important;
+}
+
+/* --- Адресная строка -------------------------------------------------------
+   Разметка адресной строки менялась в Firefox 157: фон переехал с id
+   #urlbar-background на класс .urlbar-background, а скругление появилось
+   ещё и на .urlbar-input-container. Проверять после обновления движка:
+       python tools/audit-selectors.py
+   -------------------------------------------------------------------------- */
+#urlbar {
+  --urlbar-height: var(--vn-urlbar-height) !important;
+  font-size: var(--vn-text-md) !important;
+}
+
+.urlbar-background {
+  background: var(--vn-bg-surface) !important;
+  border: 1px solid var(--vn-border) !important;
+  border-radius: var(--vn-radius-md) !important;
+  box-shadow: none !important;
+  transition: background-color var(--vn-dur-fast) var(--vn-ease-standard),
+              border-color     var(--vn-dur-fast) var(--vn-ease-standard),
+              box-shadow       var(--vn-dur-base) var(--vn-ease-standard);
+}
+
+#urlbar:hover > .urlbar-background {
+  border-color: var(--vn-border-strong) !important;
+}
+
+#urlbar[focused] > .urlbar-background {
+  background: var(--vn-bg-raised) !important;
+  border-color: var(--vn-accent) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--vn-accent) 22%, transparent) !important;
+}
+
+/* Внутренний контейнер несёт собственное скругление (24px в Firefox 157).
+   Без этого правила адресная строка остаётся «таблеткой» независимо от
+   того, что задано на фоне. */
+.urlbar-input-container {
+  border-radius: var(--vn-radius-md) !important;
+  padding-inline-start: var(--vn-space-2) !important;
+}
+
+#urlbar-input {
+  color: var(--vn-fg-primary) !important;
+}
+
+/* Домен читается, остальной путь приглушён — так подделку домена видно сразу. */
+#urlbar-input::placeholder {
+  color: var(--vn-fg-muted) !important;
+}
+
+/* --- Индикатор соединения -------------------------------------------------- */
+#identity-box {
+  border-radius: var(--vn-radius-sm) !important;
+  margin-inline-end: var(--vn-space-2) !important;
+}
+
+#identity-icon-box[pageproxystate="valid"] {
+  transition: background-color var(--vn-dur-fast) var(--vn-ease-standard);
+}
+
+/* HTTPS — спокойный зелёный. Незащищённое соединение — тревожный красный,
+   и это единственное место в интерфейсе, где используется этот цвет. */
+#identity-box[pageproxystate="valid"].verifiedDomain #identity-icon,
+#identity-box[pageproxystate="valid"].chromeUI #identity-icon {
+  fill: var(--vn-guard) !important;
+}
+
+#identity-box[pageproxystate="valid"].notSecure #identity-icon {
+  fill: var(--vn-threat) !important;
+}
+
+/* Индикатор доверия к странице появился в Firefox 157 и стоит левее щита.
+   Приводим к нашей форме, иначе он выбивается скруглением в 15px. */
+#trust-icon-container {
+  border-radius: var(--vn-radius-sm) !important;
+  transition: background-color var(--vn-dur-fast) var(--vn-ease-standard);
+}
+
+#trust-icon-container:hover {
+  background-color: var(--vn-bg-hover) !important;
+}
+
+/* --- Щит защиты: фирменный элемент Vantara --------------------------------- */
+#tracking-protection-icon-container {
+  border-radius: var(--vn-radius-sm) !important;
+  transition: background-color var(--vn-dur-fast) var(--vn-ease-standard);
+}
+
+#tracking-protection-icon {
+  fill: var(--vn-guard) !important;
+  transition: fill var(--vn-dur-base) var(--vn-ease-standard);
+}
+
+/* Защита выключена пользователем на этом сайте — щит гаснет до серого. */
+#tracking-protection-icon-container[hasException] #tracking-protection-icon {
+  fill: var(--vn-fg-muted) !important;
+}
+
+/* Момент блокировки: один короткий пульс. Атрибут ставит наш JS-модуль
+   (см. ui/chrome/vantara/scripts/shield.uc.js), CSS только рисует. */
+#tracking-protection-icon-container[vn-blocked] #tracking-protection-icon {
+  animation: vn-shield-pulse var(--vn-dur-slower) var(--vn-ease-spring);
+}
+
+/* Счётчик заблокированного рядом со щитом. */
+#tracking-protection-icon-container[vn-count]::after {
+  content: attr(vn-count);
+  font-size: var(--vn-text-xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--vn-guard);
+  margin-inline-start: var(--vn-space-1);
+  animation: vn-counter-tick var(--vn-dur-base) var(--vn-ease-decel);
+}
+
+/* --- Индикатор загрузки ---------------------------------------------------- */
+/* Вместо отдельной полосы прогресса — волна по нижней кромке адресной строки. */
+#urlbar[vn-loading] .urlbar-background::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  inset-block-end: 0;
+  height: 2px;
+  border-radius: var(--vn-radius-pill);
+  background: linear-gradient(90deg,
+              transparent,
+              var(--vn-accent) 45%,
+              var(--vn-ember-200) 50%,
+              var(--vn-accent) 55%,
+              transparent);
+  animation: vn-progress-sweep 1.1s var(--vn-ease-standard) infinite;
+}
+
+/* --- Выпадающий список подсказок ------------------------------------------- */
+.urlbarView {
+  background: var(--vn-bg-surface) !important;
+  border: 1px solid var(--vn-border) !important;
+  border-radius: var(--vn-radius-lg) !important;
+  box-shadow: var(--vn-shadow-lg) !important;
+  margin-block-start: var(--vn-space-2) !important;
+  overflow: hidden;
+  animation: vn-drop-in var(--vn-dur-base) var(--vn-ease-decel);
+}
+
+.urlbarView-row {
+  border-radius: var(--vn-radius-sm) !important;
+  margin-inline: var(--vn-space-2) !important;
+  transition: background-color var(--vn-dur-instant) var(--vn-ease-standard);
+}
+
+.urlbarView-row[selected],
+.urlbarView-row:hover {
+  background: var(--vn-bg-hover) !important;
+}
+
+.urlbarView-title {
+  color: var(--vn-fg-primary) !important;
+}
+
+.urlbarView-url,
+.urlbarView-title-separator {
+  color: var(--vn-fg-muted) !important;
+}
+
+/* --- Поиск в списке -------------------------------------------------------- */
+#urlbar-search-mode-indicator {
+  background: var(--vn-accent) !important;
+  color: var(--vn-accent-fg) !important;
+  border-radius: var(--vn-radius-sm) !important;
+}

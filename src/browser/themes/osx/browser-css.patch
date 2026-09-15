@@ -1,0 +1,12 @@
+diff --git a/browser/themes/osx/browser.css b/browser/themes/osx/browser.css
+index a74ff84e6fc5be963c47065dd7b55a19ded0c204..284ba47c7a873ceb51bbbd6cc4d92024b8fe7aa7 100644
+--- a/browser/themes/osx/browser.css
++++ b/browser/themes/osx/browser.css
+@@ -3,6 +3,7 @@
+  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+ 
+ @import url("chrome://browser/skin/browser-shared.css");
++@import url("chrome://browser/skin/vantara/vantara.css");
+ 
+ :root {
+   --panel-field-background: light-dark(rgba(249, 249, 250, 0.3), rgba(12, 12, 13, 0.3));

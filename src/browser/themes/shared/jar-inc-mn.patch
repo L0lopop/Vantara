@@ -1,0 +1,18 @@
+diff --git a/browser/themes/shared/jar.inc.mn b/browser/themes/shared/jar.inc.mn
+index 6dc7a8fa3098a9c93e4e17d8b7782a66d64a81b0..1662c8d965e1352cde98024a6a78bfa957908731 100644
+--- a/browser/themes/shared/jar.inc.mn
++++ b/browser/themes/shared/jar.inc.mn
+@@ -372,3 +372,13 @@
+   skin/classic/browser/illustrations/market-opt-in.svg         (../shared/illustrations/market-opt-in.svg)
+   skin/classic/browser/illustrations/tab-groups.svg            (../shared/illustrations/tab-groups.svg)
+   skin/classic/browser/illustrations/yelpRealtime-opt-in.svg   (../shared/illustrations/yelpRealtime-opt-in.svg)
++
++# Vantara: интерфейс, создаётся tools/sync-ui.py
++  skin/classic/browser/vantara/tokens.css                    (../shared/vantara/tokens.css)
++  skin/classic/browser/vantara/animations.css                (../shared/vantara/animations.css)
++  skin/classic/browser/vantara/base.css                      (../shared/vantara/base.css)
++  skin/classic/browser/vantara/tabs.css                      (../shared/vantara/tabs.css)
++  skin/classic/browser/vantara/navbar.css                    (../shared/vantara/navbar.css)
++  skin/classic/browser/vantara/sidebar.css                   (../shared/vantara/sidebar.css)
++  skin/classic/browser/vantara/menus.css                     (../shared/vantara/menus.css)
++  skin/classic/browser/vantara/vantara.css                   (../shared/vantara/vantara.css)

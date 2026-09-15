@@ -1,0 +1,12 @@
+diff --git a/browser/themes/windows/browser.css b/browser/themes/windows/browser.css
+index 7a943861b566f58e66705b174c9f74702fb5d57f..2c6893d366fc6b611092db0b5173d610c55630c8 100644
+--- a/browser/themes/windows/browser.css
++++ b/browser/themes/windows/browser.css
+@@ -4,6 +4,7 @@
+ 
+ @import url("chrome://browser/skin/browser-shared.css");
+ @import url("chrome://browser/skin/contextmenu.css");
++@import url("chrome://browser/skin/vantara/vantara.css");
+ 
+ #menubar-items {
+   flex-direction: column; /* for flex hack */

@@ -1,0 +1,12 @@
+diff --git a/browser/themes/linux/browser.css b/browser/themes/linux/browser.css
+index f276db1d456703493ee713370691352985021708..764336a4aa3a7865d52d57d5a85130852a053933 100644
+--- a/browser/themes/linux/browser.css
++++ b/browser/themes/linux/browser.css
+@@ -4,6 +4,7 @@
+ 
+ @import url("chrome://browser/skin/browser-shared.css");
+ @import url("chrome://browser/skin/contextmenu.css");
++@import url("chrome://browser/skin/vantara/vantara.css");
+ 
+ /**
+  * We still want to do some of the tweaks that browser-colors does, like

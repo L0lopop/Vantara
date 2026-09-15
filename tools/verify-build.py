@@ -27,7 +27,7 @@ GREEN, RED, YELLOW, DIM, RESET = (
     "\033[32m", "\033[31m", "\033[33m", "\033[2m", "\033[0m")
 
 EXPECTED_VENDOR = "Vantara"
-EXPECTED_NAME = "Vantara"
+EXPECTED_NAME = "vantara"
 FIREFOX_APP_ID = "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}"
 
 # Файлы, которых в сборке быть не должно: это подсистемы сбора данных,
@@ -55,6 +55,14 @@ def main() -> int:
     check(exe.exists(), "vantara.exe собран",
           f"{exe.stat().st_size / 1024 / 1024:.1f} МБ" if exe.exists() else "нет файла")
 
+    # Сам по себе vantara.exe — небольшой лаунчер, он появляется задолго до
+    # конца сборки. Движок лежит в xul.dll, и её отсутствие означает, что
+    # линковка ещё не прошла: считать такую сборку готовой нельзя.
+    xul = DIST / "xul.dll"
+    check(xul.exists(), "xul.dll слинкована",
+          f"{xul.stat().st_size / 1024 / 1024:.0f} МБ" if xul.exists()
+          else "линковка не завершена")
+
     # Имя важно само по себе: firefox.exe означает, что --with-app-name
     # не применился, и продукт остался Firefox под другой обложкой.
     check(not (DIST / "firefox.exe").exists(),
@@ -74,7 +82,7 @@ def main() -> int:
 
         check(vendor == EXPECTED_VENDOR, "Вендор — Vantara",
               f"получено: {vendor or 'пусто'}")
-        check(name == EXPECTED_NAME, "Имя приложения — Vantara",
+        check(name == EXPECTED_NAME, "Имя приложения — vantara",
               f"получено: {name or 'пусто'}")
         check(app_id != FIREFOX_APP_ID and bool(app_id),
               "Идентификатор отличается от Firefox",
@@ -93,6 +101,16 @@ def main() -> int:
     check(prefs.exists() or legacy.exists(), "Файл заводских настроек на месте",
           str((prefs if prefs.exists() else legacy).name)
           if (prefs.exists() or legacy.exists()) else "не найден")
+
+    # --- Сервер обновлений ---------------------------------------------------
+    # Проверка обновлений сообщает владельцу сервера о каждом запуске
+    # браузера. Унаследованный адрес Mozilla означает отчёт ей о наших
+    # пользователях.
+    if app_ini.exists():
+        raw = app_ini.read_text(encoding="utf-8", errors="ignore")
+        mozilla_update = "aus5.mozilla.org" in raw or "mozilla.org/updates" in raw
+        check(not mozilla_update, "Обновления не ведут к Mozilla",
+              "найден aus5.mozilla.org" if mozilla_update else "")
 
     # --- Чужой брендинг ------------------------------------------------------
     foreign = []

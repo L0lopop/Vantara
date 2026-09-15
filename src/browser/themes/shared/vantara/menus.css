@@ -1,0 +1,104 @@
+/* ==========================================================================
+   Vantara — меню, панели, всплывающие окна
+   ========================================================================== */
+
+menupopup,
+panel {
+  --panel-background: var(--vn-bg-surface) !important;
+  --panel-color: var(--vn-fg-primary) !important;
+  --panel-border-color: var(--vn-border) !important;
+  --panel-border-radius: var(--vn-radius-lg) !important;
+  --panel-shadow-margin: 8px !important;
+}
+
+menupopup {
+  background: var(--vn-bg-surface) !important;
+  border: 1px solid var(--vn-border) !important;
+  border-radius: var(--vn-radius-md) !important;
+  box-shadow: var(--vn-shadow-md) !important;
+  padding: var(--vn-space-2) !important;
+}
+
+/* Меню появляется сверху вниз — направление совпадает с жестом мыши. */
+menupopup:not([animate="false"]) {
+  animation: vn-drop-in var(--vn-dur-fast) var(--vn-ease-decel);
+}
+
+menuitem,
+menu {
+  border-radius: var(--vn-radius-sm) !important;
+  padding-block: var(--vn-space-2) !important;
+  padding-inline: var(--vn-space-3) !important;
+  font-size: var(--vn-text-md) !important;
+  transition: background-color var(--vn-dur-instant) var(--vn-ease-standard);
+}
+
+menuitem:hover:not([disabled]),
+menu:hover:not([disabled]) {
+  background-color: var(--vn-bg-hover) !important;
+}
+
+menuseparator {
+  border-top: 1px solid var(--vn-border) !important;
+  margin-block: var(--vn-space-2) !important;
+}
+
+/* --- Главное меню (гамбургер) ---------------------------------------------- */
+#appMenu-popup .panel-subview-body {
+  padding: var(--vn-space-2) !important;
+}
+
+.subviewbutton {
+  border-radius: var(--vn-radius-sm) !important;
+  transition: background-color var(--vn-dur-instant) var(--vn-ease-standard);
+}
+
+.subviewbutton:hover {
+  background-color: var(--vn-bg-hover) !important;
+}
+
+/* --- Панель защиты: ключевой экран приватности ----------------------------- */
+#protections-popup {
+  --panel-border-radius: var(--vn-radius-lg) !important;
+}
+
+#protections-popup-mainView {
+  animation: vn-rise-in var(--vn-dur-base) var(--vn-ease-decel);
+}
+
+#protections-popup-main-header-label {
+  color: var(--vn-fg-primary) !important;
+  font-size: var(--vn-text-lg) !important;
+}
+
+/* Строка категории блокировок подсвечивается, когда в ней что-то есть. */
+#protections-popup .protections-popup-category[hasException="false"]:not([uidisabled]) {
+  color: var(--vn-guard) !important;
+}
+
+/* --- Уведомления и панели разрешений --------------------------------------- */
+.panel-arrowcontent,
+notification-message {
+  background: var(--vn-bg-surface) !important;
+  color: var(--vn-fg-primary) !important;
+  border-radius: var(--vn-radius-md) !important;
+}
+
+/* --- Строка поиска по странице --------------------------------------------- */
+findbar {
+  background: var(--vn-bg-chrome) !important;
+  border-top: 1px solid var(--vn-border) !important;
+  padding: var(--vn-space-2) var(--vn-space-3) !important;
+  animation: vn-rise-in var(--vn-dur-fast) var(--vn-ease-decel);
+}
+
+.findbar-textbox {
+  background: var(--vn-bg-surface) !important;
+  color: var(--vn-fg-primary) !important;
+  border: 1px solid var(--vn-border) !important;
+  border-radius: var(--vn-radius-sm) !important;
+}
+
+.findbar-textbox:focus {
+  border-color: var(--vn-accent) !important;
+}

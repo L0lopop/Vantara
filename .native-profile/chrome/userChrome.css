@@ -1,0 +1,22 @@
+/* ==========================================================================
+   Vantara Browser — интерфейс
+   Точка входа. Порядок импорта значим: токены объявляют переменные,
+   движение — ключевые кадры, дальше компоненты в порядке слоёв интерфейса.
+
+   Этот файл — рабочий прототип UI. Тот же CSS переносится в сборку форка
+   как chrome://vantara/skin/, см. docs/ARCHITECTURE.md.
+   ========================================================================== */
+
+/* Порядок правил задан спецификацией CSS: сначала @import, только потом
+   @namespace. При обратном порядке все импорты молча игнорируются —
+   файл выглядит рабочим, а интерфейс остаётся стандартным. */
+
+@import url("vantara/tokens.css");
+@import url("vantara/animations.css");
+@import url("vantara/base.css");
+@import url("vantara/tabs.css");
+@import url("vantara/navbar.css");
+@import url("vantara/sidebar.css");
+@import url("vantara/menus.css");
+
+@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");

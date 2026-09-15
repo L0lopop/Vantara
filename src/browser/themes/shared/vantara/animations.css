@@ -1,0 +1,96 @@
+/* ==========================================================================
+   Vantara — библиотека движения
+   Правила: длительность и кривая берутся только из токенов; анимируем
+   только transform/opacity/filter (свойства композитора), чтобы не ронять
+   кадры на слабых машинах.
+   ========================================================================== */
+
+/* --- Появление и уход ----------------------------------------------------- */
+@keyframes vn-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes vn-rise-in {
+  from { opacity: 0; transform: translateY(6px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0)   scale(1); }
+}
+
+@keyframes vn-drop-in {
+  from { opacity: 0; transform: translateY(-8px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)    scale(1); }
+}
+
+/* --- Вкладки -------------------------------------------------------------- */
+/* Новая вкладка «вырастает» из точки клика, а не появляется рывком. */
+@keyframes vn-tab-open {
+  from { opacity: 0; transform: scaleX(0.55) translateY(4px); }
+  60%  { opacity: 1; }
+  to   { opacity: 1; transform: scaleX(1)    translateY(0); }
+}
+
+@keyframes vn-tab-close {
+  from { opacity: 1; transform: scaleX(1)    translateY(0); }
+  to   { opacity: 0; transform: scaleX(0.6)  translateY(3px); }
+}
+
+/* Кромка активной вкладки растёт из центра вверх и вниз, а не «включается».
+   Вертикальная — она стоит по левому краю вкладки. */
+@keyframes vn-edge-grow {
+  from { transform: scaleY(0); opacity: 0; }
+  to   { transform: scaleY(1); opacity: 1; }
+}
+
+/* Заполнение шкалы: от нуля к значению. Используется в панели защиты,
+   где каждая строка стартует с задержкой — получается каскад сверху вниз. */
+@keyframes vn-bar-grow {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+/* --- Щит: индикатор защиты ------------------------------------------------ */
+/* Пульс при блокировке трекера — короткий, один раз, без зацикливания. */
+@keyframes vn-shield-pulse {
+  0%   { transform: scale(1);    filter: drop-shadow(0 0 0 transparent); }
+  35%  { transform: scale(1.18); filter: drop-shadow(0 0 6px var(--vn-guard)); }
+  100% { transform: scale(1);    filter: drop-shadow(0 0 0 transparent); }
+}
+
+/* Счётчик заблокированного «набегает» цифрой снизу. */
+@keyframes vn-counter-tick {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* --- Загрузка страницы ---------------------------------------------------- */
+/* Неопределённый прогресс: волна по адресной строке вместо спиннера. */
+@keyframes vn-progress-sweep {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(100%); }
+}
+
+@keyframes vn-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* --- Утилитарные классы --------------------------------------------------- */
+.vn-anim-rise {
+  animation: vn-rise-in var(--vn-dur-base) var(--vn-ease-decel);
+}
+
+.vn-anim-drop {
+  animation: vn-drop-in var(--vn-dur-base) var(--vn-ease-decel);
+}
+
+/* Полное отключение движения — не «ускорение до 1мс», а именно снятие
+   анимаций, чтобы не осталось мерцания на кадре подмены. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
+}

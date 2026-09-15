@@ -1,0 +1,24 @@
+diff --git a/build/moz.build b/build/moz.build
+index 0182121940f19b14b950f6ed78a0c738dc3ee65a..a3219fc6097fd4d5f668eb10eb877a577d56a309 100644
+--- a/build/moz.build
++++ b/build/moz.build
+@@ -92,7 +92,18 @@ if CONFIG["MOZ_APP_BASENAME"]:
+         if CONFIG[var]:
+             appini_defines[var] = True
+ 
+-    appini_defines["MOZ_APPUPDATE_HOST"] = "aus5.mozilla.org"
++    # Vantara: сервер обновлений не мозилловский.
++    #
++    # По умолчанию здесь стоит aus5.mozilla.org, и собранный форк ходил бы
++    # за обновлениями к Mozilla — сообщая ей о каждом запуске проверки.
++    # Значение из mozconfig сюда не доходит: берётся CONFIG, то есть опция
++    # configure, а не переменная окружения. Поэтому правится прямо здесь.
++    #
++    # Домен в зоне .invalid зарезервирован RFC 2606 и не резолвится нигде
++    # и никогда. Пока у Vantara нет своего сервера обновлений, браузер не
++    # должен обращаться ни к чьему чужому: выпуски забираются вручную с
++    # GitHub. Свой канал обновлений с подписью — этап 5 роадмапа.
++    appini_defines["MOZ_APPUPDATE_HOST"] = "updates.vantara.invalid"
+     if CONFIG["MOZ_APPUPDATE_HOST"]:
+         appini_defines["MOZ_APPUPDATE_HOST"] = CONFIG["MOZ_APPUPDATE_HOST"]
+ 

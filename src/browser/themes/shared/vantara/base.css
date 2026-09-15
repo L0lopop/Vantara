@@ -1,0 +1,82 @@
+/* ==========================================================================
+   Vantara — база: окно, панели, общие элементы управления
+   ========================================================================== */
+
+:root {
+  /* Перекрываем встроенные переменные Firefox, чтобы родные компоненты,
+     до которых мы ещё не добрались, не выбивались из палитры. */
+  --toolbar-bgcolor: var(--vn-bg-chrome) !important;
+  --toolbar-color: var(--vn-fg-primary) !important;
+  --toolbar-field-background-color: var(--vn-bg-surface) !important;
+  --toolbar-field-color: var(--vn-fg-primary) !important;
+  --toolbar-field-focus-background-color: var(--vn-bg-raised) !important;
+  --toolbar-field-border-color: transparent !important;
+  --lwt-accent-color: var(--vn-bg-window) !important;
+  --arrowpanel-background: var(--vn-bg-surface) !important;
+  --arrowpanel-color: var(--vn-fg-primary) !important;
+  --arrowpanel-border-color: var(--vn-border) !important;
+  --focus-outline-color: var(--vn-accent) !important;
+  --button-hover-bgcolor: var(--vn-bg-hover) !important;
+  --button-active-bgcolor: var(--vn-bg-active) !important;
+}
+
+/* --- Окно ----------------------------------------------------------------- */
+#main-window,
+#browser {
+  background-color: var(--vn-bg-window) !important;
+  color: var(--vn-fg-primary) !important;
+  font-family: var(--vn-font-ui) !important;
+}
+
+/* Верхняя панель — единый блок без родных разделителей. */
+#navigator-toolbox {
+  background: var(--vn-bg-chrome) !important;
+  border-bottom: 1px solid var(--vn-border) !important;
+}
+
+#navigator-toolbox::after,
+#nav-bar::before,
+.titlebar-spacer[type="pre-tabs"] {
+  border: none !important;
+}
+
+/* --- Кнопки панелей -------------------------------------------------------- */
+toolbarbutton {
+  border-radius: var(--vn-radius-sm) !important;
+  transition: background-color var(--vn-dur-fast) var(--vn-ease-standard),
+              transform var(--vn-dur-instant) var(--vn-ease-standard);
+}
+
+toolbarbutton:hover:not([disabled]) {
+  background-color: var(--vn-bg-hover) !important;
+}
+
+/* Лёгкое «вдавливание» при нажатии — тактильная отдача без задержки. */
+toolbarbutton:hover:active:not([disabled]) {
+  background-color: var(--vn-bg-active) !important;
+  transform: scale(0.94);
+}
+
+toolbarbutton .toolbarbutton-icon,
+toolbarbutton image {
+  fill: var(--vn-fg-primary) !important;
+  color: var(--vn-fg-primary) !important;
+}
+
+toolbarbutton[disabled] {
+  opacity: 0.35 !important;
+}
+
+/* --- Фокус: видимый, но не кричащий ---------------------------------------- */
+:focus-visible {
+  outline: 2px solid var(--vn-accent) !important;
+  outline-offset: 1px !important;
+  border-radius: var(--vn-radius-xs);
+}
+
+/* --- Полосы прокрутки в интерфейсе ---------------------------------------- */
+#navigator-toolbox scrollbar,
+panel scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--vn-steel-600) transparent;
+}

@@ -1,0 +1,144 @@
+/* ==========================================================================
+   Vantara — вкладки
+   Форма: скруглённая «пластина» вместо трапеции Firefox. Активная вкладка
+   приподнята и помечена тёплой кромкой слева — тот же кремовый, что на щите.
+   ========================================================================== */
+
+#TabsToolbar {
+  background: transparent !important;
+  padding-inline: var(--vn-space-3) !important;
+  min-height: calc(var(--vn-tab-height) + var(--vn-space-3)) !important;
+}
+
+#tabbrowser-tabs {
+  --tab-min-height: var(--vn-tab-height) !important;
+  border-inline-start: none !important;
+  padding-inline: 0 !important;
+}
+
+/* --- Вкладка -------------------------------------------------------------- */
+.tabbrowser-tab {
+  --tab-block-margin: var(--vn-space-2) !important;
+  font-size: var(--vn-text-sm) !important;
+  color: var(--vn-fg-secondary) !important;
+  transition: color var(--vn-dur-fast) var(--vn-ease-standard);
+}
+
+.tabbrowser-tab .tab-background {
+  border-radius: var(--vn-radius-md) !important;
+  border: 1px solid transparent !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  transition: background-color var(--vn-dur-fast) var(--vn-ease-standard),
+              border-color   var(--vn-dur-fast) var(--vn-ease-standard),
+              box-shadow     var(--vn-dur-base) var(--vn-ease-standard);
+}
+
+.tabbrowser-tab:hover .tab-background {
+  background: var(--vn-bg-hover) !important;
+}
+
+.tabbrowser-tab:hover {
+  color: var(--vn-fg-primary) !important;
+}
+
+/* --- Активная вкладка ------------------------------------------------------ */
+.tabbrowser-tab[selected] {
+  color: var(--vn-fg-primary) !important;
+}
+
+.tabbrowser-tab[selected] .tab-background {
+  background: var(--vn-bg-selected) !important;
+  border-color: var(--vn-border) !important;
+  box-shadow: var(--vn-shadow-sm) !important;
+}
+
+/* Кромка активной вкладки: растёт из центра, а не «включается». */
+.tabbrowser-tab[selected] .tab-background::before {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: 2px;
+  border-radius: var(--vn-radius-pill);
+  background: var(--vn-edge);
+  animation: vn-edge-grow var(--vn-dur-slow) var(--vn-ease-decel);
+}
+
+/* --- Открытие и закрытие --------------------------------------------------- */
+.tabbrowser-tab:not([selected]) {
+  transform-origin: center left;
+}
+
+.tabbrowser-tab[fadein]:not([visuallyselected]) {
+  animation: vn-tab-open var(--vn-dur-slow) var(--vn-ease-spring);
+}
+
+.tabbrowser-tab:not([fadein]) {
+  animation: vn-tab-close var(--vn-dur-fast) var(--vn-ease-accel) forwards;
+}
+
+/* --- Содержимое вкладки ---------------------------------------------------- */
+.tab-label {
+  font-size: var(--vn-text-sm) !important;
+  margin-inline-start: var(--vn-space-3) !important;
+}
+
+.tab-icon-image {
+  width: 16px !important;
+  height: 16px !important;
+  transition: transform var(--vn-dur-base) var(--vn-ease-spring);
+}
+
+.tabbrowser-tab[selected] .tab-icon-image {
+  transform: scale(1.08);
+}
+
+/* Кнопка закрытия появляется мягко и только там, где она нужна. */
+.tab-close-button {
+  border-radius: var(--vn-radius-sm) !important;
+  opacity: 0;
+  transition: opacity var(--vn-dur-fast) var(--vn-ease-standard),
+              background-color var(--vn-dur-fast) var(--vn-ease-standard);
+}
+
+.tabbrowser-tab:hover .tab-close-button,
+.tabbrowser-tab[selected] .tab-close-button {
+  opacity: 0.7;
+}
+
+.tab-close-button:hover {
+  opacity: 1 !important;
+  background-color: color-mix(in srgb, var(--vn-threat) 24%, transparent) !important;
+}
+
+/* --- Состояния: звук, закрепление, контейнер ------------------------------- */
+.tab-icon-overlay[soundplaying] {
+  fill: var(--vn-guard) !important;
+}
+
+.tabbrowser-tab[pinned] .tab-background {
+  background: var(--vn-bg-raised) !important;
+}
+
+/* Индикатор приватной вкладки — дубовая полоса сверху. */
+.tabbrowser-tab[usercontextid] .tab-background::after {
+  content: "";
+  position: absolute;
+  inset-inline: var(--vn-space-3);
+  inset-block-start: 0;
+  height: 2px;
+  border-radius: var(--vn-radius-pill);
+  background: var(--vn-wood-400);
+}
+
+/* --- Кнопка «новая вкладка» ------------------------------------------------ */
+#tabs-newtab-button {
+  border-radius: var(--vn-radius-md) !important;
+  margin-inline-start: var(--vn-space-2) !important;
+}
+
+#tabs-newtab-button:hover .toolbarbutton-icon {
+  transform: rotate(90deg);
+  transition: transform var(--vn-dur-slow) var(--vn-ease-spring);
+}
