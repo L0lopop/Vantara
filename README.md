@@ -6,6 +6,8 @@
 
 **Браузер на движке Gecko, который защищает данные и не притворяется.**
 
+[![Звёзды](https://img.shields.io/github/stars/L0lopop/Vantara?style=flat&label=звёзды&color=F0DCC0&labelColor=2D323A)](https://github.com/L0lopop/Vantara/stargazers)
+[![Форки](https://img.shields.io/github/forks/L0lopop/Vantara?style=flat&label=форки&color=8A5C43&labelColor=2D323A)](https://github.com/L0lopop/Vantara/network/members)
 [![Лицензия](https://img.shields.io/badge/license-MPL--2.0-5A3A28)](LICENSE)
 [![Движок](https://img.shields.io/badge/engine-Gecko-2D323A)](docs/ARCHITECTURE.md)
 [![Статус](https://img.shields.io/badge/status-в%20разработке-E0A458)](docs/ROADMAP.md)
