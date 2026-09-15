@@ -1,0 +1,329 @@
+/* ==========================================================================
+   Vantara — страница новой вкладки
+   Строится на тех же токенах, что и интерфейс браузера: новая вкладка
+   должна выглядеть частью окна, а не чужим документом внутри него.
+   ========================================================================== */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--vn-bg-window);
+  color: var(--vn-fg-primary);
+  font-family: var(--vn-font-ui);
+  font-size: var(--vn-text-md);
+  min-height: 100vh;
+}
+
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 var(--vn-space-6) var(--vn-space-5);
+}
+
+.icon { width: 18px; height: 18px; display: block; flex: none; fill: none;
+        stroke: currentColor; }
+.icon-sm { width: 14px; height: 14px; }
+
+/* ===== Поиск ==============================================================
+   Блок стоит на 38% высоты, а не по центру: оптический центр экрана выше
+   геометрического, и по центру блок кажется провисшим.
+   ========================================================================== */
+.hero {
+  margin-top: min(22vh, 180px);
+  width: min(560px, 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: vn-rise-in var(--vn-dur-slow) var(--vn-ease-decel);
+}
+
+.brand {
+  opacity: 0.9;
+  margin-bottom: var(--vn-space-5);
+  transition: transform var(--vn-dur-slow) var(--vn-ease-spring);
+}
+.brand:hover { transform: scale(1.06) rotate(-4deg); }
+
+.search {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--vn-space-3);
+  height: 46px;
+  padding-inline: var(--vn-space-4) var(--vn-space-2);
+  background: var(--vn-bg-surface);
+  border: 1px solid var(--vn-border);
+  border-radius: var(--vn-radius-md);
+  color: var(--vn-fg-muted);
+  transition: border-color var(--vn-dur-fast) var(--vn-ease-standard),
+              box-shadow   var(--vn-dur-base) var(--vn-ease-standard),
+              background-color var(--vn-dur-fast) var(--vn-ease-standard);
+}
+
+.search:hover { border-color: var(--vn-border-strong); }
+
+.search:focus-within {
+  background: var(--vn-bg-raised);
+  border-color: var(--vn-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--vn-accent) 20%, transparent);
+}
+
+.search input {
+  flex: 1;
+  min-width: 0;
+  font: inherit;
+  font-size: var(--vn-text-lg);
+  color: var(--vn-fg-primary);
+  background: none;
+  border: 0;
+  outline: 0;
+}
+.search input::placeholder { color: var(--vn-fg-muted); }
+
+.engine {
+  font: inherit;
+  font-size: var(--vn-text-xs);
+  color: var(--vn-fg-muted);
+  background: none;
+  border: 1px solid var(--vn-border);
+  border-radius: var(--vn-radius-sm);
+  padding: 4px 9px;
+  cursor: pointer;
+  flex: none;
+  transition: background-color var(--vn-dur-fast) var(--vn-ease-standard),
+              color var(--vn-dur-fast) var(--vn-ease-standard);
+}
+.engine:hover { background: var(--vn-bg-hover); color: var(--vn-fg-primary); }
+
+/* ===== Закреплённые ссылки ================================================ */
+.pinned {
+  width: min(720px, 100%);
+  margin-top: 56px;
+  flex: 1;
+}
+
+/* Колонка фиксированной ширины плюс центрирование: при двух-трёх плитках
+   они стоят по центру под поиском, а не жмутся к левому краю. */
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 96px);
+  justify-content: center;
+  gap: var(--vn-space-3);
+}
+
+.tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--vn-space-3);
+  padding: var(--vn-space-4) var(--vn-space-2);
+  border: 1px solid transparent;
+  border-radius: var(--vn-radius-md);
+  color: var(--vn-fg-secondary);
+  text-decoration: none;
+  position: relative;
+  /* Плитки проявляются каскадом — задержка задаётся в newtab.js */
+  animation: vn-rise-in var(--vn-dur-base) var(--vn-ease-decel) backwards;
+  transition: background-color var(--vn-dur-fast) var(--vn-ease-standard),
+              border-color var(--vn-dur-fast) var(--vn-ease-standard),
+              color var(--vn-dur-fast) var(--vn-ease-standard),
+              transform var(--vn-dur-fast) var(--vn-ease-standard);
+}
+
+.tile:hover {
+  background: var(--vn-bg-hover);
+  border-color: var(--vn-border);
+  color: var(--vn-fg-primary);
+  transform: translateY(-2px);
+}
+.tile:active { transform: translateY(0) scale(0.97); }
+
+/* Буква вместо логотипа сайта: favicon пришлось бы тянуть из сети,
+   а это запрос к сайту до того, как вы на него зашли. */
+.tile .glyph {
+  width: 40px; height: 40px;
+  display: grid; place-items: center;
+  border-radius: var(--vn-radius-md);
+  background: var(--vn-bg-raised);
+  border: 1px solid var(--vn-border);
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--vn-fg-primary);
+  text-transform: uppercase;
+  transition: background-color var(--vn-dur-fast) var(--vn-ease-standard);
+}
+.tile:hover .glyph { background: var(--vn-accent); color: var(--vn-accent-fg); }
+
+.tile .name {
+  font-size: var(--vn-text-xs);
+  text-align: center;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tile .remove {
+  position: absolute;
+  top: 4px; inset-inline-end: 4px;
+  width: 18px; height: 18px;
+  display: grid; place-items: center;
+  border: 0;
+  border-radius: var(--vn-radius-xs);
+  background: none;
+  color: var(--vn-fg-muted);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity var(--vn-dur-fast) var(--vn-ease-standard),
+              background-color var(--vn-dur-fast) var(--vn-ease-standard),
+              color var(--vn-dur-fast) var(--vn-ease-standard);
+}
+.tile:hover .remove { opacity: 1; }
+.tile .remove:hover {
+  background: color-mix(in srgb, var(--vn-threat) 22%, transparent);
+  color: var(--vn-fg-primary);
+}
+.tile .remove .icon { width: 11px; height: 11px; }
+
+/* Плитка добавления — пунктир, чтобы отличалась от настоящих ссылок */
+.tile.add {
+  border: 1px dashed var(--vn-border-strong);
+  background: none;
+  cursor: pointer;
+  font: inherit;
+}
+.tile.add .glyph {
+  background: none;
+  border-style: dashed;
+  color: var(--vn-fg-muted);
+}
+.tile.add:hover .glyph {
+  background: none;
+  border-color: var(--vn-accent);
+  color: var(--vn-accent);
+}
+
+.empty {
+  color: var(--vn-fg-muted);
+  font-size: var(--vn-text-sm);
+  line-height: 1.7;
+  max-width: 52ch;
+  margin: 0 auto var(--vn-space-5);
+  text-align: center;
+  text-wrap: balance;
+}
+
+/* ===== Сводка защиты ====================================================== */
+.guard {
+  display: flex;
+  align-items: center;
+  gap: var(--vn-space-4);
+  margin-top: 56px;
+  font-size: var(--vn-text-sm);
+  color: var(--vn-fg-muted);
+  animation: vn-fade-in var(--vn-dur-slower) var(--vn-ease-decel) backwards;
+  animation-delay: var(--vn-dur-base);
+}
+
+.guard .item { display: flex; align-items: center; gap: var(--vn-space-2); }
+.guard b {
+  color: var(--vn-guard);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+/* Ноль отправленных данных — не достижение с подсветкой, а норма. */
+.guard b.zero { color: var(--vn-fg-secondary); }
+.guard .icon { color: var(--vn-guard); }
+.guard .sep { width: 1px; height: 12px; background: var(--vn-border); }
+
+.guard .link {
+  font: inherit;
+  font-size: var(--vn-text-sm);
+  color: var(--vn-fg-muted);
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--vn-border-strong);
+  transition: color var(--vn-dur-fast) var(--vn-ease-standard);
+}
+.guard .link:hover { color: var(--vn-fg-primary); }
+
+/* ===== Диалог ============================================================= */
+.modal {
+  width: min(380px, calc(100vw - 32px));
+  padding: var(--vn-space-5);
+  background: var(--vn-bg-surface);
+  color: var(--vn-fg-primary);
+  border: 1px solid var(--vn-border);
+  border-radius: var(--vn-radius-lg);
+  box-shadow: var(--vn-shadow-lg);
+}
+.modal::backdrop { background: rgb(0 0 0 / 0.5); }
+.modal[open] { animation: vn-rise-in var(--vn-dur-base) var(--vn-ease-decel); }
+
+.modal h2 {
+  font-size: var(--vn-text-lg);
+  font-weight: 600;
+  margin-bottom: var(--vn-space-5);
+}
+
+.modal label {
+  display: block;
+  font-size: var(--vn-text-xs);
+  color: var(--vn-fg-muted);
+  margin-bottom: var(--vn-space-2);
+}
+
+.modal input {
+  width: 100%;
+  height: 34px;
+  padding-inline: var(--vn-space-3);
+  margin-bottom: var(--vn-space-4);
+  font: inherit;
+  color: var(--vn-fg-primary);
+  background: var(--vn-bg-raised);
+  border: 1px solid var(--vn-border);
+  border-radius: var(--vn-radius-sm);
+  outline: 0;
+  transition: border-color var(--vn-dur-fast) var(--vn-ease-standard);
+}
+.modal input:focus { border-color: var(--vn-accent); }
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--vn-space-3);
+  margin-top: var(--vn-space-5);
+}
+
+.btn {
+  font: inherit;
+  font-size: var(--vn-text-sm);
+  padding: 7px 14px;
+  border-radius: var(--vn-radius-sm);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background-color var(--vn-dur-fast) var(--vn-ease-standard),
+              border-color var(--vn-dur-fast) var(--vn-ease-standard);
+}
+.btn.ghost {
+  background: none;
+  border-color: var(--vn-border);
+  color: var(--vn-fg-secondary);
+}
+.btn.ghost:hover { background: var(--vn-bg-hover); color: var(--vn-fg-primary); }
+.btn.primary { background: var(--vn-accent); color: var(--vn-accent-fg); }
+.btn.primary:hover { background: var(--vn-wood-400); }
+
+/* ===== Узкое окно ========================================================= */
+@media (max-width: 480px) {
+  .hero { margin-top: 14vh; }
+  .pinned { margin-top: 36px; }
+  .guard { flex-wrap: wrap; justify-content: center; margin-top: 36px; }
+  .tiles { grid-template-columns: repeat(auto-fill, 80px); }
+}

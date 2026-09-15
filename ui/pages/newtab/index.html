@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ru" vn-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Новая вкладка</title>
+
+<!-- Никаких внешних ресурсов: шрифты системные, иконки локальные.
+     Страница новой вкладки не должна делать ни одного сетевого запроса —
+     иначе браузер сообщает о вашем запуске раньше, чем вы что-то открыли. -->
+<link rel="stylesheet" href="../../chrome/vantara/tokens.css">
+<link rel="stylesheet" href="../../chrome/vantara/animations.css">
+<link rel="stylesheet" href="newtab.css">
+</head>
+<body>
+
+<main class="page">
+
+  <!-- Поиск: выше геометрического центра, по правилу третей -->
+  <section class="hero">
+    <img class="brand" src="../../../brand/logo/mark.png" alt="Vantara" width="56" height="56">
+
+    <form class="search" id="search" role="search" autocomplete="off">
+      <svg class="icon" aria-hidden="true">
+        <use href="../../chrome/vantara/icons/sprite.svg#vn-search"/>
+      </svg>
+      <input type="text" id="q" placeholder="Поиск или адрес" aria-label="Поиск или адрес"
+             spellcheck="false" autocomplete="off">
+      <button type="button" class="engine" id="engine"
+              title="Сменить поисковую систему">DuckDuckGo</button>
+    </form>
+  </section>
+
+  <!-- Закреплённые ссылки. Заполняются вручную: список «часто посещаемых»
+       строится из слежки за историей, и мы его не строим. -->
+  <section class="pinned" aria-label="Закреплённые сайты">
+    <div class="tiles" id="tiles"></div>
+  </section>
+
+  <!-- Сводка защиты -->
+  <footer class="guard" id="guard">
+    <span class="item">
+      <svg class="icon icon-sm" aria-hidden="true">
+        <use href="../../chrome/vantara/icons/sprite.svg#vn-shield"/>
+      </svg>
+      Заблокировано <b id="blocked">0</b>
+    </span>
+    <span class="sep"></span>
+    <span class="item">Отправлено о вас <b class="zero">0</b></span>
+    <span class="sep"></span>
+    <button class="item link" id="reset" type="button">Сбросить счётчик</button>
+  </footer>
+
+</main>
+
+<!-- Диалог добавления ссылки -->
+<dialog class="modal" id="dialog">
+  <form method="dialog" id="tile-form">
+    <h2 id="dialog-title">Новая ссылка</h2>
+
+    <label for="tile-url">Адрес</label>
+    <input type="text" id="tile-url" placeholder="example.com" spellcheck="false" required>
+
+    <label for="tile-name">Название</label>
+    <input type="text" id="tile-name" placeholder="необязательно" spellcheck="false">
+
+    <div class="actions">
+      <button type="button" class="btn ghost" id="cancel">Отмена</button>
+      <button type="submit" class="btn primary">Сохранить</button>
+    </div>
+  </form>
+</dialog>
+
+<script type="module" src="newtab.js"></script>
+</body>
+</html>

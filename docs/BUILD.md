@@ -40,6 +40,17 @@ junction и запустит браузер.
 В Browser Toolbox доступен инспектор по интерфейсу браузера так же, как по
 обычной странице: можно найти нужный селектор и проверить правило на месте.
 
+### Тесты
+
+```bash
+node tools/test-url-parse.mjs
+```
+
+Проверяет разбор ввода адресной строки: что уходит в поисковую систему,
+а что открывается напрямую. Ошибка здесь означает утечку — внутренний хост
+вроде `router.local` или `intranet.company.ru` ушёл бы в поисковик вместе
+с путём. Набор случаев только растёт, удалять из него нельзя.
+
 ---
 
 ## Режим 2 — Сборка форка
@@ -99,6 +110,7 @@ surfer import            # заново наложить наши изменен
 |---|---|
 | `ui/chrome/vantara/*.css` | `src/browser/themes/vantara/` |
 | `ui/prefs/user.js` | `src/browser/app/profile/vantara.js` (заводские дефолты) |
+| `ui/pages/newtab/` | `src/browser/components/newtab/vantara/` |
 | `brand/icons/` | `src/browser/branding/vantara/` |
 | chrome-скрипты этапа 2 | `src/browser/base/content/vantara/` |
 
