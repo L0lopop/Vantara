@@ -1,0 +1,52 @@
+# =============================================================================
+# Vantara — общая конфигурация сборки
+#
+# Значения ${...} подставляет surfer из surfer.json.
+#
+# Главный принцип этого файла: то, что отключено при компиляции, нельзя
+# включить обратно настройкой. Телеметрия, отчёты о сбоях и система
+# экспериментов Mozilla вырезаются здесь, а не глушатся в user.js —
+# в готовом бинарнике их кода просто нет.
+# =============================================================================
+
+# --- Идентификация приложения ------------------------------------------------
+ac_add_options --with-app-name=${binName}
+ac_add_options --with-branding=${brandingDir}
+
+export MOZ_USER_DIR="${name}"
+export MOZ_APP_BASENAME=${binName}
+export MOZ_APP_VENDOR="${vendor}"
+export MOZ_DISTRIBUTION_ID=${appId}
+
+# --- Происхождение сборки ----------------------------------------------------
+# MPL 2.0 требует, чтобы получатель мог найти исходники изменённых файлов.
+# Эти две переменные отвечают на вопрос «из какого кода собран этот файл».
+export MOZ_INCLUDE_SOURCE_INFO=1
+export MOZ_SOURCE_REPO=https://github.com/L0lopop/Vantara
+export MOZ_SOURCE_CHANGESET=${changeset}
+
+# --- Сбор данных: вырезано на уровне компиляции ------------------------------
+# Пустое значение переменной означает, что подсистема не собирается вовсе.
+mk_add_options MOZ_TELEMETRY_REPORTING=
+mk_add_options MOZ_DATA_REPORTING=
+mk_add_options MOZ_SERVICES_HEALTHREPORT=
+
+export MOZ_TELEMETRY_REPORTING=
+export MOZ_DATA_REPORTING=
+export MOZ_SERVICES_HEALTHREPORT=
+
+# Normandy — система удалённого включения экспериментов на машине
+# пользователя. Для браузера о приватности это посторонний канал
+# управления, поэтому его нет в сборке.
+export MOZ_NORMANDY=
+
+# --- Сборка ------------------------------------------------------------------
+ac_add_options --enable-optimize
+ac_add_options --disable-debug
+ac_add_options --disable-tests
+
+# Позволяет mach самому доставить недостающие зависимости сборки.
+ac_add_options --enable-bootstrap
+
+# Если сборка съедает всю машину, раскомментировать и уменьшить число:
+# mk_add_options MOZ_MAKE_FLAGS="-j4"

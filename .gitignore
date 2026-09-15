@@ -2,6 +2,7 @@
 # Исходники Firefox: ~30 ГБ, скачиваются через surfer download
 engine/
 obj-*/
+.mozbuild/
 .surfer/
 dist/
 
