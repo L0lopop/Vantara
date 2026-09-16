@@ -91,6 +91,20 @@
   background-color: var(--vn-bg-hover) !important;
 }
 
+/* Пульс при новой блокировке. Атрибут ставит vantara-shield.js. */
+#trust-icon-container[vn-blocked] #trust-icon {
+  animation: vn-shield-pulse var(--vn-dur-slower) var(--vn-ease-spring);
+}
+
+/* Встроенный счётчик трекеров панели доверия: в палитру защиты вместо
+   нейтрального серого. Сам счётчик включается заводской настройкой
+   browser.urlbar.trackerCount.featureGate. */
+#trust-icon-tracker-count-shortform,
+#trust-icon-tracker-count-longform {
+  color: var(--vn-guard) !important;
+  font-variant-numeric: tabular-nums;
+}
+
 /* --- Щит защиты: фирменный элемент Vantara --------------------------------- */
 #tracking-protection-icon-container {
   border-radius: var(--vn-radius-sm) !important;

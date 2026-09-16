@@ -184,13 +184,26 @@ def register_prefs() -> None:
     без package-manifest его нет в установщике — и в обоих случаях
     никакой ошибки, браузер просто работает на настройках Firefox.
     """
+    # Регистрируется в JS_PREFERENCE_FILES, а не рядом с firefox.js в
+    # JS_PREFERENCE_PP_FILES. Файлы из PP-списка идут через препроцессор,
+    # и он падает на файле без единой директивы: «no preprocessor directives
+    # found». Нашему файлу препроцессор не нужен, а каталог назначения у
+    # обоих списков один и тот же.
     text = BROWSER_MOZBUILD.read_text(encoding="utf-8")
     entry = f'    "app/profile/{PREFS_NAME}",'
-    if entry not in text:
-        text = text.replace('    "app/profile/firefox.js",\n',
-                            f'    "app/profile/firefox.js",\n{entry}\n')
-        BROWSER_MOZBUILD.write_text(text, encoding="utf-8")
+
+    # Убираем запись из PP-списка, если её туда добавила прошлая версия.
+    text = text.replace(f'    "app/profile/firefox.js",\n{entry}\n',
+                        '    "app/profile/firefox.js",\n')
+
+    block = ("# Vantara: заводские настройки. Без препроцессора — см. tools/sync-ui.py.\n"
+             f"JS_PREFERENCE_FILES += [\n{entry}\n]\n")
+    if block not in text:
+        text = text.replace("FINAL_TARGET_FILES.defaults += [\"app/permissions\"]\n",
+                            "FINAL_TARGET_FILES.defaults += [\"app/permissions\"]\n\n"
+                            + block, 1)
         print("  browser/moz.build: файл настроек зарегистрирован")
+    BROWSER_MOZBUILD.write_text(text, encoding="utf-8")
 
     text = PACKAGE_MANIFEST.read_text(encoding="utf-8")
     line = f"@RESPATH@/browser/@PREF_DIR@/{PREFS_NAME}"

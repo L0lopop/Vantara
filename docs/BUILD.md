@@ -159,6 +159,27 @@ skin/classic/browser/vantara/tokens.css   (../shared/vantara/tokens.css)
 значениями — пользователь по-прежнему может их изменить, но в новом профиле
 они уже применены.
 
+Файл регистрируется в `JS_PREFERENCE_FILES`, а **не** рядом с `firefox.js`
+в `JS_PREFERENCE_PP_FILES`. Второй список прогоняет файлы через препроцессор,
+а тот падает на файле без единой директивы: «no preprocessor directives
+found». Плюс вторая запись — в `browser/installer/package-manifest.in`,
+иначе файла не будет в установщике.
+
+**Скрипты окна** — функции, которых в Firefox нет, — лежат в `ui/scripts/`
+и попадают в сборку так же в три шага: копия в
+`browser/base/content/vantara/`, запись в `browser/base/jar.mn`, строка
+`loadSubScript` в `browser-main.js`. Без записи в `jar.mn` файла нет в
+сборке, без строки в `browser-main.js` он есть, но не выполняется.
+
+Все шаги делает одна команда:
+
+```bash
+python tools/sync-ui.py
+```
+
+После неё изменённые файлы движка экспортируются патчами — команда
+печатает, какими именно.
+
 ### Что попадает в сборку
 
 | Из репозитория | Куда в Firefox |

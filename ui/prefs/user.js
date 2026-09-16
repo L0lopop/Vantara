@@ -48,6 +48,14 @@ user_pref("privacy.trackingprotection.cryptomining.enabled", true);
 user_pref("privacy.trackingprotection.fingerprinting.enabled", true);
 user_pref("privacy.trackingprotection.emailtracking.enabled", true);
 
+/* Счётчик заблокированных трекеров в адресной строке. В Firefox он есть,
+ * но выключен и включается удалённым экспериментом: флаг живёт в системе
+ * Nimbus, у контрольной группы он false. Удалённые эксперименты у нас
+ * отключены, поэтому сам он не включится никогда — включаем для всех.
+ * Функции защиты не должны раздаваться выборочно по жребию. */
+user_pref("browser.urlbar.trackerCount.featureGate", true);
+user_pref("browser.urlbar.trackerCount.enabled", true);
+
 /* == 3. Изоляция состояния =================================================
  * cookieBehavior 5 - Total Cookie Protection: каждый сторонний ресурс
  * получает отдельную "банку" кук на каждый сайт верхнего уровня.
