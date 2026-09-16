@@ -99,6 +99,19 @@ def main() -> int:
         check(app_id != FIREFOX_APP_ID and bool(app_id),
               "Идентификатор отличается от Firefox",
               f"получено: {app_id or 'пусто'}")
+
+        # BrowserGlue — центральный компонент старта — регистрируется только
+        # для перечисленных ID приложений. Смени ID и забудь дописать его
+        # сюда — браузер откроется и будет грузить сайты, но без акторов
+        # окна, без восстановления сессии и со сломанными встроенными
+        # расширениями. Ни одной ошибки сборки при этом не будет.
+        components = DIST / "browser" / "components" / "BrowserComponents.manifest"
+        if components.exists() and app_id:
+            glue = [l for l in components.read_text(encoding="utf-8").splitlines()
+                    if "nsBrowserGlue" in l and l.startswith("category app-startup")]
+            registered = any(f"application={app_id}" in l for l in glue)
+            check(registered, "BrowserGlue запускается для этого ID",
+                  "" if registered else f"{app_id} нет в BrowserComponents.manifest")
     else:
         check(False, "application.ini на месте", "файла нет")
 

@@ -1,0 +1,23 @@
+diff --git a/browser/components/BrowserComponents.manifest b/browser/components/BrowserComponents.manifest
+index 7214821fc5aa5111e2fc6c37fc3757b66516fa69..5249b4b19e65ecadd96defead899fbe99d3afcfe 100644
+--- a/browser/components/BrowserComponents.manifest
++++ b/browser/components/BrowserComponents.manifest
+@@ -6,8 +6,16 @@
+ #
+ #   browser:        {ec8030f7-c20a-464f-9b0e-13a3a9e97384}
+ #   mobile/android: {aa3c5121-dab2-40e2-81ca-7ea25febc110}
+-
+-category app-startup nsBrowserGlue @mozilla.org/browser/browserglue;1 application={ec8030f7-c20a-464f-9b0e-13a3a9e97384} application={aa3c5121-dab2-40e2-81ca-7ea25febc110}
++#   Vantara:        {911e60a9-5c4d-541e-a683-aa13da7cd6a9}
++#
++# Vantara: у форка свой ID приложения (browser/moz.configure). Без него в
++# этом списке BrowserGlue не запускается вовсе, и браузер открывается
++# наполовину: акторы окна не зарегистрированы, сессия не восстанавливается,
++# встроенные расширения падают. Сайты при этом грузятся — поэтому поломка
++# не бросается в глаза. ID здесь и в moz.configure обязаны совпадать;
++# tools/verify-build.py это проверяет.
++
++category app-startup nsBrowserGlue @mozilla.org/browser/browserglue;1 application={ec8030f7-c20a-464f-9b0e-13a3a9e97384} application={aa3c5121-dab2-40e2-81ca-7ea25febc110} application={911e60a9-5c4d-541e-a683-aa13da7cd6a9}
+ 
+ category first-startup-new-profile resource:///modules/AboutNewTabResourceMapping.sys.mjs AboutNewTabResourceMapping.firstStartupNewProfile
+ 
