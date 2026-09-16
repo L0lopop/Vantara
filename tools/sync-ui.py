@@ -42,6 +42,22 @@ ORDER = ["tokens.css", "animations.css", "base.css",
 IMPORT_LINE = '@import url("chrome://browser/skin/vantara/vantara.css");'
 MARKER = "# Vantara"
 
+PREFS_SRC = ROOT / "ui" / "prefs" / "user.js"
+PREFS_NAME = "vantara.js"
+PREFS_TARGETS = [ROOT / "engine" / "browser" / "app" / "profile" / PREFS_NAME,
+                 ROOT / "src" / "browser" / "app" / "profile" / PREFS_NAME]
+# Всё начиная с этой секции нужно только прототипу поверх готового Firefox.
+PROTOTYPE_ONLY = "== 11. Прототипирование"
+
+SCRIPTS_SRC = ROOT / "ui" / "scripts"
+SCRIPTS_TARGETS = [ROOT / "engine" / "browser" / "base" / "content" / "vantara",
+                   ROOT / "src" / "browser" / "base" / "content" / "vantara"]
+BASE_JAR = ROOT / "engine" / "browser" / "base" / "jar.mn"
+BROWSER_MAIN = ROOT / "engine" / "browser" / "base" / "content" / "browser-main.js"
+
+BROWSER_MOZBUILD = ROOT / "engine" / "browser" / "moz.build"
+PACKAGE_MANIFEST = ROOT / "engine" / "browser" / "installer" / "package-manifest.in"
+
 
 def copy_styles() -> list[str]:
     DEST.mkdir(parents=True, exist_ok=True)
@@ -117,6 +133,126 @@ def add_import() -> None:
         print(f"  {css.parent.name}/browser.css: импорт добавлен")
 
 
+def sync_prefs() -> None:
+    """Превращает профиль приватности в заводские настройки.
+
+    В прототипе ui/prefs/user.js лежит в профиле — и работает, только пока
+    профиль тот самый. Установленный у пользователя браузер его не видит,
+    и без этого шага строгая защита от слежки, HTTPS-only и изоляция кук
+    остаются только у разработчика.
+
+    user_pref() становится pref(): это заводское значение, которое
+    пользователь по-прежнему может изменить. Секции для прототипа отрезаются.
+    """
+    text = PREFS_SRC.read_text(encoding="utf-8")
+
+    cut = text.find(PROTOTYPE_ONLY)
+    if cut != -1:
+        # Отрезаем от начала строки-заголовка, чтобы не оставить обрывок.
+        text = text[:text.rfind("\n", 0, cut) + 1]
+
+    body = "\n".join(
+        "pref(" + line[len("user_pref("):] if line.startswith("user_pref(") else line
+        for line in text.splitlines()
+    )
+
+    header = (
+        "/* This Source Code Form is subject to the terms of the Mozilla Public\n"
+        " * License, v. 2.0. If a copy of the MPL was not distributed with this\n"
+        " * file, You can obtain one at http://mozilla.org/MPL/2.0/. */\n"
+        "\n"
+        "/* Vantara — заводские настройки.\n"
+        " * Создаётся tools/sync-ui.py из ui/prefs/user.js. Править там.\n"
+        " *\n"
+        " * Файл читается после firefox.js (порядок алфавитный) и перекрывает\n"
+        " * его значения. Он проходит через препроцессор сборки, поэтому строка\n"
+        " * не может начинаться с символа решётки. */\n\n"
+    )
+
+    for target in PREFS_TARGETS:
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(header + body.rstrip() + "\n", encoding="utf-8")
+
+    count = sum(1 for l in body.splitlines() if l.startswith("pref("))
+    print(f"  {PREFS_NAME}: заводских настроек {count}")
+
+
+def register_prefs() -> None:
+    """Прописывает файл настроек в сборку и в установщик.
+
+    Два места, и оба обязательны: без moz.build файла нет в сборке,
+    без package-manifest его нет в установщике — и в обоих случаях
+    никакой ошибки, браузер просто работает на настройках Firefox.
+    """
+    text = BROWSER_MOZBUILD.read_text(encoding="utf-8")
+    entry = f'    "app/profile/{PREFS_NAME}",'
+    if entry not in text:
+        text = text.replace('    "app/profile/firefox.js",\n',
+                            f'    "app/profile/firefox.js",\n{entry}\n')
+        BROWSER_MOZBUILD.write_text(text, encoding="utf-8")
+        print("  browser/moz.build: файл настроек зарегистрирован")
+
+    text = PACKAGE_MANIFEST.read_text(encoding="utf-8")
+    line = f"@RESPATH@/browser/@PREF_DIR@/{PREFS_NAME}"
+    if line not in text:
+        text = text.replace("@RESPATH@/browser/@PREF_DIR@/firefox-branding.js\n",
+                            f"@RESPATH@/browser/@PREF_DIR@/firefox-branding.js\n{line}\n")
+        PACKAGE_MANIFEST.write_text(text, encoding="utf-8")
+        print("  package-manifest.in: файл настроек попадёт в установщик")
+
+
+def sync_scripts() -> None:
+    """Подключает скрипты окна: функции, которых в Firefox нет.
+
+    Три места, и каждое обязательно. Без записи в jar.mn файла нет
+    в сборке, без строки в browser-main.js он есть, но не выполняется —
+    и в обоих случаях ни одной ошибки.
+    """
+    scripts = sorted(SCRIPTS_SRC.glob("*.js"))
+    if not scripts:
+        print("  скриптов нет")
+        return
+
+    for target in SCRIPTS_TARGETS:
+        target.mkdir(parents=True, exist_ok=True)
+        for script in scripts:
+            shutil.copy2(script, target / script.name)
+    print(f"  скопировано скриптов: {len(scripts)}")
+
+    jar = BASE_JAR.read_text(encoding="utf-8")
+    anchor = "        content/browser/browser-main.js"
+    added = 0
+    for script in scripts:
+        entry = (f"        content/browser/vantara/{script.name:<31} "
+                 f"(content/vantara/{script.name})")
+        if f"content/browser/vantara/{script.name}" in jar:
+            continue
+        # Встаём перед browser-main.js: порядок строк в jar.mn не важен,
+        # но так наши записи легко найти глазами.
+        jar = jar.replace(anchor, entry + "\n" + anchor, 1)
+        added += 1
+    BASE_JAR.write_text(jar, encoding="utf-8")
+    print(f"  browser/base/jar.mn: новых записей {added}")
+
+    main_js = BROWSER_MAIN.read_text(encoding="utf-8")
+    loaded = 0
+    for script in scripts:
+        line = (f'  Services.scriptloader.loadSubScript('
+                f'"chrome://browser/content/vantara/{script.name}", this);')
+        if line in main_js:
+            continue
+        # После скрипта защиты: щит опирается на его разметку.
+        main_js = main_js.replace(
+            '  Services.scriptloader.loadSubScript('
+            '"chrome://browser/content/browser-customtitlebar.js", this);\n',
+            '  Services.scriptloader.loadSubScript('
+            '"chrome://browser/content/browser-customtitlebar.js", this);\n'
+            + line + "\n", 1)
+        loaded += 1
+    BROWSER_MAIN.write_text(main_js, encoding="utf-8")
+    print(f"  browser-main.js: подключено {loaded}")
+
+
 def main() -> int:
     if not THEMES.exists():
         print(f"Нет движка: {THEMES.relative_to(ROOT)}")
@@ -132,10 +268,19 @@ def main() -> int:
     register_in_jar(files)
     add_import()
 
+    print("\nПеренос настроек приватности")
+    sync_prefs()
+    register_prefs()
+
+    print("\nПеренос скриптов окна")
+    sync_scripts()
+
     print()
-    print("Дальше:")
-    print("  npx surfer export-file browser/themes/shared/jar.inc.mn")
-    print("  npx surfer export-file browser/themes/windows/browser.css")
+    print("Дальше: экспортировать изменённые файлы движка патчами и собрать.")
+    print("  npx surfer export-file browser/moz.build")
+    print("  npx surfer export-file browser/installer/package-manifest.in")
+    print("  npx surfer export-file browser/base/jar.mn")
+    print("  npx surfer export-file browser/base/content/browser-main.js")
     print("  .\\tools\\mach.ps1 build")
     return 0
 

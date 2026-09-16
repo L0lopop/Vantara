@@ -1,0 +1,12 @@
+diff --git a/browser/moz.build b/browser/moz.build
+index 5a03cfc6d3f8fe3a677d4d9e9894e69a98d0c01f..334130f639ad671418f70f34cedadd1f92bec9ac 100644
+--- a/browser/moz.build
++++ b/browser/moz.build
+@@ -53,6 +53,7 @@ if CONFIG["MOZ_ARTIFACT_BUILDS"]:
+ # this directory, which is un-set in browser/app.
+ JS_PREFERENCE_PP_FILES += [
+     "app/profile/firefox.js",
++    "app/profile/vantara.js",
+ ]
+ FINAL_TARGET_FILES.defaults += ["app/permissions"]
+ 

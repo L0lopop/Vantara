@@ -37,6 +37,18 @@ FORBIDDEN_FILES = [
     "minidump-analyzer.exe",
 ]
 
+# Ключевые обещания продукта. Если хоть одного нет в заводских настройках,
+# установленный браузер их не выполняет, как бы ни выглядел интерфейс.
+REQUIRED_PREFS = [
+    ("browser.contentblocking.category", '"strict"'),
+    ("network.cookie.cookieBehavior", "5"),
+    ("dom.security.https_only_mode", "true"),
+    ("datareporting.healthreport.uploadEnabled", "false"),
+    ("app.normandy.enabled", "false"),
+    ("browser.preonboarding.enabled", "false"),
+    ("media.peerconnection.ice.default_address_only", "true"),
+]
+
 results: list[tuple[bool, str, str]] = []
 
 
@@ -96,11 +108,19 @@ def main() -> int:
               "подсистема отключена при компиляции")
 
     # --- Настройки по умолчанию ---------------------------------------------
+    # Без vantara.js браузер у пользователя работает на настройках Firefox:
+    # телеметрия вырезана компиляцией, но строгая защита от слежки,
+    # HTTPS-only и изоляция кук остаются только в профиле разработчика.
     prefs = DIST / "browser" / "defaults" / "preferences" / "vantara.js"
-    legacy = DIST / "browser" / "defaults" / "preferences" / "firefox.js"
-    check(prefs.exists() or legacy.exists(), "Файл заводских настроек на месте",
-          str((prefs if prefs.exists() else legacy).name)
-          if (prefs.exists() or legacy.exists()) else "не найден")
+    check(prefs.exists(), "Заводские настройки Vantara в сборке",
+          "vantara.js" if prefs.exists() else "нет vantara.js — работают настройки Firefox")
+
+    if prefs.exists():
+        text = prefs.read_text(encoding="utf-8", errors="ignore")
+        for pref, value in REQUIRED_PREFS:
+            present = f'pref("{pref}", {value});' in text
+            check(present, f"{pref} = {value}",
+                  "" if present else "значение не найдено в заводских настройках")
 
     # --- Сервер обновлений ---------------------------------------------------
     # Проверка обновлений сообщает владельцу сервера о каждом запуске
