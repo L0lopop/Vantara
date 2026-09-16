@@ -27,6 +27,9 @@
   border: 1px solid var(--vn-border) !important;
   border-radius: var(--vn-radius-md) !important;
   box-shadow: none !important;
+  /* Волна загрузки движется за пределы полосы — без обрезки она торчит
+     за скруглёнными углами. Фон пустой, обрезать в нём больше нечего. */
+  overflow: hidden !important;
   transition: background-color var(--vn-dur-fast) var(--vn-ease-standard),
               border-color     var(--vn-dur-fast) var(--vn-ease-standard),
               box-shadow       var(--vn-dur-base) var(--vn-ease-standard);
@@ -125,16 +128,6 @@
    (см. ui/chrome/vantara/scripts/shield.uc.js), CSS только рисует. */
 #tracking-protection-icon-container[vn-blocked] #tracking-protection-icon {
   animation: vn-shield-pulse var(--vn-dur-slower) var(--vn-ease-spring);
-}
-
-/* Счётчик заблокированного рядом со щитом. */
-#tracking-protection-icon-container[vn-count]::after {
-  content: attr(vn-count);
-  font-size: var(--vn-text-xs);
-  font-variant-numeric: tabular-nums;
-  color: var(--vn-guard);
-  margin-inline-start: var(--vn-space-1);
-  animation: vn-counter-tick var(--vn-dur-base) var(--vn-ease-decel);
 }
 
 /* --- Индикатор загрузки ---------------------------------------------------- */

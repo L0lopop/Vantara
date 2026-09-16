@@ -56,6 +56,17 @@ def main() -> int:
     with session as m:
         print(f"{DIM}Документ: {m.script('return document.documentURI')}{RESET}\n")
 
+        # Firefox фокусирует адресную строку при старте, и тогда замер видит
+        # не обычное состояние, а фокус. К тому же в Firefox 156 строка
+        # снимает фокус не сразу. Переводим фокус в страницу и ждём два
+        # кадра отрисовки — иначе результат зависит от момента запуска.
+        m.script("""
+          if (typeof gURLBar !== 'undefined' && gURLBar.focused) gURLBar.blur();
+          gBrowser.selectedBrowser.focus();
+          return new Promise(resolve =>
+            requestAnimationFrame(() => requestAnimationFrame(() => resolve(true))));
+        """)
+
         # 1. Дошли ли токены до корня документа.
         print("Токены в :root")
         values = m.script("""

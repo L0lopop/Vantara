@@ -5,13 +5,15 @@
 /* Vantara — живой щит.
  *
  * Коротко пульсирует иконкой у адресной строки в момент новой блокировки
- * и ведёт общий итог заблокированного. Стили — в navbar.css (атрибуты
- * vn-blocked и vn-count); здесь только источник событий.
+ * и ведёт общий итог попыток слежки. Стили — в navbar.css (атрибут
+ * vn-blocked); здесь только источник событий.
  *
- * Число на текущей странице рисует сам движок: в Firefox 156 у панели
- * доверия (#trust-icon-container) есть свой счётчик, мы только включаем
- * его заводской настройкой. Свой vn-count ставится на старую иконку
- * защиты — она видна, если пользователь выключил панель доверия.
+ * Число на текущей странице показывает сам движок: у панели доверия
+ * Firefox есть свой счётчик, мы только включаем его заводской настройкой.
+ * Своего числа щит не рисует. Firefox считает источники через каждый из
+ * своих блокеров отдельно и добавляет заменённые скрипты; повторить это
+ * по журналу точно нельзя — на CNN вышло 50 против его 23. Две цифры,
+ * спорящие друг с другом, хуже одной.
  *
  * Данные берутся из журнала блокировок движка, а не считаются заново.
  * Каждая запись журнала — [тип, заблокировано, повторов]; формат задан
@@ -29,6 +31,7 @@
 var gVantaraShield = {
   // Длительность пульса совпадает с --vn-dur-slower в tokens.css.
   PULSE_MS: 560,
+  // Хранит число попыток слежки, а не источников — см. _attemptsFor.
   TOTAL_PREF: "vantara.shield.blockedTotal",
   // Запись в настройки откладывается: на тяжёлой странице блокировки
   // идут десятками в секунду, и писать на диск каждую незачем.
@@ -61,22 +64,17 @@ var gVantaraShield = {
   init() {
     this._private = PrivateBrowsingUtils.isWindowPrivate(window);
     gBrowser.addTabsProgressListener(this);
-    gBrowser.tabContainer.addEventListener("TabSelect", this);
     window.addEventListener("unload", this, { once: true });
-    this._render(this._countFor(gBrowser.selectedBrowser), false);
   },
 
   uninit() {
     gBrowser.removeTabsProgressListener(this);
-    gBrowser.tabContainer.removeEventListener("TabSelect", this);
     clearTimeout(this._pulseTimer);
     this._flushTotal();
   },
 
   handleEvent(event) {
-    if (event.type == "TabSelect") {
-      this._render(this._countFor(gBrowser.selectedBrowser), false);
-    } else if (event.type == "unload") {
+    if (event.type == "unload") {
       this.uninit();
     }
   },
@@ -92,9 +90,6 @@ var gVantaraShield = {
       return;
     }
     this._counts.set(browser, 0);
-    if (browser == gBrowser.selectedBrowser) {
-      this._render(0, false);
-    }
   },
 
   onContentBlockingEvent(browser, webProgress, request, event, isSimulated) {
@@ -102,23 +97,30 @@ var gVantaraShield = {
     // пересказывает старое состояние, а не сообщает о новой блокировке.
     // Считать его — значит пульсировать и накручивать счётчик на каждом
     // переключении.
-    let count = this._countFor(browser);
+    let attempts = this._attemptsFor(browser);
     let previous = this._counts.get(browser) ?? 0;
-    this._counts.set(browser, count);
+    this._counts.set(browser, attempts);
 
-    let grown = isSimulated ? 0 : Math.max(0, count - previous);
+    let grown = isSimulated ? 0 : Math.max(0, attempts - previous);
     if (grown > 0) {
       this._addToTotal(grown);
     }
 
-    if (browser == gBrowser.selectedBrowser) {
-      this._render(count, grown > 0);
+    // Пульс — только для видимой вкладки и только на новую блокировку.
+    if (grown > 0 && browser == gBrowser.selectedBrowser) {
+      this._pulse([this.trustIcon, this.legacyIcon].filter(Boolean));
     }
   },
 
   /* --- Подсчёт ----------------------------------------------------------- */
 
-  _countFor(browser) {
+  /**
+   * Сколько раз на странице срабатывала блокировка. Это попытки, а не
+   * источники: один трекер может срабатывать десятки раз. В общий итог
+   * идут именно попытки — число уникальных доменов за всё время ничего
+   * не говорит.
+   */
+  _attemptsFor(browser) {
     // Журнала может не быть: вкладка ещё грузится или это about:.
     let raw = browser?.getContentBlockingLog();
     if (!raw) {
@@ -132,38 +134,18 @@ var gVantaraShield = {
       return 0;
     }
 
-    let total = 0;
+    let attempts = 0;
     for (let actions of Object.values(log)) {
       for (let [, blocked, repeat] of actions) {
         if (blocked) {
-          total += repeat || 1;
+          attempts += repeat || 1;
         }
       }
     }
-    return total;
+    return attempts;
   },
 
   /* --- Отрисовка --------------------------------------------------------- */
-
-  _render(count, pulse) {
-    // Число — только на старую иконку. У панели доверия свой счётчик,
-    // второй рядом с ним был бы дублем.
-    let legacy = this.legacyIcon;
-    if (legacy) {
-      if (count > 0) {
-        legacy.setAttribute("vn-count", count);
-      } else {
-        legacy.removeAttribute("vn-count");
-      }
-    }
-
-    if (pulse) {
-      // Пульс на обе: скрытая всё равно не видна, а решать за движок,
-      // какая из них сейчас показана, незачем.
-      let icons = [this.trustIcon, legacy].filter(Boolean);
-      this._pulse(icons);
-    }
-  },
 
   _pulse(icons) {
     // Анимация перезапускается только если атрибут сняли и поставили

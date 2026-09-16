@@ -29,9 +29,11 @@
   border-inline-end: 1px solid var(--vn-border) !important;
 }
 
-/* Панель справа — кромка переезжает на другую сторону. */
-#sidebar-box[positionend],
-#sidebar-container[positionend] {
+/* Панель справа — кромка переезжает на другую сторону.
+   Атрибут в Firefox 156 называется sidebar-positionend и ставится на
+   #sidebar-box и на sidebar-main (browser-sidebar.js), а не на контейнер. */
+#sidebar-box[sidebar-positionend],
+sidebar-main[sidebar-positionend] {
   border-inline-end: none !important;
   border-inline-start: 1px solid var(--vn-border) !important;
 }
@@ -80,8 +82,9 @@
 }
 
 /* --- Разделители -----------------------------------------------------------
-   Разделитель тонкий, но зона захвата шире полосы: иначе в него трудно
-   попасть курсором. Подсветка появляется только при наведении. */
+   Полоса в один пиксель, подсветка акцентом при наведении.
+   [СДЕЛАТЬ] Зону захвата шире полосы: в однопиксельный разделитель трудно
+   попасть курсором. Требует проверки раскладки на открытой панели. */
 #sidebar-splitter,
 #sidebar-launcher-splitter {
   border: none !important;

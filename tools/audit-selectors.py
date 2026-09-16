@@ -35,7 +35,7 @@ CONDITIONAL = re.compile(
     r"\[vn-|:hover|:active|:focus|::before|::after|::placeholder|"
     r"\[fadein\]|\[selected\]|\[pinned\]|\[soundplaying\]|\[usercontextid\]|"
     r"\[disabled\]|\[open\]|\[hasException\]|\[focused\]|\[pageproxystate|"
-    r":not\(\[|@media|:root\[|"
+    r":not\(\[|@media|:root\[|\[aria-expanded|\[sidebar-positionend\]|"
     # элементы, которые браузер создаёт только по действию пользователя:
     # панели, меню, подсказки, строка поиска, уведомления
     r"protections-popup|appMenu-popup|urlbarView|findbar|notification-|"

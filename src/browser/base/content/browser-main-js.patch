@@ -1,11 +1,12 @@
 diff --git a/browser/base/content/browser-main.js b/browser/base/content/browser-main.js
-index f7f364290e0e49ff8c0382e6761d72e5e411a0a2..87b5370432fb479f5b7e32f4e9e25db4985ac7d5 100644
+index f7f364290e0e49ff8c0382e6761d72e5e411a0a2..7580ad227aed5c2cf7570458162febc00d31762e 100644
 --- a/browser/base/content/browser-main.js
 +++ b/browser/base/content/browser-main.js
-@@ -17,6 +17,8 @@
+@@ -17,6 +17,9 @@
    Services.scriptloader.loadSubScript("chrome://browser/content/browser-pageActions.js", this);
    Services.scriptloader.loadSubScript("chrome://browser/content/sidebar/browser-sidebar.js", this);
    Services.scriptloader.loadSubScript("chrome://browser/content/browser-customtitlebar.js", this);
++  Services.scriptloader.loadSubScript("chrome://browser/content/vantara/vantara-motion.js", this);
 +  Services.scriptloader.loadSubScript("chrome://browser/content/vantara/vantara-protection.js", this);
 +  Services.scriptloader.loadSubScript("chrome://browser/content/vantara/vantara-shield.js", this);
    Services.scriptloader.loadSubScript("chrome://browser/content/browser-unified-extensions.js", this);
