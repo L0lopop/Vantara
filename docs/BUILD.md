@@ -80,43 +80,56 @@ node tools/test-url-parse.mjs
 
 ## Режим 2 — Сборка форка
 
-> Этап 3 роадмапа. Раздел описывает целевой процесс; окружение ещё не разворачивалось.
+Проверено на Windows 11: Firefox 156, MozillaBuild 4.2.1, Visual Studio 2022,
+20 ядер. Первая полная сборка — около получаса, повторные — минуты.
 
 ### Требования
 
 | Что | Зачем | Объём |
 |---|---|---|
-| MozillaBuild | Оболочка сборки Mozilla под Windows | ~500 МБ |
+| MozillaBuild | Оболочка сборки Mozilla под Windows, ставится в `C:\mozilla-build` | ~170 МБ |
 | Visual Studio 2022 + C++ workload, Windows SDK | Компилятор | ~10 ГБ |
 | Rust (stable, MSVC target) | Часть Gecko на Rust | ~2 ГБ |
-| Node.js 18+ | surfer и сборочные скрипты | — |
+| Node.js 18+ | surfer | — |
 | Git, Python 3.9+ | Инструменты Mozilla | — |
-| **Свободное место** | Исходники + объектные файлы | **~60 ГБ** |
+| **Свободное место** | Исходники 3,4 ГБ + объектные файлы | **~40 ГБ** |
 
-На этой машине уже есть: Node 22, Python 3.12, Rust 1.98, Git, VS 2022.
-Не хватает **MozillaBuild** — https://ftp.mozilla.org/pub/mozilla/libraries/win32/MozillaBuild-Latest.exe
+MozillaBuild: https://ftp.mozilla.org/pub/mozilla/libraries/win32/MozillaBuildSetup-Latest.exe
+(файл называется `MozillaBuildSetup-…`; адрес `MozillaBuild-Latest.exe` отдаёт 404).
+Короткий путь установки важен: Gecko упирается в лимит длины путей Windows.
 
 ### Порядок
 
 ```bash
-# 1. Инструмент сборки форков (написан командой Zen Browser)
-npm install -g @zen-browser/surfer
+# 1. Инструмент сборки форков — локально, не глобально (см. препятствие 1)
+npm install
 
-# 2. Инициализация проекта: версия Firefox, имя приложения, бренд
-surfer init
+# 2. Бренд назначается явно, иначе сборка молча возьмёт unofficial
+npx surfer config brand stable
 
-# 3. Скачать исходники Firefox в engine/ (~30 ГБ, долго)
-surfer download
+# 3. Исходники Firefox в engine/ (архив ~500 МБ, распакованные 3,4 ГБ)
+npx surfer download
 
-# 4. Наложить наш оверлей src/ и патчи на исходники
-surfer import
+# 4. Брендинг и патчи из src/ поверх исходников
+python tools/build-branding.py
+npx surfer import
+python tools/fix-branding.py    # убрать адреса zen-browser.app
 
-# 5. Сборка. Первый раз — 1-3 часа, дальше инкрементально
-surfer build
+# 5. Интерфейс, настройки и скрипты окна — в исходники
+python tools/sync-ui.py
 
-# 6. Установщик
-surfer package
+# 6. Конфигурация сборки. surfer build сам сборку не запустит (препятствие 2),
+#    но сгенерирует engine/mozconfig — и упадёт на вызове mach. Это ожидаемо.
+npx surfer build
+
+# 7. Сборка
+.\tools\mach.ps1 build
+
+# 8. Приёмка — по фактам, а не по коду возврата
+python tools/verify-build.py
 ```
+
+Собранный браузер: `engine/obj-x86_64-pc-windows-msvc/dist/bin/vantara.exe`.
 
 ### Обновление до новой версии Firefox
 
@@ -159,6 +172,21 @@ skin/classic/browser/vantara/tokens.css   (../shared/vantara/tokens.css)
 значениями — пользователь по-прежнему может их изменить, но в новом профиле
 они уже применены.
 
+Файл называется `00-vantara.js`, и префикс — не украшение. Движок читает
+файлы заводских настроек **в обратном алфавитном порядке**
+(`Preferences.cpp`: `pref_CompareFileNames`, и так же для архива `omni.ja`),
+а при совпадении побеждает прочитанный последним — алфавитно первый. Под
+именем `vantara.js` файл читался первым, `firefox.js` его затирал, и в
+собранном браузере не действовали 24 из 105 настроек: предварительные
+соединения, запрет геолокации, приватность файла сессии. Текст при этом
+был в файле, приёмка — зелёной.
+
+Поэтому итоговые значения проверяются в живом браузере, на пустом профиле:
+
+```bash
+python tools/verify-prefs.py
+```
+
 Файл регистрируется в `JS_PREFERENCE_FILES`, а **не** рядом с `firefox.js`
 в `JS_PREFERENCE_PP_FILES`. Второй список прогоняет файлы через препроцессор,
 а тот падает на файле без единой директивы: «no preprocessor directives
@@ -193,7 +221,7 @@ python tools/sync-ui.py
 ### Что пришлось чинить под Windows
 
 Документация surfer написана под Linux и macOS. На Windows сборка упирается
-в шесть препятствий подряд — ни одно из них не описано, и каждое выглядит
+в восемь препятствий подряд — ни одно из них не описано, и каждое выглядит
 как «ничего не работает».
 
 **1. Surfer ставится локально, не глобально.** При глобальной установке он

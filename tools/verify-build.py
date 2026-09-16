@@ -124,9 +124,21 @@ def main() -> int:
     # Без vantara.js браузер у пользователя работает на настройках Firefox:
     # телеметрия вырезана компиляцией, но строгая защита от слежки,
     # HTTPS-only и изоляция кук остаются только в профиле разработчика.
-    prefs = DIST / "browser" / "defaults" / "preferences" / "vantara.js"
+    prefs_dir = DIST / "browser" / "defaults" / "preferences"
+    prefs = prefs_dir / "00-vantara.js"
     check(prefs.exists(), "Заводские настройки Vantara в сборке",
-          "vantara.js" if prefs.exists() else "нет vantara.js — работают настройки Firefox")
+          prefs.name if prefs.exists() else "нет 00-vantara.js — работают настройки Firefox")
+
+    # Наличие файла ничего не гарантирует. Движок читает файлы настроек
+    # в обратном алфавитном порядке, и при совпадении побеждает прочитанный
+    # последним — то есть алфавитно первый. Если первым окажется чужой файл,
+    # он перекроет наши значения молча.
+    if prefs_dir.exists():
+        names = sorted(p.name for p in prefs_dir.glob("*.js"))
+        first = names[0] if names else ""
+        check(first == prefs.name, "Наши настройки читаются последними",
+              "" if first == prefs.name
+              else f"последним читается {first}, он перекроет наши значения")
 
     if prefs.exists():
         text = prefs.read_text(encoding="utf-8", errors="ignore")

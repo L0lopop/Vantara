@@ -43,7 +43,14 @@ IMPORT_LINE = '@import url("chrome://browser/skin/vantara/vantara.css");'
 MARKER = "# Vantara"
 
 PREFS_SRC = ROOT / "ui" / "prefs" / "user.js"
-PREFS_NAME = "vantara.js"
+# Имя начинается с «00-» не для красоты. Движок читает файлы заводских
+# настроек в ОБРАТНОМ алфавитном порядке (Preferences.cpp:
+# pref_CompareFileNames и обход prefEntries с конца), и при совпадении
+# побеждает прочитанный последним. Последним читается алфавитно первый.
+# С именем vantara.js файл читался первым, firefox.js затирал его, и
+# четверть наших настроек в собранном браузере не действовала.
+PREFS_NAME = "00-vantara.js"
+LEGACY_PREFS_NAME = "vantara.js"
 PREFS_TARGETS = [ROOT / "engine" / "browser" / "app" / "profile" / PREFS_NAME,
                  ROOT / "src" / "browser" / "app" / "profile" / PREFS_NAME]
 # Всё начиная с этой секции нужно только прототипу поверх готового Firefox.
@@ -172,6 +179,11 @@ def sync_prefs() -> None:
     for target in PREFS_TARGETS:
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(header + body.rstrip() + "\n", encoding="utf-8")
+        # Файл под старым именем читался бы первым и лишь сбивал с толку.
+        legacy = target.with_name(LEGACY_PREFS_NAME)
+        if legacy.exists():
+            legacy.unlink()
+            print(f"  удалён устаревший {legacy.relative_to(ROOT)}")
 
     count = sum(1 for l in body.splitlines() if l.startswith("pref("))
     print(f"  {PREFS_NAME}: заводских настроек {count}")
@@ -191,10 +203,12 @@ def register_prefs() -> None:
     # обоих списков один и тот же.
     text = BROWSER_MOZBUILD.read_text(encoding="utf-8")
     entry = f'    "app/profile/{PREFS_NAME}",'
+    legacy_entry = f'    "app/profile/{LEGACY_PREFS_NAME}",'
 
-    # Убираем запись из PP-списка, если её туда добавила прошлая версия.
-    text = text.replace(f'    "app/profile/firefox.js",\n{entry}\n',
+    # Прошлые версии скрипта ставили запись в PP-список и под старым именем.
+    text = text.replace(f'    "app/profile/firefox.js",\n{legacy_entry}\n',
                         '    "app/profile/firefox.js",\n')
+    text = text.replace(legacy_entry, entry)
 
     block = ("# Vantara: заводские настройки. Без препроцессора — см. tools/sync-ui.py.\n"
              f"JS_PREFERENCE_FILES += [\n{entry}\n]\n")
@@ -207,6 +221,7 @@ def register_prefs() -> None:
 
     text = PACKAGE_MANIFEST.read_text(encoding="utf-8")
     line = f"@RESPATH@/browser/@PREF_DIR@/{PREFS_NAME}"
+    text = text.replace(f"@RESPATH@/browser/@PREF_DIR@/{LEGACY_PREFS_NAME}\n", "")
     if line not in text:
         text = text.replace("@RESPATH@/browser/@PREF_DIR@/firefox-branding.js\n",
                             f"@RESPATH@/browser/@PREF_DIR@/firefox-branding.js\n{line}\n")

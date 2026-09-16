@@ -1,5 +1,5 @@
 diff --git a/browser/moz.build b/browser/moz.build
-index 5a03cfc6d3f8fe3a677d4d9e9894e69a98d0c01f..4348ab5adde4589e262c7cd07db0c751dd3fc466 100644
+index 5a03cfc6d3f8fe3a677d4d9e9894e69a98d0c01f..a3d367b9b7aa23a152683c9a98a59bdcf09bbf4a 100644
 --- a/browser/moz.build
 +++ b/browser/moz.build
 @@ -56,6 +56,11 @@ JS_PREFERENCE_PP_FILES += [
@@ -8,7 +8,7 @@ index 5a03cfc6d3f8fe3a677d4d9e9894e69a98d0c01f..4348ab5adde4589e262c7cd07db0c751
  
 +# Vantara: заводские настройки. Без препроцессора — см. tools/sync-ui.py.
 +JS_PREFERENCE_FILES += [
-+    "app/profile/vantara.js",
++    "app/profile/00-vantara.js",
 +]
 +
  with Files("**"):
