@@ -1,12 +1,13 @@
 diff --git a/browser/base/jar.mn b/browser/base/jar.mn
-index 783c67d397a541a0e78374dc93c930fbd8d2e7e7..841017a452c942ce8c6cd0b7566a6c27fac9507e 100644
+index 783c67d397a541a0e78374dc93c930fbd8d2e7e7..1c04b8b07d7185b0ad96a7344216efe08ae7fa45 100644
 --- a/browser/base/jar.mn
 +++ b/browser/base/jar.mn
-@@ -47,6 +47,7 @@ browser.jar:
+@@ -47,6 +47,8 @@ browser.jar:
          content/browser/browser-fullScreenAndPointerLock.js (content/browser-fullScreenAndPointerLock.js)
          content/browser/browser-gestureSupport.js           (content/browser-gestureSupport.js)
          content/browser/browser-init.js                     (content/browser-init.js)
 +        content/browser/vantara/vantara-shield.js               (content/vantara/vantara-shield.js)
++        content/browser/vantara/vantara-protection.js           (content/vantara/vantara-protection.js)
          content/browser/browser-main.js                     (content/browser-main.js)
          content/browser/browser-menubar.js                  (content/browser-menubar.js)
          content/browser/browser-pageActions.js              (content/browser-pageActions.js)

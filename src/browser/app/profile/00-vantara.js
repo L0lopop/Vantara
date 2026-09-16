@@ -49,15 +49,20 @@ pref("browser.crashReports.unsubmittedCheck.autoSubmit2", false);
 pref("breakpad.reportURL", "");
 
 /* == 2. Блокировка слежки ==================================================
- * Строгий режим: трекеры, соцкнопки, майнеры, сбор отпечатков.
+ * Строгий режим: трекеры, соцкнопки, майнеры, сбор отпечатков, Total Cookie
+ * Protection, очистка ссылок от меток слежки, защита от bounce-трекинга.
+ *
+ * Отдельные настройки этих защит здесь НЕ задаются — ими командует
+ * категория. Firefox сам выставляет весь набор по
+ * browser.contentblocking.features.strict. Задать их заводскими значениями
+ * значило бы сломать выбор пользователя: переключившись на «стандартную»,
+ * чтобы починить сайт, он получил бы наш строгий набор под чужой вывеской.
+ *
+ * В сборке категория не может быть заводским значением — Firefox его
+ * игнорирует и при старте объявляет «стандартной». На новом профиле её
+ * выставляет ui/scripts/vantara-protection.js; в заводские настройки эта
+ * строка не переносится (см. tools/sync-ui.py). Здесь она для прототипа.
  * ========================================================================== */
-pref("browser.contentblocking.category", "strict");
-pref("privacy.trackingprotection.enabled", true);
-pref("privacy.trackingprotection.pbmode.enabled", true);
-pref("privacy.trackingprotection.socialtracking.enabled", true);
-pref("privacy.trackingprotection.cryptomining.enabled", true);
-pref("privacy.trackingprotection.fingerprinting.enabled", true);
-pref("privacy.trackingprotection.emailtracking.enabled", true);
 
 /* Счётчик заблокированных трекеров в адресной строке. В Firefox он есть,
  * но выключен и включается удалённым экспериментом: флаг живёт в системе
@@ -68,15 +73,13 @@ pref("browser.urlbar.trackerCount.featureGate", true);
 pref("browser.urlbar.trackerCount.enabled", true);
 
 /* == 3. Изоляция состояния =================================================
- * cookieBehavior 5 - Total Cookie Protection: каждый сторонний ресурс
- * получает отдельную "банку" кук на каждый сайт верхнего уровня.
- * Межсайтовое отслеживание через куки перестаёт работать, при этом
- * логины на самих сайтах не ломаются.
+ * Total Cookie Protection (cookieBehavior 5) включает категория из
+ * секции 2: каждый сторонний ресурс получает отдельную "банку" кук на
+ * каждый сайт верхнего уровня. Здесь — то, что к категории не относится.
  *
  * [РИСК] privacy.firstparty.isolate НЕ включаем: он конфликтует с TCP
  * и даёт менее удобный результат при той же по сути защите.
  * ========================================================================== */
-pref("network.cookie.cookieBehavior", 5);
 pref("privacy.partition.network_state", true);
 pref("privacy.partition.serviceWorkers", true);
 pref("privacy.partition.always_partition_third_party_non_cookie_storage", true);
@@ -84,7 +87,8 @@ pref("privacy.firstparty.isolate", false);
 
 /* == 4. Защита от снятия отпечатка =========================================
  * Две независимые системы:
- *   fingerprintingProtection - точечная, ломает мало, включаем всегда.
+ *   fingerprintingProtection - точечная, ломает мало. Её включает
+ *   категория из секции 2 (fpp, fppPrivate), здесь не задаётся.
  *   resistFingerprinting (RFP) - агрессивная: подменяет часовой пояс,
  *   язык, размер окна, отключает часть API.
  *
@@ -93,8 +97,6 @@ pref("privacy.firstparty.isolate", false);
  * переключателем уровня защиты в интерфейсе, а не молчаливым дефолтом.
  * [РЕШИТЬ] уровень по умолчанию - см. docs/PRIVACY.md, раздел "Уровни".
  * ========================================================================== */
-pref("privacy.fingerprintingProtection", true);
-pref("privacy.fingerprintingProtection.pbmode", true);
 pref("privacy.resistFingerprinting", false);
 pref("privacy.resistFingerprinting.letterboxing", false);
 pref("privacy.resistFingerprinting.block_mozAddonManager", true);

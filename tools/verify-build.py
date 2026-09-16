@@ -39,9 +39,10 @@ FORBIDDEN_FILES = [
 
 # Ключевые обещания продукта. Если хоть одного нет в заводских настройках,
 # установленный браузер их не выполняет, как бы ни выглядел интерфейс.
+# Категории защиты и настроек под её управлением здесь нет намеренно: их
+# выставляет ui/scripts/vantara-protection.js на новом профиле, а
+# проверяет tools/verify-prefs.py в живом браузере.
 REQUIRED_PREFS = [
-    ("browser.contentblocking.category", '"strict"'),
-    ("network.cookie.cookieBehavior", "5"),
     ("dom.security.https_only_mode", "true"),
     ("datareporting.healthreport.uploadEnabled", "false"),
     ("app.normandy.enabled", "false"),

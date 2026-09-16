@@ -51,6 +51,12 @@ PREFS_SRC = ROOT / "ui" / "prefs" / "user.js"
 # четверть наших настроек в собранном браузере не действовала.
 PREFS_NAME = "00-vantara.js"
 LEGACY_PREFS_NAME = "vantara.js"
+
+# Настройки из профиля, которые в заводские значения не переносятся.
+# Категорию защиты Firefox как заводское значение игнорирует: при старте
+# он объявляет её «стандартной». На новом профиле её выставляет
+# ui/scripts/vantara-protection.js.
+NOT_A_DEFAULT = {"browser.contentblocking.category"}
 PREFS_TARGETS = [ROOT / "engine" / "browser" / "app" / "profile" / PREFS_NAME,
                  ROOT / "src" / "browser" / "app" / "profile" / PREFS_NAME]
 # Всё начиная с этой секции нужно только прототипу поверх готового Firefox.
@@ -158,10 +164,15 @@ def sync_prefs() -> None:
         # Отрезаем от начала строки-заголовка, чтобы не оставить обрывок.
         text = text[:text.rfind("\n", 0, cut) + 1]
 
-    body = "\n".join(
-        "pref(" + line[len("user_pref("):] if line.startswith("user_pref(") else line
-        for line in text.splitlines()
-    )
+    def convert(line: str) -> str | None:
+        if not line.startswith("user_pref("):
+            return line
+        name = line[len('user_pref("'):].split('"', 1)[0]
+        if name in NOT_A_DEFAULT:
+            return None
+        return "pref(" + line[len("user_pref("):]
+
+    body = "\n".join(l for l in map(convert, text.splitlines()) if l is not None)
 
     header = (
         "/* This Source Code Form is subject to the terms of the Mozilla Public\n"

@@ -8,13 +8,15 @@
 Этот скрипт спрашивает у живого браузера, какие значения у него сейчас,
 и сравнивает с ui/prefs/user.js.
 
-Браузер запускается с чистым профилем — без user.js, иначе проверяться
-будет профиль, а не сборка:
+Профиль должен быть пустым — иначе проверяться будет он, а не сборка.
+Одно исключение, и оно обязательно: Marionette при старте сессии сам
+применяет «рекомендованные настройки» для автотестов — выключает Safe
+Browsing и защиту от слежки, ставит стартовой about:blank
+(remote/shared/RecommendedPreferences.sys.mjs). Без запрета проверка
+покажет поломку, которой в сборке нет. Скрипт готовит такой профиль сам:
 
-    vantara.exe --marionette -remote-allow-system-access --profile <пустой каталог>
-
-Затем:
-
+    python tools/verify-prefs.py --prepare <каталог профиля>
+    vantara.exe --marionette -remote-allow-system-access --profile <каталог>
     python tools/verify-prefs.py
 """
 
@@ -66,12 +68,37 @@ def expected() -> dict[str, str]:
             for m in re.finditer(r'^user_pref\("([^"]+)",\s*(.+?)\);', text, re.M)}
 
 
+# Единственная строка в профиле проверки. Она относится к Marionette,
+# а не к браузеру, и ни одну проверяемую настройку не задаёт.
+PROFILE_USER_JS = 'user_pref("remote.prefs.recommended", false);\n'
+
+
+def prepare(profile: Path) -> int:
+    """Создаёт пустой профиль, пригодный для проверки."""
+    if profile.exists() and any(profile.iterdir()):
+        print(f"{RED}Каталог не пуст: {profile}{RESET}")
+        print(f"{DIM}Проверка на обжитом профиле проверяет профиль, а не сборку.{RESET}")
+        return 2
+    profile.mkdir(parents=True, exist_ok=True)
+    (profile / "user.js").write_text(PROFILE_USER_JS, encoding="utf-8")
+    print(f"Профиль для проверки готов: {profile}")
+    return 0
+
+
 def main() -> int:
+    if len(sys.argv) == 3 and sys.argv[1] == "--prepare":
+        return prepare(Path(sys.argv[2]))
+
     want = expected()
 
     try:
         with Marionette(timeout=60) as m:
             live = m.script(PROBE, [list(want)])
+            strict_applied = m.script("""
+              const { ContentBlockingPrefs } = ChromeUtils.importESModule(
+                "moz-src:///browser/components/protections/ContentBlockingPrefs.sys.mjs");
+              return ContentBlockingPrefs.prefsMatch("strict");
+            """)
     except (ConnectionError, OSError) as exc:
         print(f"{RED}Нет связи с браузером (127.0.0.1:2828){RESET}")
         print(f"{DIM}  {exc}{RESET}")
@@ -80,10 +107,19 @@ def main() -> int:
     wrong = [(name, value, live.get(name)) for name, value in want.items()
              if live.get(name) != value]
 
-    print(f"Заводских настроек: {len(want)}, действуют: {len(want) - len(wrong)}")
+    print(f"Настроек профиля: {len(want)}, действуют: {len(want) - len(wrong)}")
     for name, value, got in wrong:
         print(f"  {RED}НЕТ{RESET} {name}")
         print(f"{DIM}      ожидалось {value}, в браузере {got}{RESET}")
+
+    # Метка категории ещё не значит, что набор применён. Спрашиваем модуль
+    # защиты: совпадают ли все его настройки со строгим определением.
+    print()
+    if not strict_applied:
+        wrong.append(("строгий набор", "применён", "нет"))
+        print(f"  {RED}НЕТ{RESET} строгий набор защиты применён не целиком")
+    else:
+        print(f"  {GREEN}OK {RESET} строгий набор защиты применён целиком")
 
     print()
     if wrong:
