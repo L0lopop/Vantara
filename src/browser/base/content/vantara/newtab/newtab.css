@@ -189,10 +189,12 @@ body {
 .tile .glyph img { width: 40px; height: 40px; image-rendering: auto; }
 /* Значки сайтов рисуют в расчёте на светлый фон: на тёмной плитке чёрный
    значок (GitHub, Apple) пропадает. Поэтому под значком всегда светлая
-   подложка. */
+   подложка. SVG-значки со своей тёмной версией (Stack Overflow, Rust) в
+   тёмной схеме становятся белыми — на подложке им нужна светлая. */
 .tile .glyph:has(img) {
   background: light-dark(var(--vn-bg-raised), var(--vn-paper-100));
 }
+.tile .glyph img { color-scheme: light; }
 .tile:hover .glyph:not(:has(img)) { background: var(--vn-accent); color: var(--vn-accent-fg); }
 
 .tile .name {

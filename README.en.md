@@ -16,6 +16,11 @@
 
 </div>
 
+<p align="center">
+  <img src="docs/screenshots/readme/home-dark-en.png" width="900"
+       alt="Vantara home screen in the dark scheme: search bar, favorites and recently visited sites">
+</p>
+
 ---
 
 ## What it is
@@ -69,7 +74,35 @@ installer, with its own name, icon and application ID.
 Work in progress — [stage 1](docs/ROADMAP.md): internal pages, a custom
 window title bar, the sidebar. Next up is the first release.
 
-## Take a look
+## What it looks like
+
+Screenshots of the current build. The browser is in development, and the
+interface will keep changing.
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/readme/home-light-en.png"
+        alt="Home screen in the light scheme"></td>
+    <td width="50%"><img src="docs/screenshots/readme/palettes-en.png"
+        alt="Appearance panel with the Pine palette selected"></td>
+  </tr>
+  <tr>
+    <td align="center"><sub>Light scheme</sub></td>
+    <td align="center"><sub>Appearance panel: scheme and five palettes, Pine shown here</sub></td>
+  </tr>
+</table>
+
+**Tab groups.** Ctrl+click the tabs you want and press the folder button
+on the tab strip, or drag one tab onto another. The tabs fly into the
+group and its label pops in.
+
+<p align="center">
+  <img src="docs/screenshots/readme/tab-groups-merge-en.gif" width="884"
+       alt="Animation: tabs gather into the Work and Reading groups">
+  <br><sub>Animation slowed down 2x</sub>
+</p>
+
+## Mockup without building
 
 The interface mockup — browser window, icon set and palette with a
 dark/light theme switch. Nothing to install:

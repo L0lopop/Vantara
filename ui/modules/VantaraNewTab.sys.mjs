@@ -5,7 +5,8 @@
 /* Vantara — ответы браузера странице новой вкладки.
  *
  * Страница работает в отдельном процессе и сама не может ни прочитать
- * историю, ни поменять тему. Она шлёт событие; AboutNewTabChild
+ * историю, ни поменять тему, ни даже сохранить избранное: localStorage
+ * странице about:newtab недоступен. Она шлёт событие; AboutNewTabChild
  * пересылает его сюда через AboutNewTabParent (патчи в src/browser/actors).
  *
  * История отдаётся только списком сайтов: адрес сайта, имя узла и значок.
@@ -32,6 +33,14 @@ const MODE_THEMES = {
   dark: "firefox-compact-dark@mozilla.org",
 };
 
+// Что страница хранит у браузера. Настройки читаются только здесь, в
+// основном процессе: длинные строки процессам вкладок не передаются.
+const TILES_PREF = "vantara.newtab.tiles";
+const ENGINE_PREF = "vantara.newtab.engine";
+const MAX_TILES = 48;
+const MAX_URL = 2048;
+const MAX_NAME = 80;
+
 // Сколько последних посещений просматривать и сколько сайтов показать.
 const HISTORY_SCAN = 500;
 const HISTORY_SITES = 16;
@@ -44,6 +53,8 @@ export const VantaraNewTab = {
     "VantaraNewTab:SetTheme",
     "VantaraNewTab:GetHistory",
     "VantaraNewTab:RemoveHistory",
+    "VantaraNewTab:GetStore",
+    "VantaraNewTab:SetStore",
   ]),
 
   async receiveMessage({ name, data }) {
@@ -57,6 +68,10 @@ export const VantaraNewTab = {
         return this.recentSites();
       case "VantaraNewTab:RemoveHistory":
         return this.forgetSite(data);
+      case "VantaraNewTab:GetStore":
+        return this.getStore();
+      case "VantaraNewTab:SetStore":
+        return this.setStore(data);
     }
     return null;
   },
@@ -69,6 +84,35 @@ export const VantaraNewTab = {
     if (id) {
       let addon = await lazy.AddonManager.getAddonByID(id);
       await addon?.enable();
+    }
+    return null;
+  },
+
+  getStore() {
+    let store = {};
+    try {
+      store.tiles = cleanTiles(
+        JSON.parse(Services.prefs.getStringPref(TILES_PREF, "[]"))
+      );
+    } catch (e) {
+      store.tiles = [];
+    }
+    let engine = Services.prefs.getStringPref(ENGINE_PREF, "");
+    if (engine) {
+      store.engine = engine;
+    }
+    return store;
+  },
+
+  /** Данные приходят со страницы, поэтому сохраняется только проверенное. */
+  setStore({ key, value } = {}) {
+    if (key == "tiles") {
+      Services.prefs.setStringPref(
+        TILES_PREF,
+        JSON.stringify(cleanTiles(value))
+      );
+    } else if (key == "engine" && /^[a-z]{1,16}$/.test(value)) {
+      Services.prefs.setStringPref(ENGINE_PREF, value);
     }
     return null;
   },
@@ -127,3 +171,26 @@ export const VantaraNewTab = {
     return null;
   },
 };
+
+function cleanTiles(list) {
+  if (!Array.isArray(list)) {
+    return [];
+  }
+  let tiles = [];
+  for (let tile of list) {
+    let url = tile?.url;
+    if (typeof url != "string" || url.length > MAX_URL) {
+      continue;
+    }
+    let uri = URL.parse(url);
+    if (uri?.protocol != "https:" && uri?.protocol != "http:") {
+      continue;
+    }
+    let name = typeof tile.name == "string" ? tile.name.slice(0, MAX_NAME) : "";
+    tiles.push({ url: uri.href, name });
+    if (tiles.length == MAX_TILES) {
+      break;
+    }
+  }
+  return tiles;
+}

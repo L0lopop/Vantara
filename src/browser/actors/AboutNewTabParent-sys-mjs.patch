@@ -1,5 +1,5 @@
 diff --git a/browser/actors/AboutNewTabParent.sys.mjs b/browser/actors/AboutNewTabParent.sys.mjs
-index 1b0427ef7444efa08c1ba18b207cf2285ae98f07..6e60b69f2b8fd974888c7eb61c797685cf839261 100644
+index 1b0427ef7444efa08c1ba18b207cf2285ae98f07..d8338bdcf5dca7268a3f16995c10bdf240420e4a 100644
 --- a/browser/actors/AboutNewTabParent.sys.mjs
 +++ b/browser/actors/AboutNewTabParent.sys.mjs
 @@ -7,6 +7,8 @@ const lazy = {};
@@ -11,7 +11,7 @@ index 1b0427ef7444efa08c1ba18b207cf2285ae98f07..6e60b69f2b8fd974888c7eb61c797685
  });
  
  // A mapping of loaded new tab pages, where the mapping is:
-@@ -63,6 +65,11 @@ export class AboutNewTabParent extends JSWindowActorParent {
+@@ -63,6 +65,13 @@ export class AboutNewTabParent extends JSWindowActorParent {
  
    async receiveMessage(message) {
      switch (message.name) {
@@ -19,6 +19,8 @@ index 1b0427ef7444efa08c1ba18b207cf2285ae98f07..6e60b69f2b8fd974888c7eb61c797685
 +      case "VantaraNewTab:SetTheme":
 +      case "VantaraNewTab:GetHistory":
 +      case "VantaraNewTab:RemoveHistory":
++      case "VantaraNewTab:GetStore":
++      case "VantaraNewTab:SetStore":
 +        return lazy.VantaraNewTab.receiveMessage(message);
        case "AboutNewTabVisible":
          {

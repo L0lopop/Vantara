@@ -21,6 +21,10 @@
 .PARAMETER Light
     Светлая тема системы вместо тёмной.
 
+.PARAMETER Locale
+    Язык интерфейса (en-US, ru) вместо языка системы. Действует только в
+    упакованной сборке — см. Packaged.
+
 .PARAMETER Packaged
     Запустить упакованную сборку (obj-*/dist/vantara, как в установщике)
     вместо сборки для разработки. Нужна для проверки языков: в dist/bin
@@ -32,12 +36,15 @@
     .\tools\run-build.ps1
     .\tools\run-build.ps1 -Light
     .\tools\run-build.ps1 -Packaged
+    .\tools\run-build.ps1 -Packaged -Locale en-US
 #>
 [CmdletBinding()]
 param(
     [string]$ProfileDir,
     [switch]$Light,
-    [switch]$Packaged
+    [switch]$Packaged,
+    [ValidatePattern('^[a-zA-Z]{2,3}(-[a-zA-Z0-9]{2,8})*$')]
+    [string]$Locale
 )
 
 $ErrorActionPreference = 'Stop'
@@ -75,6 +82,9 @@ if ($LASTEXITCODE -ne 0) {
 
 $dark = if ($Light) { 0 } else { 1 }
 Add-Content -Encoding utf8 (Join-Path $ProfileDir 'user.js') "user_pref(`"ui.systemUsesDarkTheme`", $dark);"
+if ($Locale) {
+    Add-Content -Encoding utf8 (Join-Path $ProfileDir 'user.js') "user_pref(`"intl.locale.requested`", `"$Locale`");"
+}
 
 # Упакованной сборке доступ не нужен: её файлы в omni.ja.
 if (-not $Packaged) {

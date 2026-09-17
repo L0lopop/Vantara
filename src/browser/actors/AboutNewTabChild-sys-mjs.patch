@@ -1,5 +1,5 @@
 diff --git a/browser/actors/AboutNewTabChild.sys.mjs b/browser/actors/AboutNewTabChild.sys.mjs
-index 88149c9a741557a58d8799cf5521531e108e09ca..593e413e198751d4a15ca285e50c9c2e9d1d9cc0 100644
+index 88149c9a741557a58d8799cf5521531e108e09ca..f039542408a658446714e952c8e2f38c8dd13867 100644
 --- a/browser/actors/AboutNewTabChild.sys.mjs
 +++ b/browser/actors/AboutNewTabChild.sys.mjs
 @@ -27,6 +27,13 @@ XPCOMUtils.defineLazyPreferenceGetter(
@@ -16,7 +16,7 @@ index 88149c9a741557a58d8799cf5521531e108e09ca..593e413e198751d4a15ca285e50c9c2e
  XPCOMUtils.defineLazyPreferenceGetter(
    lazy,
    "NEWTAB_REMOTE_RENDERER_ENABLED",
-@@ -37,7 +44,106 @@ XPCOMUtils.defineLazyPreferenceGetter(
+@@ -37,7 +44,117 @@ XPCOMUtils.defineLazyPreferenceGetter(
  let gNextPortID = 0;
  
  export class AboutNewTabChild extends RemotePageChild {
@@ -44,21 +44,22 @@ index 88149c9a741557a58d8799cf5521531e108e09ca..593e413e198751d4a15ca285e50c9c2e
 +      case "visibilitychange":
 +        if (this.document.visibilityState == "visible") {
 +          this.#syncVantaraState(root);
-+          this.#sendVantaraHistory();
++          this.#sendVantaraData();
 +        }
 +        break;
-+      case "VantaraNewTab:RequestHistory":
-+        this.#sendVantaraHistory();
++      case "VantaraNewTab:RequestData":
++        this.#sendVantaraData();
 +        break;
 +      case "VantaraNewTab:ResetBlocked":
 +        this.sendAsyncMessage(event.type);
 +        break;
 +      case "VantaraNewTab:SetTheme":
++      case "VantaraNewTab:SetStore":
 +        this.sendAsyncMessage(event.type, this.#parseDetail(event));
 +        break;
 +      case "VantaraNewTab:RemoveHistory":
 +        this.sendQuery(event.type, this.#parseDetail(event)).then(
-+          () => this.#sendVantaraHistory(),
++          () => this.#sendVantaraData(),
 +          console.error
 +        );
 +        break;
@@ -99,15 +100,25 @@ index 88149c9a741557a58d8799cf5521531e108e09ca..593e413e198751d4a15ca285e50c9c2e
 +    }
 +  }
 +
-+  async #sendVantaraHistory() {
++  /**
++   * Sends the page what the browser keeps for it (VantaraNewTab:Store) and
++   * the recently visited sites (VantaraNewTab:History), in one task.
++   */
++  async #sendVantaraData() {
 +    try {
-+      let sites = await this.sendQuery("VantaraNewTab:GetHistory");
++      let [store, sites] = await Promise.all([
++        this.sendQuery("VantaraNewTab:GetStore"),
++        this.sendQuery("VantaraNewTab:GetHistory"),
++      ]);
 +      let win = this.contentWindow;
-+      win?.dispatchEvent(
-+        new win.CustomEvent("VantaraNewTab:History", {
-+          detail: JSON.stringify(sites ?? []),
-+        })
-+      );
++      for (let [type, data] of [
++        ["VantaraNewTab:Store", store ?? {}],
++        ["VantaraNewTab:History", sites ?? []],
++      ]) {
++        win?.dispatchEvent(
++          new win.CustomEvent(type, { detail: JSON.stringify(data) })
++        );
++      }
 +    } catch (e) {
 +      // The page went away while the history was being read.
 +    }

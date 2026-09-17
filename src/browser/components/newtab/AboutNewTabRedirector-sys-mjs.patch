@@ -1,5 +1,5 @@
 diff --git a/browser/components/newtab/AboutNewTabRedirector.sys.mjs b/browser/components/newtab/AboutNewTabRedirector.sys.mjs
-index 33ebe5111a15dcfba5c446efd1292cce4b29af34..c95b9131f3c37e778af7f829759d124ced153329 100644
+index 33ebe5111a15dcfba5c446efd1292cce4b29af34..e94185fad103f3b43fa97f166c2bd5190a722b65 100644
 --- a/browser/components/newtab/AboutNewTabRedirector.sys.mjs
 +++ b/browser/components/newtab/AboutNewTabRedirector.sys.mjs
 @@ -425,6 +425,10 @@ class BaseAboutNewTabRedirector {
@@ -13,14 +13,15 @@ index 33ebe5111a15dcfba5c446efd1292cce4b29af34..c95b9131f3c37e778af7f829759d124c
      if (this.remoteRendererEnabled) {
        return "resource://newtab/data/content/remote-renderer-host.html";
      }
-@@ -497,6 +501,10 @@ export class AboutNewTabRedirectorParent extends BaseAboutNewTabRedirector {
+@@ -497,6 +501,11 @@ export class AboutNewTabRedirectorParent extends BaseAboutNewTabRedirector {
            unload: { capture: true },
            pageshow: {},
            visibilitychange: {},
 +          "VantaraNewTab:ResetBlocked": { wantUntrusted: true },
 +          "VantaraNewTab:SetTheme": { wantUntrusted: true },
-+          "VantaraNewTab:RequestHistory": { wantUntrusted: true },
++          "VantaraNewTab:RequestData": { wantUntrusted: true },
 +          "VantaraNewTab:RemoveHistory": { wantUntrusted: true },
++          "VantaraNewTab:SetStore": { wantUntrusted: true },
          },
          observers: ["intl:l10n-sources-changed"],
        },

@@ -6,9 +6,9 @@
  * из своей истории — локально.
  *
  * С браузером страница говорит через атрибуты корня и события
- * (AboutNewTabChild.sys.mjs): атрибуты несут состояние, события — просьбы.
- * В прототипе браузера за страницей нет: избранное и оформление хранятся
- * в localStorage, полки «Недавно посещённые» нет.
+ * (AboutNewTabChild.sys.mjs): атрибуты несут состояние, события — просьбы
+ * и ответы. В прототипе браузера за страницей нет: избранное и оформление
+ * хранятся в localStorage, полки «Недавно посещённые» нет.
  * ========================================================================== */
 
 import { resolveTarget, nameFromUrl } from 'chrome://browser/content/vantara/newtab/url-parse.js';
@@ -18,12 +18,22 @@ const root = document.documentElement;
 // Атрибуты состояния ставит браузер ещё до запуска скриптов страницы.
 const fromBrowser = root.hasAttribute('vn-locale');
 
-/* --- Хранилище ------------------------------------------------------------ */
+/* --- Хранилище ------------------------------------------------------------
+ * В браузере localStorage этой странице недоступен (about:newtab), и всё,
+ * что сохранено, пропадало бы вместе с вкладкой. Там данные хранит браузер:
+ * присылает событием VantaraNewTab:Store и принимает просьбу SetStore.
+ * ------------------------------------------------------------------------- */
 
 const Store = {
   PREFIX: 'vantara.newtab.',
+  // Последние данные браузера вместе со своими записями, ещё не
+  // вернувшимися обратно.
+  saved: {},
 
   read(key, fallback) {
+    if (fromBrowser) {
+      return Object.hasOwn(this.saved, key) ? this.saved[key] : fallback;
+    }
     try {
       const raw = localStorage.getItem(this.PREFIX + key);
       return raw === null ? fallback : JSON.parse(raw);
@@ -34,6 +44,11 @@ const Store = {
   },
 
   write(key, value) {
+    if (fromBrowser) {
+      this.saved[key] = value;
+      ask('SetStore', { key, value });
+      return true;
+    }
     try {
       localStorage.setItem(this.PREFIX + key, JSON.stringify(value));
       return true;
@@ -155,8 +170,10 @@ function renderEngine() {
 }
 
 engineButton.addEventListener('click', () => {
+  // engines() каждый раз строит список заново — сравниваем по id.
   const list = engines();
-  const next = list[(list.indexOf(currentEngine()) + 1) % list.length];
+  const index = list.findIndex(e => e.id === currentEngine().id);
+  const next = list[(index + 1) % list.length];
   Store.write('engine', next.id);
   renderEngine();
 });
@@ -183,6 +200,8 @@ const historyRoot = document.getElementById('history');
 const hint = document.getElementById('hint');
 
 let visited = [];
+// Пока браузер не ответил, подсказку «здесь появятся сайты» не показываем.
+let historyLoaded = !fromBrowser;
 
 function iconFor(url) {
   try {
@@ -200,7 +219,7 @@ function isFavorite(url) {
 function renderHistory() {
   historyShelf.hidden = visited.length === 0;
   // Подсказка нужна, только пока показать нечего.
-  hint.hidden = visited.length > 0;
+  hint.hidden = visited.length > 0 || !historyLoaded;
   historyRoot.textContent = '';
 
   visited.forEach((site, index) => {
@@ -228,6 +247,7 @@ window.addEventListener('VantaraNewTab:History', event => {
   } catch {
     visited = [];
   }
+  historyLoaded = true;
   renderHistory();
   renderFavorites();
 });
@@ -238,7 +258,30 @@ window.addEventListener('VantaraNewTab:History', event => {
 
 const tilesRoot = document.getElementById('tiles');
 
-let favorites = Store.read('tiles', []);
+let favorites = [];
+
+function loadFavorites() {
+  const list = Store.read('tiles', []);
+  favorites = Array.isArray(list)
+    ? list.filter(tile => typeof tile?.url === 'string')
+    : [];
+}
+
+loadFavorites();
+
+// Приходит перед списком посещённых сайтов, в той же задаче: страница
+// перерисовывается один раз.
+window.addEventListener('VantaraNewTab:Store', event => {
+  try {
+    const data = JSON.parse(event.detail);
+    Store.saved = data && typeof data === 'object' ? data : {};
+  } catch {
+    Store.saved = {};
+  }
+  loadFavorites();
+  renderEngine();
+  renderFavorites();
+});
 
 function addFavorite(url, name) {
   if (isFavorite(url)) return;
@@ -389,7 +432,7 @@ if (!fromBrowser) {
 
 /* --- Изменения от браузера -------------------------------------------------
  * Новая вкладка готовится заранее, в фоне; когда её показывают, браузер
- * обновляет атрибуты и присылает свежий список посещённых сайтов.
+ * обновляет атрибуты и присылает свежие данные и список посещённых сайтов.
  * ------------------------------------------------------------------------- */
 
 if (fromBrowser) {
@@ -407,10 +450,12 @@ if (fromBrowser) {
 
 localize();
 renderEngine();
-renderFavorites();
 renderHistory();
 renderTheme();
 if (fromBrowser) {
-  ask('RequestHistory');
+  // Избранное придёт от браузера: пустая полка до ответа мигала бы.
+  ask('RequestData');
+} else {
+  renderFavorites();
 }
 document.getElementById('q').focus();
