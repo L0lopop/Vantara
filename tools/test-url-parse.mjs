@@ -83,6 +83,10 @@ check('запрос уходит в поиск',
 check('кириллица кодируется',
   resolveTarget('движок гекко', DDG), DDG + '%D0%B4%D0%B2%D0%B8%D0%B6%D0%BE%D0%BA%20%D0%B3%D0%B5%D0%BA%D0%BA%D0%BE');
 
+check('шаблон браузера: запрос встаёт на место {q}',
+  resolveTarget('gecko engine', 'https://www.google.com/search?client=firefox&q={q}&ie=utf-8'),
+  'https://www.google.com/search?client=firefox&q=gecko%20engine&ie=utf-8');
+
 check('пустой ввод не даёт перехода', resolveTarget('   ', DDG), null);
 
 check('края обрезаются', resolveTarget('  example.com  ', DDG), 'https://example.com');

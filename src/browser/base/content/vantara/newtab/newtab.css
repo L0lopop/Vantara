@@ -30,12 +30,12 @@ body {
 .icon-sm { width: 14px; height: 14px; }
 
 /* ===== Поиск ==============================================================
-   Блок стоит на 38% высоты, а не по центру: оптический центр экрана выше
-   геометрического, и по центру блок кажется провисшим.
+   Блок стоит выше геометрического центра: оптический центр экрана выше,
+   и по центру блок кажется провисшим.
    ========================================================================== */
 .hero {
-  margin-top: min(22vh, 180px);
-  width: min(560px, 100%);
+  margin-top: min(16vh, 150px);
+  width: min(680px, 100%);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -43,8 +43,10 @@ body {
 }
 
 .brand {
-  opacity: 0.9;
-  margin-bottom: var(--vn-space-5);
+  width: 84px;
+  height: 84px;
+  opacity: 0.92;
+  margin-bottom: var(--vn-space-6);
   transition: transform var(--vn-dur-slow) var(--vn-ease-spring);
 }
 .brand:hover { transform: scale(1.06) rotate(-4deg); }
@@ -53,31 +55,34 @@ body {
   width: 100%;
   display: flex;
   align-items: center;
-  gap: var(--vn-space-3);
-  height: 46px;
-  padding-inline: var(--vn-space-4) var(--vn-space-2);
+  gap: var(--vn-space-4);
+  height: 58px;
+  padding-inline: 20px var(--vn-space-3);
   background: var(--vn-bg-surface);
   border: 1px solid var(--vn-border);
-  border-radius: var(--vn-radius-md);
+  border-radius: var(--vn-radius-xl);
+  box-shadow: var(--vn-shadow-sm);
   color: var(--vn-fg-muted);
   transition: border-color var(--vn-dur-fast) var(--vn-ease-standard),
               box-shadow   var(--vn-dur-base) var(--vn-ease-standard),
               background-color var(--vn-dur-fast) var(--vn-ease-standard);
 }
 
+.search > .icon { width: 20px; height: 20px; }
+
 .search:hover { border-color: var(--vn-border-strong); }
 
 .search:focus-within {
   background: var(--vn-bg-raised);
   border-color: var(--vn-accent);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--vn-accent) 20%, transparent);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--vn-accent) 20%, transparent);
 }
 
 .search input {
   flex: 1;
   min-width: 0;
   font: inherit;
-  font-size: var(--vn-text-lg);
+  font-size: 18px;
   color: var(--vn-fg-primary);
   background: none;
   border: 0;
@@ -87,12 +92,12 @@ body {
 
 .engine {
   font: inherit;
-  font-size: var(--vn-text-xs);
-  color: var(--vn-fg-muted);
+  font-size: var(--vn-text-sm);
+  color: var(--vn-fg-secondary);
   background: none;
   border: 1px solid var(--vn-border);
-  border-radius: var(--vn-radius-sm);
-  padding: 4px 9px;
+  border-radius: var(--vn-radius-md);
+  padding: 6px 12px;
   cursor: pointer;
   flex: none;
   transition: background-color var(--vn-dur-fast) var(--vn-ease-standard),
@@ -100,20 +105,43 @@ body {
 }
 .engine:hover { background: var(--vn-bg-hover); color: var(--vn-fg-primary); }
 
-/* ===== Закреплённые ссылки ================================================ */
-.pinned {
-  width: min(720px, 100%);
-  margin-top: 56px;
-  flex: 1;
+/* ===== Полки: избранное и посещённые ====================================== */
+.empty {
+  color: var(--vn-fg-muted);
+  font-size: var(--vn-text-md);
+  line-height: 1.7;
+  max-width: 52ch;
+  margin: 40px auto 0;
+  text-align: center;
+  text-wrap: balance;
+}
+
+.shelf {
+  width: min(900px, 100%);
+  margin-top: 40px;
+  animation: vn-fade-in var(--vn-dur-slow) var(--vn-ease-decel) backwards;
+}
+
+.shelf + .shelf { margin-top: 32px; }
+
+.shelf-title {
+  margin: 0 0 var(--vn-space-4);
+  padding-inline: var(--vn-space-3);
+  color: var(--vn-fg-muted);
+  font-size: var(--vn-text-xs);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-align: center;
 }
 
 /* Колонка фиксированной ширины плюс центрирование: при двух-трёх плитках
    они стоят по центру под поиском, а не жмутся к левому краю. */
 .tiles {
   display: grid;
-  grid-template-columns: repeat(auto-fit, 96px);
+  grid-template-columns: repeat(auto-fit, 112px);
   justify-content: center;
-  gap: var(--vn-space-3);
+  gap: var(--vn-space-4);
 }
 
 .tile {
@@ -121,9 +149,9 @@ body {
   flex-direction: column;
   align-items: center;
   gap: var(--vn-space-3);
-  padding: var(--vn-space-4) var(--vn-space-2);
+  padding: var(--vn-space-5) var(--vn-space-3) var(--vn-space-4);
   border: 1px solid transparent;
-  border-radius: var(--vn-radius-md);
+  border-radius: var(--vn-radius-lg);
   color: var(--vn-fg-secondary);
   text-decoration: none;
   position: relative;
@@ -143,24 +171,26 @@ body {
 }
 .tile:active { transform: translateY(0) scale(0.97); }
 
-/* Буква вместо логотипа сайта: favicon пришлось бы тянуть из сети,
-   а это запрос к сайту до того, как вы на него зашли. */
+/* Значок сайта из истории браузера или первая буква имени. */
 .tile .glyph {
-  width: 40px; height: 40px;
+  width: 52px; height: 52px;
   display: grid; place-items: center;
-  border-radius: var(--vn-radius-md);
+  border-radius: var(--vn-radius-lg);
   background: var(--vn-bg-raised);
   border: 1px solid var(--vn-border);
-  font-size: 17px;
+  font-size: 21px;
   font-weight: 600;
   color: var(--vn-fg-primary);
   text-transform: uppercase;
-  transition: background-color var(--vn-dur-fast) var(--vn-ease-standard);
+  overflow: hidden;
+  transition: background-color var(--vn-dur-fast) var(--vn-ease-standard),
+              color var(--vn-dur-fast) var(--vn-ease-standard);
 }
-.tile:hover .glyph { background: var(--vn-accent); color: var(--vn-accent-fg); }
+.tile .glyph img { width: 28px; height: 28px; }
+.tile:hover .glyph:not(:has(img)) { background: var(--vn-accent); color: var(--vn-accent-fg); }
 
 .tile .name {
-  font-size: var(--vn-text-xs);
+  font-size: var(--vn-text-sm);
   text-align: center;
   max-width: 100%;
   overflow: hidden;
@@ -168,27 +198,38 @@ body {
   white-space: nowrap;
 }
 
-.tile .remove {
+/* Действия над плиткой — в углу, появляются при наведении. */
+.tile .tile-actions {
   position: absolute;
-  top: 4px; inset-inline-end: 4px;
-  width: 18px; height: 18px;
+  top: 5px;
+  inset-inline-end: 5px;
+  display: flex;
+  gap: 2px;
+  opacity: 0;
+  transition: opacity var(--vn-dur-fast) var(--vn-ease-standard);
+}
+.tile:hover .tile-actions,
+.tile:focus-within .tile-actions { opacity: 1; }
+
+.tile .tile-actions button {
+  width: 22px; height: 22px;
   display: grid; place-items: center;
   border: 0;
-  border-radius: var(--vn-radius-xs);
+  border-radius: var(--vn-radius-sm);
   background: none;
   color: var(--vn-fg-muted);
   cursor: pointer;
-  opacity: 0;
-  transition: opacity var(--vn-dur-fast) var(--vn-ease-standard),
-              background-color var(--vn-dur-fast) var(--vn-ease-standard),
+  transition: background-color var(--vn-dur-fast) var(--vn-ease-standard),
               color var(--vn-dur-fast) var(--vn-ease-standard);
 }
-.tile:hover .remove { opacity: 1; }
-.tile .remove:hover {
-  background: color-mix(in srgb, var(--vn-threat) 22%, transparent);
+.tile .tile-actions button:hover {
+  background: var(--vn-bg-active);
   color: var(--vn-fg-primary);
 }
-.tile .remove .icon { width: 11px; height: 11px; }
+.tile .tile-actions button:last-child:hover {
+  background: color-mix(in srgb, var(--vn-threat) 22%, transparent);
+}
+.tile .tile-actions .icon { width: 13px; height: 13px; }
 
 /* Плитка добавления — пунктир, чтобы отличалась от настоящих ссылок */
 .tile.add {
@@ -202,28 +243,141 @@ body {
   border-style: dashed;
   color: var(--vn-fg-muted);
 }
+.tile.add .glyph .icon { width: 20px; height: 20px; }
 .tile.add:hover .glyph {
   background: none;
   border-color: var(--vn-accent);
   color: var(--vn-accent);
 }
 
-.empty {
-  color: var(--vn-fg-muted);
-  font-size: var(--vn-text-sm);
-  line-height: 1.7;
-  max-width: 52ch;
-  margin: 0 auto var(--vn-space-5);
-  text-align: center;
-  text-wrap: balance;
+/* ===== Оформление ========================================================= */
+.theme {
+  position: fixed;
+  top: var(--vn-space-5);
+  inset-inline-end: var(--vn-space-5);
+  z-index: 5;
 }
+
+.theme-toggle {
+  width: 40px; height: 40px;
+  display: grid; place-items: center;
+  border: 1px solid transparent;
+  border-radius: var(--vn-radius-lg);
+  background: none;
+  color: var(--vn-fg-muted);
+  cursor: pointer;
+  transition: background-color var(--vn-dur-fast) var(--vn-ease-standard),
+              color var(--vn-dur-fast) var(--vn-ease-standard);
+}
+.theme-toggle .icon { width: 20px; height: 20px; }
+.theme-toggle:hover,
+.theme-toggle[aria-expanded="true"] {
+  background: var(--vn-bg-hover);
+  color: var(--vn-fg-primary);
+}
+
+.theme-popover {
+  position: absolute;
+  top: calc(100% + 8px);
+  inset-inline-end: 0;
+  width: 300px;
+  padding: var(--vn-space-5);
+  background: var(--vn-bg-surface);
+  border: 1px solid var(--vn-border);
+  border-radius: var(--vn-radius-lg);
+  box-shadow: var(--vn-shadow-lg);
+  transform-origin: top right;
+  animation: vn-drop-in var(--vn-dur-base) var(--vn-ease-decel);
+}
+
+.theme-heading {
+  margin: 0 0 var(--vn-space-4);
+  font-size: var(--vn-text-md);
+  font-weight: 600;
+}
+
+/* Схема: сегментный переключатель */
+.modes {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+  padding: 2px;
+  margin-bottom: var(--vn-space-5);
+  background: var(--vn-bg-window);
+  border: 1px solid var(--vn-border);
+  border-radius: var(--vn-radius-md);
+}
+.modes button {
+  font: inherit;
+  font-size: var(--vn-text-xs);
+  padding: 6px 4px;
+  border: 0;
+  border-radius: var(--vn-radius-sm);
+  background: none;
+  color: var(--vn-fg-muted);
+  cursor: pointer;
+  transition: background-color var(--vn-dur-fast) var(--vn-ease-standard),
+              color var(--vn-dur-fast) var(--vn-ease-standard);
+}
+.modes button:hover { color: var(--vn-fg-primary); }
+.modes button[aria-checked="true"] {
+  background: var(--vn-bg-raised);
+  color: var(--vn-fg-primary);
+  box-shadow: var(--vn-shadow-sm);
+}
+
+/* Палитры: образец цвета и имя */
+.palettes {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: var(--vn-space-2);
+}
+.palettes button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 2px;
+  font: inherit;
+  font-size: 10px;
+  border: 0;
+  border-radius: var(--vn-radius-md);
+  background: none;
+  color: var(--vn-fg-muted);
+  cursor: pointer;
+  transition: background-color var(--vn-dur-fast) var(--vn-ease-standard),
+              color var(--vn-dur-fast) var(--vn-ease-standard);
+}
+.palettes button:hover { background: var(--vn-bg-hover); color: var(--vn-fg-primary); }
+.palettes button[aria-checked="true"] { color: var(--vn-fg-primary); }
+
+/* Образец — поверхность, акцент и кромка палитры. Цвета заданы здесь
+   явно: у образца своя палитра, не та, что сейчас на странице. */
+.chip {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  background: conic-gradient(var(--c-accent) 0 33%, var(--c-edge) 0 50%, var(--c-base) 0);
+  box-shadow: 0 0 0 1px var(--vn-border);
+  transition: transform var(--vn-dur-fast) var(--vn-ease-spring),
+              border-color var(--vn-dur-fast) var(--vn-ease-standard);
+}
+.palettes button:hover .chip { transform: scale(1.08); }
+.palettes button[aria-checked="true"] .chip { border-color: var(--vn-fg-primary); }
+
+[data-palette="forge"]    .chip { --c-base: #23272E; --c-accent: #6E4733; --c-edge: #F0DCC0; }
+[data-palette="midnight"] .chip { --c-base: #1B2230; --c-accent: #3D5F9E; --c-edge: #D9E3F5; }
+[data-palette="pine"]     .chip { --c-base: #1C2721; --c-accent: #3C7352; --c-edge: #DCEADF; }
+[data-palette="ash"]      .chip { --c-base: #212123; --c-accent: #5E5E68; --c-edge: #E6E6E9; }
+[data-palette="amber"]    .chip { --c-base: #291F16; --c-accent: #B06C1E; --c-edge: #F6E3C3; }
 
 /* ===== Сводка защиты ====================================================== */
 .guard {
   display: flex;
   align-items: center;
   gap: var(--vn-space-4);
-  margin-top: 56px;
+  margin-top: auto;
+  padding-top: 48px;
   font-size: var(--vn-text-sm);
   color: var(--vn-fg-muted);
   animation: vn-fade-in var(--vn-dur-slower) var(--vn-ease-decel) backwards;
@@ -325,8 +479,10 @@ body {
 
 /* ===== Узкое окно ========================================================= */
 @media (max-width: 480px) {
-  .hero { margin-top: 14vh; }
-  .pinned { margin-top: 36px; }
-  .guard { flex-wrap: wrap; justify-content: center; margin-top: 36px; }
-  .tiles { grid-template-columns: repeat(auto-fit, 80px); }
+  .hero { margin-top: 12vh; }
+  .brand { width: 64px; height: 64px; }
+  .search { height: 50px; }
+  .guard { flex-wrap: wrap; justify-content: center; }
+  .tiles { grid-template-columns: repeat(auto-fit, 92px); }
+  .theme-popover { width: calc(100vw - 32px); }
 }

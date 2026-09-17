@@ -34,6 +34,15 @@
   --vn-ember-300: #D8C0A0;
   --vn-ember-400: #B09877;
 
+  /* --- Бумага и чернила: светлая схема ----------------------------------- */
+  --vn-paper-50:  #FFFFFF;
+  --vn-paper-100: #F5F1EA;
+  --vn-paper-200: #EFE9E0;
+  --vn-paper-300: #E5DDD2;
+  --vn-ink-900:   #241A13;
+  --vn-ink-700:   #5C5046;
+  --vn-ink-500:   #8A7D71;
+
   /* --- Семантика --------------------------------------------------------- */
   --vn-guard:   #6FBF9B;  /* защита активна, соединение безопасно */
   --vn-warn:    #E0A458;  /* внимание, частичная защита */
@@ -46,20 +55,20 @@
      значение выбирается по color-scheme ниже. Так светлая и тёмная темы
      не могут разъехаться — они физически в одной строке.
      ---------------------------------------------------------------------- */
-  --vn-bg-window:    light-dark(#EFE9E0, var(--vn-steel-900));
-  --vn-bg-chrome:    light-dark(#E5DDD2, var(--vn-steel-850));
-  --vn-bg-surface:   light-dark(#F5F1EA, var(--vn-steel-800));
-  --vn-bg-raised:    light-dark(#FFFFFF, var(--vn-steel-700));
-  --vn-bg-selected:  light-dark(#FFFFFF, var(--vn-steel-700));
+  --vn-bg-window:    light-dark(var(--vn-paper-200), var(--vn-steel-900));
+  --vn-bg-chrome:    light-dark(var(--vn-paper-300), var(--vn-steel-850));
+  --vn-bg-surface:   light-dark(var(--vn-paper-100), var(--vn-steel-800));
+  --vn-bg-raised:    light-dark(var(--vn-paper-50), var(--vn-steel-700));
+  --vn-bg-selected:  light-dark(var(--vn-paper-50), var(--vn-steel-700));
 
   --vn-bg-hover:  color-mix(in srgb,
                     light-dark(var(--vn-wood-800), var(--vn-ember-200)) 8%, transparent);
   --vn-bg-active: color-mix(in srgb,
                     light-dark(var(--vn-wood-800), var(--vn-ember-200)) 14%, transparent);
 
-  --vn-fg-primary:   light-dark(#241A13, var(--vn-ember-200));
-  --vn-fg-secondary: light-dark(#5C5046, var(--vn-steel-300));
-  --vn-fg-muted:     light-dark(#8A7D71, var(--vn-steel-400));
+  --vn-fg-primary:   light-dark(var(--vn-ink-900), var(--vn-ember-200));
+  --vn-fg-secondary: light-dark(var(--vn-ink-700), var(--vn-steel-300));
+  --vn-fg-muted:     light-dark(var(--vn-ink-500), var(--vn-steel-400));
   --vn-fg-inverted:  light-dark(var(--vn-ember-100), var(--vn-steel-950));
 
   --vn-border:        color-mix(in srgb,
@@ -135,13 +144,136 @@
    темой Firefox и переключателем в превью.
    -------------------------------------------------------------------------- */
 :root[vn-theme="dark"],
-:root[lwt-default-theme-in-dark-mode="true"] {
+:root:not([vn-theme])[lwt-default-theme-in-dark-mode="true"] {
   color-scheme: dark;
 }
 
 :root[vn-theme="light"],
-:root[lwt-default-theme-in-dark-mode="false"] {
+:root:not([vn-theme])[lwt-default-theme-in-dark-mode="false"] {
   color-scheme: light;
+}
+
+/* --- Палитры ---------------------------------------------------------------
+   Палитра меняет только шкалы: сталь (тёмные поверхности), дуб (акцент),
+   кромку (текст и иконки в тёмной схеме), бумагу и чернила (светлая
+   схема). Роли выше ссылаются на шкалы, поэтому весь интерфейс
+   перекрашивается без единого правила в компонентах.
+
+   Атрибут vn-palette ставит ui/scripts/vantara-theme.js по настройке
+   vantara.theme.palette; на новой вкладке — браузер через AboutNewTab.
+   Без атрибута действует «Кузница» — значения в начале файла.
+   -------------------------------------------------------------------------- */
+
+/* Полночь: холодный синий, как ночное небо над кузницей. */
+:root[vn-palette="midnight"] {
+  --vn-steel-950: #0B0F17;
+  --vn-steel-900: #10151F;
+  --vn-steel-850: #151B27;
+  --vn-steel-800: #1B2230;
+  --vn-steel-700: #242C3C;
+  --vn-steel-600: #313B4E;
+  --vn-steel-500: #445066;
+  --vn-steel-400: #62708A;
+  --vn-steel-300: #8C9AB3;
+  --vn-wood-800: #16213A;
+  --vn-wood-700: #1E2D4F;
+  --vn-wood-600: #2F4A7D;
+  --vn-wood-500: #3D5F9E;
+  --vn-wood-400: #5577B8;
+  --vn-ember-100: #F2F6FF;
+  --vn-ember-200: #D9E3F5;
+  --vn-ember-300: #B7C6E0;
+  --vn-ember-400: #93A4C2;
+  --vn-paper-100: #F1F4F9;
+  --vn-paper-200: #E9EDF4;
+  --vn-paper-300: #DDE3EC;
+  --vn-ink-900: #141B2B;
+  --vn-ink-700: #47536A;
+  --vn-ink-500: #74819A;
+}
+
+/* Хвоя: приглушённый зелёный северного леса. */
+:root[vn-palette="pine"] {
+  --vn-steel-950: #0C120F;
+  --vn-steel-900: #111814;
+  --vn-steel-850: #161F1A;
+  --vn-steel-800: #1C2721;
+  --vn-steel-700: #25322B;
+  --vn-steel-600: #324137;
+  --vn-steel-500: #43554A;
+  --vn-steel-400: #637869;
+  --vn-steel-300: #8FA396;
+  --vn-wood-800: #15261C;
+  --vn-wood-700: #1D3526;
+  --vn-wood-600: #2E5A3F;
+  --vn-wood-500: #3C7352;
+  --vn-wood-400: #53906A;
+  --vn-ember-100: #F1F8F2;
+  --vn-ember-200: #DCEADF;
+  --vn-ember-300: #BBD0C0;
+  --vn-ember-400: #97AE9D;
+  --vn-paper-100: #F1F5F1;
+  --vn-paper-200: #E8EEE9;
+  --vn-paper-300: #DCE5DE;
+  --vn-ink-900: #15201A;
+  --vn-ink-700: #4A5A50;
+  --vn-ink-500: #778A7E;
+}
+
+/* Пепел: нейтральный серый без оттенка — для тех, кому нужна тишина. */
+:root[vn-palette="ash"] {
+  --vn-steel-950: #0F0F10;
+  --vn-steel-900: #141415;
+  --vn-steel-850: #1A1A1C;
+  --vn-steel-800: #212123;
+  --vn-steel-700: #2A2A2D;
+  --vn-steel-600: #37373B;
+  --vn-steel-500: #4A4A4F;
+  --vn-steel-400: #6B6B72;
+  --vn-steel-300: #9A9AA2;
+  --vn-wood-800: #1F1F22;
+  --vn-wood-700: #2B2B2F;
+  --vn-wood-600: #4A4A52;
+  --vn-wood-500: #5E5E68;
+  --vn-wood-400: #7A7A85;
+  --vn-ember-100: #FAFAFA;
+  --vn-ember-200: #E6E6E9;
+  --vn-ember-300: #C8C8CD;
+  --vn-ember-400: #A5A5AC;
+  --vn-paper-100: #F4F4F5;
+  --vn-paper-200: #ECECEE;
+  --vn-paper-300: #E1E1E4;
+  --vn-ink-900: #18181B;
+  --vn-ink-700: #52525B;
+  --vn-ink-500: #7C7C85;
+}
+
+/* Янтарь: тёплый смоляной, акцент цвета расплавленного металла. */
+:root[vn-palette="amber"] {
+  --vn-steel-950: #140F0A;
+  --vn-steel-900: #1A140E;
+  --vn-steel-850: #211912;
+  --vn-steel-800: #291F16;
+  --vn-steel-700: #33281D;
+  --vn-steel-600: #433528;
+  --vn-steel-500: #584736;
+  --vn-steel-400: #7D6A55;
+  --vn-steel-300: #A8937B;
+  --vn-wood-800: #3A2310;
+  --vn-wood-700: #5A3514;
+  --vn-wood-600: #8A5418;
+  --vn-wood-500: #B06C1E;
+  --vn-wood-400: #CF8A32;
+  --vn-ember-100: #FFF6E6;
+  --vn-ember-200: #F6E3C3;
+  --vn-ember-300: #E2C79C;
+  --vn-ember-400: #C2A57A;
+  --vn-paper-100: #FBF4E8;
+  --vn-paper-200: #F5EBDB;
+  --vn-paper-300: #EDDFC9;
+  --vn-ink-900: #2A1B0C;
+  --vn-ink-700: #6A5238;
+  --vn-ink-500: #967C5E;
 }
 
 /* --- Доступность: уважаем системную настройку «меньше движения» ----------- */

@@ -78,6 +78,11 @@ SCRIPTS_TARGETS = [ROOT / "engine" / "browser" / "base" / "content" / "vantara",
 BASE_JAR = ROOT / "engine" / "browser" / "base" / "jar.mn"
 BROWSER_MAIN = ROOT / "engine" / "browser" / "base" / "content" / "browser-main.js"
 
+# Модули браузера (ES-модули основного процесса): загружаются по адресу
+# chrome://browser/content/vantara/modules/, например из акторов.
+MODULES_SRC = ROOT / "ui" / "modules"
+MODULES_TARGETS = [target / "modules" for target in SCRIPTS_TARGETS]
+
 # Страница новой вкладки. В прототипе она ссылается на файлы по всему
 # репозиторию; в сборке всё лежит в одном каталоге пакета browser,
 # открытого для вкладок (contentaccessible=yes). Адрес страницы задан
@@ -114,12 +119,13 @@ NEWTAB_PATHS = {
     "from './url-parse.js'": f"from '{NEWTAB_BASE}url-parse.js'",
     "from './strings.js'": f"from '{NEWTAB_BASE}strings.js'",
 }
-# Страница без сети: грузить можно только из пакетов браузера.
+# Страница без сети: грузить можно только из пакетов браузера. Картинки
+# data: — значки сайтов, которые браузер берёт из своей истории.
 # frame-ancestors в meta не поддерживается; от встраивания страницу
 # закрывает сам адрес about:, недоступный сайтам.
 NEWTAB_CSP = ('<meta http-equiv="Content-Security-Policy" '
-              'content="default-src chrome:; object-src \'none\'; '
-              'base-uri \'none\'">')
+              'content="default-src chrome:; img-src chrome: data:; '
+              'object-src \'none\'; base-uri \'none\'">')
 
 BROWSER_MOZBUILD = ROOT / "engine" / "browser" / "moz.build"
 PACKAGE_MANIFEST = ROOT / "engine" / "browser" / "installer" / "package-manifest.in"
@@ -357,6 +363,33 @@ def sync_scripts() -> None:
     print(f"  browser-main.js: подключено {loaded}")
 
 
+def sync_modules() -> None:
+    """Кладёт модули основного процесса в пакет browser.
+
+    В отличие от скриптов окна, модули в окно не подключаются: их
+    импортирует тот, кому они нужны (ChromeUtils.importESModule).
+    """
+    modules = sorted(MODULES_SRC.glob("*.sys.mjs"))
+    for target in MODULES_TARGETS:
+        target.mkdir(parents=True, exist_ok=True)
+        for module in modules:
+            shutil.copy2(module, target / module.name)
+    print(f"  скопировано модулей: {len(modules)}")
+
+    jar = BASE_JAR.read_text(encoding="utf-8")
+    anchor = "        content/browser/browser-main.js"
+    added = 0
+    for module in modules:
+        path = f"content/browser/vantara/modules/{module.name}"
+        if path in jar:
+            continue
+        entry = f"        {path:<55} (content/vantara/modules/{module.name})"
+        jar = jar.replace(anchor, entry + "\n" + anchor, 1)
+        added += 1
+    BASE_JAR.write_text(jar, encoding="utf-8")
+    print(f"  browser/base/jar.mn: новых записей {added}")
+
+
 def sync_newtab() -> None:
     """Кладёт страницу новой вкладки в пакет браузера.
 
@@ -435,6 +468,9 @@ def main() -> int:
 
     print("\nПеренос скриптов окна")
     sync_scripts()
+
+    print("\nПеренос модулей")
+    sync_modules()
 
     print("\nПеренос новой вкладки")
     sync_newtab()

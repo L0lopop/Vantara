@@ -1,14 +1,25 @@
 diff --git a/browser/actors/AboutNewTabParent.sys.mjs b/browser/actors/AboutNewTabParent.sys.mjs
-index 1b0427ef7444efa08c1ba18b207cf2285ae98f07..02dfe177f5875f2d4ccaed4c74691a657e788536 100644
+index 1b0427ef7444efa08c1ba18b207cf2285ae98f07..6e60b69f2b8fd974888c7eb61c797685cf839261 100644
 --- a/browser/actors/AboutNewTabParent.sys.mjs
 +++ b/browser/actors/AboutNewTabParent.sys.mjs
-@@ -63,6 +63,9 @@ export class AboutNewTabParent extends JSWindowActorParent {
+@@ -7,6 +7,8 @@ const lazy = {};
+ ChromeUtils.defineESModuleGetters(lazy, {
+   AboutNewTab: "resource:///modules/AboutNewTab.sys.mjs",
+   ASRouter: "resource:///modules/asrouter/ASRouter.sys.mjs",
++  VantaraNewTab:
++    "chrome://browser/content/vantara/modules/VantaraNewTab.sys.mjs",
+ });
+ 
+ // A mapping of loaded new tab pages, where the mapping is:
+@@ -63,6 +65,11 @@ export class AboutNewTabParent extends JSWindowActorParent {
  
    async receiveMessage(message) {
      switch (message.name) {
 +      case "VantaraNewTab:ResetBlocked":
-+        Services.prefs.clearUserPref("vantara.shield.blockedTotal");
-+        break;
++      case "VantaraNewTab:SetTheme":
++      case "VantaraNewTab:GetHistory":
++      case "VantaraNewTab:RemoveHistory":
++        return lazy.VantaraNewTab.receiveMessage(message);
        case "AboutNewTabVisible":
          {
            const browsingContext = this.browsingContext;

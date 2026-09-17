@@ -72,7 +72,8 @@ export function looksLikeUrl(text) {
 /**
  * Превращает ввод в адрес для перехода.
  * @param {string} input ввод пользователя
- * @param {string} searchUrl база поисковой системы, оканчивается на "="
+ * @param {string} searchUrl адрес поиска: шаблон с {q} на месте запроса
+ *   (так его отдаёт браузер) или база, оканчивающаяся на "="
  * @returns {string|null} адрес перехода или null для пустого ввода
  */
 export function resolveTarget(input, searchUrl) {
@@ -85,7 +86,10 @@ export function resolveTarget(input, searchUrl) {
     return HAS_SCHEME.test(value) ? value : 'https://' + value;
   }
 
-  return searchUrl + encodeURIComponent(value);
+  const query = encodeURIComponent(value);
+  return searchUrl.includes('{q}')
+    ? searchUrl.replace('{q}', query)
+    : searchUrl + query;
 }
 
 /**

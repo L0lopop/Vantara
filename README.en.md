@@ -46,7 +46,7 @@ installer, with its own name, icon and application ID.
 - Firefox background services are not built: the daily agent that reports
   to Mozilla and the update service running as SYSTEM
 - Strict tracking protection on a new profile, HTTPS only
-- DuckDuckGo as the default search engine, search suggestions off
+- Google as the default search engine, search suggestions off
 - No Mozilla account, no Firefox ads or recommendations
 - About 110 privacy defaults, each group explaining why it is there
 
@@ -56,13 +56,13 @@ installer, with its own name, icon and application ID.
   trackers got through. Live, separate for each tab, kept in memory only
 - **Shield** next to the address bar — marks every block and keeps an
   all-time counter with no addresses and no history
-- **New tab page** that makes no network requests and has no "most visited"
-  list, since that list is built by tracking your history
+- **New tab page** that makes no network requests: favorites and recently
+  visited sites with icons from the local history
 
 **Interface**
 
 - Own icon set, tabs, menus, panels and animations
-- Light and dark themes
+- Five palettes and a light, dark or system scheme
 - Russian and English, following the system language
 
 Work in progress — [stage 1](docs/ROADMAP.md): internal pages, a custom
@@ -86,6 +86,11 @@ then open:
 
 There are no releases yet — the browser is built from source on Windows.
 Steps, requirements and all the pitfalls are in [BUILD.md](docs/BUILD.md).
+Run the built browser with a persistent profile inside the project folder:
+
+```powershell
+.\tools\start.ps1
+```
 
 Working on the interface doesn't need a full build: the styles run on top
 of an installed Firefox in a separate profile, without touching yours.

@@ -94,21 +94,33 @@ user_pref("webgl.disabled", false);            /* [ЛОМАЕТ] если вкл
 user_pref("media.navigator.enabled", true);    /* камера/микрофон по запросу */
 
 /* == 5. Сеть: утечки и предугадывание ======================================
- * Браузер не должен ходить в сеть за тем, что пользователь не запрашивал.
+ * Браузер не скачивает страницы, которые пользователь не открывал.
+ *
+ * Предварительные соединения при этом включены — это цена скорости,
+ * названная честно. Когда курсор над ссылкой или адрес набирается,
+ * браузер заранее выясняет адрес сайта и открывает к нему соединение.
+ * Сайт видит, что к нему подключились, но не получает ни запроса, ни
+ * куки. Без этого каждый переход ждал лишние 100-300 мс, и поиск с
+ * переходами по результатам ощутимо тормозил. Адреса при этом уходят
+ * через DNS-через-HTTPS (секция 6), а не провайдеру открытым текстом.
+ *
+ * Выключенным остаётся то, что действительно раскрывает поведение:
+ * предзагрузка следующих страниц и «предсказатель», который копит в
+ * профиле базу посещённых ресурсов.
  * ========================================================================== */
+/* Firefox по умолчанию не выясняет адреса ссылок на HTTPS-страницах —
+ * а почти все страницы теперь HTTPS. Запросы идут через DoH. */
+user_pref("network.dns.disablePrefetchFromHTTPS", false);
 user_pref("network.prefetch-next", false);
-user_pref("network.dns.disablePrefetch", true);
-user_pref("network.dns.disablePrefetchFromHTTPS", true);
 user_pref("network.predictor.enabled", false);
 user_pref("network.predictor.enable-prefetch", false);
-user_pref("network.http.speculative-parallel-limit", 0);
-user_pref("browser.places.speculativeConnect.enabled", false);
-user_pref("browser.urlbar.speculativeConnect.enabled", false);
 user_pref("browser.send_pings", false);
 user_pref("beacon.enabled", false);
 
-/* Referer: сторонним сайтам отдаём только источник, без пути и параметров. */
-user_pref("network.http.referer.XOriginPolicy", 2);
+/* Referer: сторонним сайтам отдаём только источник, без пути и параметров.
+ * Запрет Referer между сайтами целиком (XOriginPolicy=2) не используется:
+ * он ломает вход на сайты, оплату и проверки «я не робот», которые
+ * сверяют, откуда пришёл запрос. */
 user_pref("network.http.referer.XOriginTrimmingPolicy", 2);
 
 /* WebRTC: не отключаем целиком (сломает звонки), но запрещаем раскрывать

@@ -5,9 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title data-l10n="title">Новая вкладка</title>
 
-<!-- Никаких внешних ресурсов: шрифты системные, иконки локальные.
-     Страница новой вкладки не должна делать ни одного сетевого запроса —
-     иначе браузер сообщает о вашем запуске раньше, чем вы что-то открыли. -->
+<!-- Никаких внешних ресурсов: шрифты системные, иконки локальные, значки
+     сайтов браузер берёт из своей истории. Страница не делает ни одного
+     сетевого запроса — иначе браузер сообщает о вашем запуске раньше,
+     чем вы что-то открыли. -->
 <link rel="stylesheet" href="../../chrome/vantara/tokens.css">
 <link rel="stylesheet" href="../../chrome/vantara/animations.css">
 <link rel="stylesheet" href="newtab.css">
@@ -16,9 +17,50 @@
 
 <main class="page">
 
+  <!-- Оформление: схема и палитра -->
+  <div class="theme">
+    <button type="button" class="theme-toggle" id="theme-toggle"
+            aria-expanded="false" aria-controls="theme-popover"
+            title="Оформление" data-l10n-attrs="title:themeTitle">
+      <svg class="icon" aria-hidden="true">
+        <use href="../../chrome/vantara/icons/sprite.svg#vn-palette"/>
+      </svg>
+    </button>
+
+    <div class="theme-popover" id="theme-popover" hidden>
+      <p class="theme-heading" data-l10n="themeTitle">Оформление</p>
+
+      <div class="modes" role="radiogroup" aria-label="Схема"
+           data-l10n-attrs="aria-label:modeLabel">
+        <button type="button" role="radio" data-mode="system" data-l10n="modeSystem">Как в системе</button>
+        <button type="button" role="radio" data-mode="light" data-l10n="modeLight">Светлая</button>
+        <button type="button" role="radio" data-mode="dark" data-l10n="modeDark">Тёмная</button>
+      </div>
+
+      <div class="palettes" role="radiogroup" aria-label="Палитра"
+           data-l10n-attrs="aria-label:paletteLabel">
+        <button type="button" role="radio" data-palette="forge">
+          <span class="chip"></span><span data-l10n="paletteForge">Кузница</span>
+        </button>
+        <button type="button" role="radio" data-palette="midnight">
+          <span class="chip"></span><span data-l10n="paletteMidnight">Полночь</span>
+        </button>
+        <button type="button" role="radio" data-palette="pine">
+          <span class="chip"></span><span data-l10n="palettePine">Хвоя</span>
+        </button>
+        <button type="button" role="radio" data-palette="ash">
+          <span class="chip"></span><span data-l10n="paletteAsh">Пепел</span>
+        </button>
+        <button type="button" role="radio" data-palette="amber">
+          <span class="chip"></span><span data-l10n="paletteAmber">Янтарь</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Поиск: выше геометрического центра, по правилу третей -->
   <section class="hero">
-    <img class="brand" src="../../../brand/logo/mark.png" alt="Vantara" width="56" height="56">
+    <img class="brand" src="../../../brand/logo/mark.png" alt="Vantara" width="84" height="84">
 
     <form class="search" id="search" role="search" autocomplete="off">
       <svg class="icon" aria-hidden="true">
@@ -29,15 +71,23 @@
              spellcheck="false" autocomplete="off">
       <button type="button" class="engine" id="engine"
               title="Сменить поисковую систему"
-              data-l10n-attrs="title:engineSwitch">DuckDuckGo</button>
+              data-l10n-attrs="title:engineSwitch">Google</button>
     </form>
   </section>
 
-  <!-- Закреплённые ссылки. Заполняются вручную: список «часто посещаемых»
-       строится из слежки за историей, и мы его не строим. -->
-  <section class="pinned" aria-label="Закреплённые сайты"
-           data-l10n-attrs="aria-label:pinned">
+  <!-- Подсказка пропадает, как только в истории появился первый сайт -->
+  <p class="empty" id="hint" data-l10n="hint">
+    Здесь появятся избранные сайты и те, что вы открывали.
+  </p>
+
+  <section class="shelf" aria-labelledby="favorites-title">
+    <h2 class="shelf-title" id="favorites-title" data-l10n="favorites">Избранное</h2>
     <div class="tiles" id="tiles"></div>
+  </section>
+
+  <section class="shelf" id="history-shelf" aria-labelledby="history-title" hidden>
+    <h2 class="shelf-title" id="history-title" data-l10n="recent">Недавно посещённые</h2>
+    <div class="tiles" id="history"></div>
   </section>
 
   <!-- Сводка защиты -->

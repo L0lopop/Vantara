@@ -248,7 +248,8 @@ found». Плюс вторая запись — в `browser/installer/package-ma
 |---|---|
 | `vantara-shield.js` | Пульс щита при блокировке, общий итог попыток слежки |
 | `vantara-protection.js` | Строгая защита на новом профиле |
-| `vantara-search.js` | DuckDuckGo поиском по умолчанию на новом профиле |
+| `vantara-search.js` | Google поиском по умолчанию; адрес поиска для новой вкладки |
+| `vantara-theme.js` | Палитра окна по настройке `vantara.theme.palette` |
 | `vantara-motion.js` | Волна загрузки по кромке адресной строки |
 | `vantara-leaks.js` | Журнал запросов: кнопка у адресной строки и панель |
 
@@ -256,6 +257,14 @@ found». Плюс вторая запись — в `browser/installer/package-ma
 там подводят молча: у элементов нет `ownerGlobal` (теперь
 `documentGlobal`), а `Services.search` больше не существует — сервис
 поиска подключается через `ChromeUtils.importESModule`.
+
+**Модули** основного процесса (`ui/modules/*.sys.mjs`) кладутся в
+`browser/base/content/vantara/modules/` и в окно не подключаются: их
+импортирует тот, кому они нужны. `VantaraNewTab.sys.mjs` отвечает
+странице новой вкладки через `AboutNewTabParent`: список посещённых
+сайтов со значками из истории, удаление сайта из истории, смена палитры
+и схемы. Схема — встроенные темы Firefox «Светлая» и «Тёмная»: в 156 они
+задают только `color_scheme`, без своих цветов, и палитра Vantara остаётся.
 
 Журнал запросов берёт данные из уведомлений `http-on-opening-request` и
 `http-on-stop-request`: основной процесс получает их по каждому запросу

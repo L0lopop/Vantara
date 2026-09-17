@@ -14,6 +14,8 @@ dist/
 .dev-profile/
 .dev-runtime/
 .native-profile/
+# Профиль для обычной работы (tools/start.ps1)
+.user-profile/
 
 # --- Артефакты сборки ------------------------------------------------------
 *.exe

@@ -2,23 +2,23 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* Vantara — поисковая система по умолчанию на новом профиле.
+/* Vantara — поиск по умолчанию.
  *
- * Firefox выбирает поиск по умолчанию сам, по стране и языку, из списка
- * поисковых систем (search-config-v2). Почти везде это Google: каждый
- * запрос из адресной строки уходит системе, которая строит по ним профиль.
- * Новая вкладка Vantara при этом ищет через DuckDuckGo — два разных поиска
- * в одном окне.
+ * Поиск по умолчанию — Google. Firefox выбирает систему по стране и языку,
+ * поэтому скрипт ставит Google явно, один раз на профиль. Выбор сохраняется
+ * как обычный выбор в настройках: пользователь меняет его там, и мы это
+ * решение не отменяем.
  *
- * Заводской настройкой это не решить: такой настройки в Firefox больше нет,
- * а корпоративная политика SearchEngines работает только в ESR и включает
- * плашку «браузером управляет организация».
+ * Версии решения:
+ *   1 — ставился DuckDuckGo;
+ *   2 — Google. Профиль с версией 1, где по-прежнему DuckDuckGo, переводится
+ *       на Google: этот выбор сделали мы, а не человек. Любой другой
+ *       выбранный поиск остаётся.
  *
- * Поэтому, как и со строгой защитой (vantara-protection.js), выбор делается
- * один раз на новом профиле. Он сохраняется как обычный выбор поиска —
- * пользователь меняет его в настройках, и мы это решение не отменяем.
- * Профиль, где поиск уже выбран вручную (например, перенесённый из
- * Firefox), не трогаем.
+ * Второе дело скрипта — сообщать новой вкладке, куда отправлять запрос.
+ * Страница работает в отдельном процессе и не видит сервис поиска, поэтому
+ * имя системы и адрес запроса (с {q} вместо текста) лежат в настройках
+ * vantara.search.engineName и vantara.search.urlTemplate.
  *
  * Создаётся tools/sync-ui.py из ui/scripts/. Править там.
  */
@@ -26,10 +26,15 @@
 "use strict";
 
 {
-  const APPLIED_PREF = "vantara.search.initialDefaultApplied";
-  // Идентификатор из search-config-v2: DuckDuckGo есть в списке для всех
-  // стран и языков.
-  const ENGINE_ID = "ddg";
+  const VERSION_PREF = "vantara.search.defaultVersion";
+  const LEGACY_PREF = "vantara.search.initialDefaultApplied";
+  const VERSION = 2;
+  const ENGINE_ID = "google";
+  const PREVIOUS_ENGINE_ID = "ddg";
+  const NAME_PREF = "vantara.search.engineName";
+  const TEMPLATE_PREF = "vantara.search.urlTemplate";
+  // Заглушка текста запроса: её место в адресе становится {q}.
+  const PLACEHOLDER = "VANTARAQUERY";
 
   // В окне браузера сервис поиска глобально не объявлен (Services.search
   // в Firefox 156 уже нет) — модуль подключается явно.
@@ -37,40 +42,71 @@
     "moz-src:///toolkit/components/search/SearchService.sys.mjs"
   );
 
-  let applyOnce = async subject => {
-    if (subject != window) {
+  async function applyDefault() {
+    let version = Services.prefs.getIntPref(VERSION_PREF, 0);
+    if (!version && Services.prefs.getBoolPref(LEGACY_PREF, false)) {
+      version = 1;
+    }
+    if (version >= VERSION) {
       return;
     }
-    Services.obs.removeObserver(applyOnce, "browser-delayed-startup-finished");
+    // Версия ставится до ожидания сервиса: второе окно, открытое в это
+    // время, не должно повторить работу.
+    Services.prefs.setIntPref(VERSION_PREF, VERSION);
+    Services.prefs.clearUserPref(LEGACY_PREF);
 
-    if (Services.prefs.getBoolPref(APPLIED_PREF, false)) {
+    let current = SearchService.defaultEngine;
+    let untouched =
+      version == 0
+        ? current == SearchService.appDefaultEngine
+        : current?.id == PREVIOUS_ENGINE_ID;
+    if (!untouched) {
       return;
     }
-    // Флаг ставится до ожидания инициализации поиска: второе окно,
-    // открытое в это время, не должно повторить работу.
-    Services.prefs.setBoolPref(APPLIED_PREF, true);
 
-    try {
-      await SearchService.init();
+    let engine = SearchService.getEngineById(ENGINE_ID);
+    if (!engine) {
+      console.error(`Vantara: поисковая система ${ENGINE_ID} не найдена`);
+      return;
+    }
+    await SearchService.setDefault(engine, SearchService.CHANGE_REASON.UNKNOWN);
+  }
 
-      // Поиск, отличный от выбранного Firefox по стране, выбрал человек.
-      if (SearchService.defaultEngine != SearchService.appDefaultEngine) {
-        return;
-      }
+  function publishTemplate() {
+    let engine = SearchService.defaultEngine;
+    let url = engine?.getSubmission(PLACEHOLDER)?.uri?.spec;
+    if (!url) {
+      return;
+    }
+    Services.prefs.setStringPref(NAME_PREF, engine.name);
+    Services.prefs.setStringPref(TEMPLATE_PREF, url.replace(PLACEHOLDER, "{q}"));
+  }
 
-      let engine = SearchService.getEngineById(ENGINE_ID);
-      if (!engine) {
-        console.error(`Vantara: поисковая система ${ENGINE_ID} не найдена`);
-        return;
-      }
-      await SearchService.setDefault(
-        engine,
-        SearchService.CHANGE_REASON.UNKNOWN
-      );
-    } catch (error) {
-      console.error("Vantara: поиск по умолчанию не выставлен", error);
+  let onEngineChanged = (subject, topic, data) => {
+    if (data == "engine-default") {
+      publishTemplate();
     }
   };
 
-  Services.obs.addObserver(applyOnce, "browser-delayed-startup-finished");
+  let onStartup = async subject => {
+    if (subject != window) {
+      return;
+    }
+    Services.obs.removeObserver(onStartup, "browser-delayed-startup-finished");
+    try {
+      await SearchService.init();
+      await applyDefault();
+      publishTemplate();
+    } catch (error) {
+      console.error("Vantara: поиск по умолчанию не выставлен", error);
+    }
+    Services.obs.addObserver(onEngineChanged, "browser-search-engine-modified");
+    window.addEventListener(
+      "unload",
+      () => Services.obs.removeObserver(onEngineChanged, "browser-search-engine-modified"),
+      { once: true }
+    );
+  };
+
+  Services.obs.addObserver(onStartup, "browser-delayed-startup-finished");
 }

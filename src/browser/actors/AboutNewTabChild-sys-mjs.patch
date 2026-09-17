@@ -1,5 +1,5 @@
 diff --git a/browser/actors/AboutNewTabChild.sys.mjs b/browser/actors/AboutNewTabChild.sys.mjs
-index 88149c9a741557a58d8799cf5521531e108e09ca..a8642f425ca0a9a6442d84c4496a855fb26c00cf 100644
+index 88149c9a741557a58d8799cf5521531e108e09ca..593e413e198751d4a15ca285e50c9c2e9d1d9cc0 100644
 --- a/browser/actors/AboutNewTabChild.sys.mjs
 +++ b/browser/actors/AboutNewTabChild.sys.mjs
 @@ -27,6 +27,13 @@ XPCOMUtils.defineLazyPreferenceGetter(
@@ -16,42 +16,100 @@ index 88149c9a741557a58d8799cf5521531e108e09ca..a8642f425ca0a9a6442d84c4496a855f
  XPCOMUtils.defineLazyPreferenceGetter(
    lazy,
    "NEWTAB_REMOTE_RENDERER_ENABLED",
-@@ -37,7 +44,48 @@ XPCOMUtils.defineLazyPreferenceGetter(
+@@ -37,7 +44,106 @@ XPCOMUtils.defineLazyPreferenceGetter(
  let gNextPortID = 0;
  
  export class AboutNewTabChild extends RemotePageChild {
 +  /**
-+   * The page reads the UI locale from vn-locale and the shield's all-time
-+   * total from vn-blocked, and asks for a reset by event. The attribute is set before
-+   * the page scripts run and refreshed whenever the page is shown, since
-+   * new tabs are preloaded in the background.
++   * Vantara's page cannot read browser state itself. Before its scripts run,
++   * and whenever it is shown again (new tabs are preloaded in the
++   * background), its root element gets:
++   *   vn-locale  - UI locale
++   *   vn-blocked - the shield's all-time total
++   *   vn-palette - colour palette
++   *   vn-mode    - system, light or dark
++   *   vn-search  - JSON {name, url} of the default engine, {q} for the terms
++   * Requests from the page arrive as untrusted events with JSON details.
 +   *
 +   * @param {Event} event
 +   */
 +  #handleVantaraEvent(event) {
++    let root = this.document.documentElement;
 +    switch (event.type) {
 +      case "DOMDocElementInserted":
++        root.setAttribute("vn-locale", Services.locale.appLocaleAsBCP47);
++        this.#syncVantaraState(root);
++        break;
 +      case "pageshow":
 +      case "visibilitychange":
-+        if (event.type == "DOMDocElementInserted") {
-+          this.document.documentElement.setAttribute(
-+            "vn-locale",
-+            Services.locale.appLocaleAsBCP47
-+          );
++        if (this.document.visibilityState == "visible") {
++          this.#syncVantaraState(root);
++          this.#sendVantaraHistory();
 +        }
-+        if (
-+          event.type == "DOMDocElementInserted" ||
-+          this.document.visibilityState == "visible"
-+        ) {
-+          this.document.documentElement.setAttribute(
-+            "vn-blocked",
-+            Services.prefs.getIntPref("vantara.shield.blockedTotal", 0)
-+          );
-+        }
++        break;
++      case "VantaraNewTab:RequestHistory":
++        this.#sendVantaraHistory();
 +        break;
 +      case "VantaraNewTab:ResetBlocked":
-+        this.sendAsyncMessage("VantaraNewTab:ResetBlocked");
++        this.sendAsyncMessage(event.type);
 +        break;
++      case "VantaraNewTab:SetTheme":
++        this.sendAsyncMessage(event.type, this.#parseDetail(event));
++        break;
++      case "VantaraNewTab:RemoveHistory":
++        this.sendQuery(event.type, this.#parseDetail(event)).then(
++          () => this.#sendVantaraHistory(),
++          console.error
++        );
++        break;
++    }
++  }
++
++  #parseDetail(event) {
++    try {
++      let data = JSON.parse(String(event.detail));
++      return data && typeof data == "object" ? data : {};
++    } catch (e) {
++      return {};
++    }
++  }
++
++  #syncVantaraState(root) {
++    const MODES = {
++      "firefox-compact-light@mozilla.org": "light",
++      "firefox-compact-dark@mozilla.org": "dark",
++    };
++    root.setAttribute(
++      "vn-blocked",
++      Services.prefs.getIntPref("vantara.shield.blockedTotal", 0)
++    );
++    root.setAttribute(
++      "vn-palette",
++      Services.prefs.getStringPref("vantara.theme.palette", "forge")
++    );
++    root.setAttribute(
++      "vn-mode",
++      MODES[Services.prefs.getStringPref("extensions.activeThemeID", "")] ??
++        "system"
++    );
++    let name = Services.prefs.getStringPref("vantara.search.engineName", "");
++    let url = Services.prefs.getStringPref("vantara.search.urlTemplate", "");
++    if (name && url) {
++      root.setAttribute("vn-search", JSON.stringify({ name, url }));
++    }
++  }
++
++  async #sendVantaraHistory() {
++    try {
++      let sites = await this.sendQuery("VantaraNewTab:GetHistory");
++      let win = this.contentWindow;
++      win?.dispatchEvent(
++        new win.CustomEvent("VantaraNewTab:History", {
++          detail: JSON.stringify(sites ?? []),
++        })
++      );
++    } catch (e) {
++      // The page went away while the history was being read.
 +    }
 +  }
 +
