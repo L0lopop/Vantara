@@ -139,7 +139,7 @@ body {
    они стоят по центру под поиском, а не жмутся к левому краю. */
 .tiles {
   display: grid;
-  grid-template-columns: repeat(auto-fit, 112px);
+  grid-template-columns: repeat(auto-fit, 128px);
   justify-content: center;
   gap: var(--vn-space-4);
 }
@@ -173,12 +173,12 @@ body {
 
 /* Значок сайта из истории браузера или первая буква имени. */
 .tile .glyph {
-  width: 52px; height: 52px;
+  width: 68px; height: 68px;
   display: grid; place-items: center;
   border-radius: var(--vn-radius-lg);
   background: var(--vn-bg-raised);
   border: 1px solid var(--vn-border);
-  font-size: 21px;
+  font-size: 26px;
   font-weight: 600;
   color: var(--vn-fg-primary);
   text-transform: uppercase;
@@ -186,7 +186,13 @@ body {
   transition: background-color var(--vn-dur-fast) var(--vn-ease-standard),
               color var(--vn-dur-fast) var(--vn-ease-standard);
 }
-.tile .glyph img { width: 28px; height: 28px; }
+.tile .glyph img { width: 40px; height: 40px; image-rendering: auto; }
+/* Значки сайтов рисуют в расчёте на светлый фон: на тёмной плитке чёрный
+   значок (GitHub, Apple) пропадает. Поэтому под значком всегда светлая
+   подложка. */
+.tile .glyph:has(img) {
+  background: light-dark(var(--vn-bg-raised), var(--vn-paper-100));
+}
 .tile:hover .glyph:not(:has(img)) { background: var(--vn-accent); color: var(--vn-accent-fg); }
 
 .tile .name {
@@ -243,7 +249,7 @@ body {
   border-style: dashed;
   color: var(--vn-fg-muted);
 }
-.tile.add .glyph .icon { width: 20px; height: 20px; }
+.tile.add .glyph .icon { width: 24px; height: 24px; }
 .tile.add:hover .glyph {
   background: none;
   border-color: var(--vn-accent);
@@ -330,7 +336,7 @@ body {
 .palettes {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: var(--vn-space-2);
+  gap: var(--vn-space-1);
 }
 .palettes button {
   display: flex;
@@ -351,64 +357,70 @@ body {
 .palettes button:hover { background: var(--vn-bg-hover); color: var(--vn-fg-primary); }
 .palettes button[aria-checked="true"] { color: var(--vn-fg-primary); }
 
-/* Образец — поверхность, акцент и кромка палитры. Цвета заданы здесь
-   явно: у образца своя палитра, не та, что сейчас на странице. */
+/* Образец — маленькое окно в цветах палитры: полоса панели, строка
+   текста и акцентная кнопка. Цвета заданы здесь явно (у образца своя
+   палитра, не та, что на странице) и следуют текущей схеме. */
 .chip {
-  width: 34px; height: 34px;
-  border-radius: 50%;
-  border: 2px solid transparent;
-  background: conic-gradient(var(--c-accent) 0 33%, var(--c-edge) 0 50%, var(--c-base) 0);
-  box-shadow: 0 0 0 1px var(--vn-border);
+  position: relative;
+  width: 46px;
+  height: 34px;
+  border-radius: 7px;
+  overflow: hidden;
+  background: light-dark(var(--c-paper), var(--c-window));
+  box-shadow: 0 0 0 1px var(--vn-border), var(--vn-shadow-sm);
   transition: transform var(--vn-dur-fast) var(--vn-ease-spring),
-              border-color var(--vn-dur-fast) var(--vn-ease-standard);
+              box-shadow var(--vn-dur-fast) var(--vn-ease-standard);
 }
-.palettes button:hover .chip { transform: scale(1.08); }
-.palettes button[aria-checked="true"] .chip { border-color: var(--vn-fg-primary); }
-
-[data-palette="forge"]    .chip { --c-base: #23272E; --c-accent: #6E4733; --c-edge: #F0DCC0; }
-[data-palette="midnight"] .chip { --c-base: #1B2230; --c-accent: #3D5F9E; --c-edge: #D9E3F5; }
-[data-palette="pine"]     .chip { --c-base: #1C2721; --c-accent: #3C7352; --c-edge: #DCEADF; }
-[data-palette="ash"]      .chip { --c-base: #212123; --c-accent: #5E5E68; --c-edge: #E6E6E9; }
-[data-palette="amber"]    .chip { --c-base: #291F16; --c-accent: #B06C1E; --c-edge: #F6E3C3; }
-
-/* ===== Сводка защиты ====================================================== */
-.guard {
-  display: flex;
-  align-items: center;
-  gap: var(--vn-space-4);
-  margin-top: auto;
-  padding-top: 48px;
-  font-size: var(--vn-text-sm);
-  color: var(--vn-fg-muted);
-  animation: vn-fade-in var(--vn-dur-slower) var(--vn-ease-decel) backwards;
-  animation-delay: var(--vn-dur-base);
+.chip-bar {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 10px;
+  background: light-dark(var(--c-paper-bar), var(--c-bar));
+}
+.chip-text {
+  position: absolute;
+  left: 7px;
+  top: 16px;
+  width: 18px;
+  height: 3px;
+  border-radius: 2px;
+  background: light-dark(var(--c-ink), var(--c-text));
+  opacity: 0.85;
+}
+.chip-accent {
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  width: 14px;
+  height: 8px;
+  border-radius: 3px;
+  background: var(--c-accent);
+}
+.palettes button:hover .chip { transform: translateY(-1px) scale(1.06); }
+.palettes button[aria-checked="true"] .chip {
+  box-shadow: 0 0 0 2px var(--vn-bg-surface), 0 0 0 4px var(--c-accent);
 }
 
-.guard .item { display: flex; align-items: center; gap: var(--vn-space-2); }
-.guard b {
-  color: var(--vn-guard);
-  font-weight: 500;
-  font-variant-numeric: tabular-nums;
+[data-palette="forge"] .chip {
+  --c-window: #16181D; --c-bar: #23272E; --c-text: #F0DCC0; --c-accent: #8A5C43;
+  --c-paper: #EFE9E0; --c-paper-bar: #E5DDD2; --c-ink: #241A13;
 }
-/* Ноль отправленных данных — не достижение с подсветкой, а норма. */
-.guard b.zero { color: var(--vn-fg-secondary); }
-.guard .icon { color: var(--vn-guard); }
-.guard .sep { width: 1px; height: 12px; background: var(--vn-border); }
-
-.guard .link {
-  font: inherit;
-  font-size: var(--vn-text-sm);
-  color: var(--vn-fg-muted);
-  background: none;
-  border: 0;
-  padding: 0;
-  cursor: pointer;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-  text-decoration-color: var(--vn-border-strong);
-  transition: color var(--vn-dur-fast) var(--vn-ease-standard);
+[data-palette="midnight"] .chip {
+  --c-window: #10151F; --c-bar: #1B2230; --c-text: #D9E3F5; --c-accent: #5577B8;
+  --c-paper: #E9EDF4; --c-paper-bar: #DDE3EC; --c-ink: #141B2B;
 }
-.guard .link:hover { color: var(--vn-fg-primary); }
+[data-palette="pine"] .chip {
+  --c-window: #111814; --c-bar: #1C2721; --c-text: #DCEADF; --c-accent: #53906A;
+  --c-paper: #E8EEE9; --c-paper-bar: #DCE5DE; --c-ink: #15201A;
+}
+[data-palette="ash"] .chip {
+  --c-window: #141415; --c-bar: #212123; --c-text: #E6E6E9; --c-accent: #7A7A85;
+  --c-paper: #ECECEE; --c-paper-bar: #E1E1E4; --c-ink: #18181B;
+}
+[data-palette="amber"] .chip {
+  --c-window: #1A140E; --c-bar: #291F16; --c-text: #F6E3C3; --c-accent: #CF8A32;
+  --c-paper: #F5EBDB; --c-paper-bar: #EDDFC9; --c-ink: #2A1B0C;
+}
 
 /* ===== Диалог ============================================================= */
 .modal {
@@ -482,7 +494,8 @@ body {
   .hero { margin-top: 12vh; }
   .brand { width: 64px; height: 64px; }
   .search { height: 50px; }
-  .guard { flex-wrap: wrap; justify-content: center; }
-  .tiles { grid-template-columns: repeat(auto-fit, 92px); }
+  .tiles { grid-template-columns: repeat(auto-fit, 104px); }
+  .tile .glyph { width: 56px; height: 56px; }
+  .tile .glyph img { width: 32px; height: 32px; }
   .theme-popover { width: calc(100vw - 32px); }
 }

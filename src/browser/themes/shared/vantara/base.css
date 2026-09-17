@@ -28,6 +28,17 @@
   --button-background-color-menu-hover: var(--vn-bg-hover) !important;
   --button-background-color-menu-active: var(--vn-bg-active) !important;
 
+  /* Акцент дизайн-системы Firefox: основные кнопки панелей («Готово» в
+     группе вкладок), флажки, переключатели. Иначе они бирюзовые. Текст на
+     дубе — светлый в обеих схемах. */
+  --color-accent-primary: var(--vn-accent) !important;
+  --color-accent-primary-hover: light-dark(var(--vn-wood-700), var(--vn-wood-400)) !important;
+  --color-accent-primary-active: light-dark(var(--vn-wood-800), var(--vn-wood-600)) !important;
+  --color-accent-primary-selected: var(--vn-accent) !important;
+  --button-text-color-primary: var(--vn-accent-fg) !important;
+  --button-text-color-primary-hover: var(--vn-accent-fg) !important;
+  --button-text-color-primary-active: var(--vn-accent-fg) !important;
+
   /* --- Кнопки панелей ----------------------------------------------------
      Firefox 156 рисует подсветку на иконке (или на стеке со значком), а не
      на самой кнопке, и берёт цвет отсюда. Иконка при этом получает цвет

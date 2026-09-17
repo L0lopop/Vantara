@@ -81,3 +81,20 @@
    намеренно — в теме браузера оно задевает и переходы самого Firefox,
    на окончание которых завязано, например, закрытие вкладки. Бесконечные
    анимации отключаются там, где объявлены (navbar.css). */
+
+/* Группа вкладок: ярлык, линия и подсветка при слиянии (tabs.css). */
+@keyframes vn-group-pop {
+  0%   { transform: scale(0.4); opacity: 0; }
+  60%  { transform: scale(1.12); opacity: 1; }
+  100% { transform: scale(1); }
+}
+
+@keyframes vn-group-line {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+@keyframes vn-group-glow {
+  0%   { box-shadow: 0 0 0 2px var(--tab-group-color, var(--vn-accent)); }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}

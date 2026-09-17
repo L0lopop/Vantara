@@ -35,6 +35,8 @@ const MODE_THEMES = {
 // Сколько последних посещений просматривать и сколько сайтов показать.
 const HISTORY_SCAN = 500;
 const HISTORY_SITES = 16;
+// Размер значка сайта для плиток новой вкладки (с запасом для HiDPI).
+const ICON_SIZE = 96;
 
 export const VantaraNewTab = {
   MESSAGES: new Set([
@@ -105,7 +107,11 @@ export const VantaraNewTab = {
     for (let { host, url, page } of sites.values()) {
       let icon = "";
       try {
-        let favicon = await lazy.PlacesUtils.favicons.getFaviconForPage(page);
+        // Плитка показывает значок крупно: просим самый большой из известных.
+        let favicon = await lazy.PlacesUtils.favicons.getFaviconForPage(
+          page,
+          ICON_SIZE
+        );
         icon = favicon?.dataURI?.spec ?? "";
       } catch (e) {}
       result.push({ host, url, icon });

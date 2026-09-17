@@ -123,3 +123,25 @@
 #tabs-newtab-button:hover > .toolbarbutton-icon {
   transform: rotate(90deg);
 }
+
+/* --- Группы вкладок ----------------------------------------------------------
+   Слияние (ui/scripts/vantara-groups.js ставит vn-merging на полсекунды):
+   ярлык группы появляется с отскоком, линия группы вырастает под
+   вкладками, а сами вкладки на миг подсвечиваются цветом группы. */
+.tab-group-label {
+  border-radius: var(--vn-radius-sm) !important;
+  transition: transform var(--vn-dur-fast) var(--vn-ease-spring);
+}
+
+tab-group[vn-merging] .tab-group-label {
+  animation: vn-group-pop var(--vn-dur-slower) var(--vn-ease-spring);
+}
+
+tab-group[vn-merging] .tab-group-line {
+  transform-origin: 0 50%;
+  animation: vn-group-line var(--vn-dur-slower) var(--vn-ease-decel);
+}
+
+tab-group[vn-merging] .tab-background {
+  animation: vn-group-glow var(--vn-dur-slower) var(--vn-ease-decel);
+}

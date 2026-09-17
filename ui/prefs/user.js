@@ -269,6 +269,12 @@ user_pref("default-browser-agent.enabled", false);
 user_pref("intl.locale.requested", "");
 
 user_pref("browser.toolbars.bookmarks.visibility", "never");
+
+/* Группы вкладок включены (кнопка — ui/scripts/vantara-groups.js).
+ * «Умные» группы — подсказки названий и похожих вкладок — выключены:
+ * им нужна модель ИИ, которую Firefox скачивает с серверов Mozilla. */
+user_pref("browser.tabs.groups.enabled", true);
+user_pref("browser.tabs.groups.smart.enabled", false);
 user_pref("browser.download.autohideButton", false);
 user_pref("vantara.newtab.enabled", true);
 user_pref("browser.startup.homepage.abouthome_cache.enabled", false);

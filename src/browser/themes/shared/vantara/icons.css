@@ -49,6 +49,10 @@
   list-style-image: url("icons/close.svg") !important;
 }
 
+#vantara-group-button {
+  list-style-image: url("icons/group.svg") !important;
+}
+
 #alltabs-button {
   list-style-image: url("icons/chevron-down.svg") !important;
 }

@@ -30,6 +30,7 @@
   <symbol id="vn-sidebar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"><title>Боковая панель</title><rect x="3.5" y="4.5" width="17" height="15" rx="2.2"/><path d="M9.5 4.5v15"/></symbol>
   <symbol id="vn-split" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"><title>Разделить экран</title><rect x="3.5" y="4.5" width="17" height="15" rx="2.2"/><path d="M12 4.5v15"/></symbol>
   <symbol id="vn-chevron-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"><title>Список вкладок</title><path d="M5.5 9 12 15.5 18.5 9"/></symbol>
+  <symbol id="vn-group" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"><title>Группа вкладок</title><path d="M3.5 19.5v-9h6.5l1.5 2h9v7z"/><path d="M6.5 7.5h5l1.5 2h4.5"/></symbol>
   <symbol id="vn-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"><title>Закрепить</title><path d="M9.2 4h5.6l-.9 5.8 2.9 2.9H7.2l2.9-2.9L9.2 4z"/><path d="M12 12.7v7.3"/></symbol>
   <symbol id="vn-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"><title>Меню</title><path d="M4.5 7h15M4.5 12h15M4.5 17h15"/></symbol>
   <symbol id="vn-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"><title>Поиск</title><circle cx="11" cy="11" r="6.2"/><path d="m15.6 15.6 4 4"/></symbol>
@@ -72,19 +73,19 @@
       <div class="palettes" role="radiogroup" aria-label="Палитра"
            data-l10n-attrs="aria-label:paletteLabel">
         <button type="button" role="radio" data-palette="forge">
-          <span class="chip"></span><span data-l10n="paletteForge">Кузница</span>
+          <span class="chip" aria-hidden="true"><span class="chip-bar"></span><span class="chip-text"></span><span class="chip-accent"></span></span><span data-l10n="paletteForge">Кузница</span>
         </button>
         <button type="button" role="radio" data-palette="midnight">
-          <span class="chip"></span><span data-l10n="paletteMidnight">Полночь</span>
+          <span class="chip" aria-hidden="true"><span class="chip-bar"></span><span class="chip-text"></span><span class="chip-accent"></span></span><span data-l10n="paletteMidnight">Полночь</span>
         </button>
         <button type="button" role="radio" data-palette="pine">
-          <span class="chip"></span><span data-l10n="palettePine">Хвоя</span>
+          <span class="chip" aria-hidden="true"><span class="chip-bar"></span><span class="chip-text"></span><span class="chip-accent"></span></span><span data-l10n="palettePine">Хвоя</span>
         </button>
         <button type="button" role="radio" data-palette="ash">
-          <span class="chip"></span><span data-l10n="paletteAsh">Пепел</span>
+          <span class="chip" aria-hidden="true"><span class="chip-bar"></span><span class="chip-text"></span><span class="chip-accent"></span></span><span data-l10n="paletteAsh">Пепел</span>
         </button>
         <button type="button" role="radio" data-palette="amber">
-          <span class="chip"></span><span data-l10n="paletteAmber">Янтарь</span>
+          <span class="chip" aria-hidden="true"><span class="chip-bar"></span><span class="chip-text"></span><span class="chip-accent"></span></span><span data-l10n="paletteAmber">Янтарь</span>
         </button>
       </div>
     </div>
@@ -121,21 +122,6 @@
     <h2 class="shelf-title" id="history-title" data-l10n="recent">Недавно посещённые</h2>
     <div class="tiles" id="history"></div>
   </section>
-
-  <!-- Сводка защиты -->
-  <footer class="guard" id="guard">
-    <span class="item">
-      <svg class="icon icon-sm" aria-hidden="true">
-        <use href="#vn-shield"/>
-      </svg>
-      <span data-l10n="blockedLabel">Заблокировано попыток слежки</span>
-      <b id="blocked">0</b>
-    </span>
-    <span class="sep"></span>
-    <span class="item"><span data-l10n="sentLabel">Отправлено о вас</span> <b class="zero">0</b></span>
-    <span class="sep"></span>
-    <button class="item link" id="reset" type="button" data-l10n="reset">Сбросить счётчик</button>
-  </footer>
 
 </main>
 

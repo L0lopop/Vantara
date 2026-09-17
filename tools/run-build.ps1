@@ -54,7 +54,11 @@ if (-not (Test-Path $Exe)) {
     exit 2
 }
 
-Get-Process vantara -ErrorAction SilentlyContinue | Stop-Process -Force -Confirm:$false
+# Закрываются только тестовые окна — запущенные из папки сборки. Браузер
+# для работы (tools/start.ps1) живёт в .app и не трогается.
+Get-CimInstance Win32_Process -Filter "Name='vantara.exe'" |
+    Where-Object { $_.ExecutablePath -and $_.ExecutablePath.StartsWith($ObjDir) } |
+    ForEach-Object { Stop-Process -Id $_.ProcessId -Force -Confirm:$false -ErrorAction SilentlyContinue }
 # Процесс отпускает lock-файлы профиля не сразу.
 Start-Sleep -Milliseconds 800
 

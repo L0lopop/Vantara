@@ -1,8 +1,8 @@
 diff --git a/browser/themes/shared/jar.inc.mn b/browser/themes/shared/jar.inc.mn
-index 6dc7a8fa3098a9c93e4e17d8b7782a66d64a81b0..c10212e2038ff1bc8c9f7204db12aab2e33b0494 100644
+index 6dc7a8fa3098a9c93e4e17d8b7782a66d64a81b0..7ef285d493e9bf212fa31ca7215c3b8b91b9f348 100644
 --- a/browser/themes/shared/jar.inc.mn
 +++ b/browser/themes/shared/jar.inc.mn
-@@ -372,3 +372,62 @@
+@@ -372,3 +372,63 @@
    skin/classic/browser/illustrations/market-opt-in.svg         (../shared/illustrations/market-opt-in.svg)
    skin/classic/browser/illustrations/tab-groups.svg            (../shared/illustrations/tab-groups.svg)
    skin/classic/browser/illustrations/yelpRealtime-opt-in.svg   (../shared/illustrations/yelpRealtime-opt-in.svg)
@@ -17,6 +17,7 @@ index 6dc7a8fa3098a9c93e4e17d8b7782a66d64a81b0..c10212e2038ff1bc8c9f7204db12aab2
 +  skin/classic/browser/vantara/icons/extensions.svg          (../shared/vantara/icons/extensions.svg)
 +  skin/classic/browser/vantara/icons/eye-off.svg             (../shared/vantara/icons/eye-off.svg)
 +  skin/classic/browser/vantara/icons/forward.svg             (../shared/vantara/icons/forward.svg)
++  skin/classic/browser/vantara/icons/group.svg               (../shared/vantara/icons/group.svg)
 +  skin/classic/browser/vantara/icons/history.svg             (../shared/vantara/icons/history.svg)
 +  skin/classic/browser/vantara/icons/home.svg                (../shared/vantara/icons/home.svg)
 +  skin/classic/browser/vantara/icons/journal.svg             (../shared/vantara/icons/journal.svg)

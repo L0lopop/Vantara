@@ -62,6 +62,7 @@ installer, with its own name, icon and application ID.
 **Interface**
 
 - Own icon set, tabs, menus, panels and animations
+- Tab groups with a merge animation
 - Five palettes and a light, dark or system scheme
 - Russian and English, following the system language
 

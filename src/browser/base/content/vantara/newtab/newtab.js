@@ -12,11 +12,11 @@
  * ========================================================================== */
 
 import { resolveTarget, nameFromUrl } from 'chrome://browser/content/vantara/newtab/url-parse.js';
-import { t, localize, formatNumber } from 'chrome://browser/content/vantara/newtab/strings.js';
+import { t, localize } from 'chrome://browser/content/vantara/newtab/strings.js';
 
 const root = document.documentElement;
 // Атрибуты состояния ставит браузер ещё до запуска скриптов страницы.
-const fromBrowser = root.hasAttribute('vn-blocked');
+const fromBrowser = root.hasAttribute('vn-locale');
 
 /* --- Хранилище ------------------------------------------------------------ */
 
@@ -387,30 +387,6 @@ if (!fromBrowser) {
   applyMode(Store.read('mode', 'dark'));
 }
 
-/* --- Сводка защиты --------------------------------------------------------
- * В сборке число даёт браузер (итог щита, ui/scripts/vantara-shield.js),
- * сброс уходит ему же. В прототипе счётчик локальный.
- * ------------------------------------------------------------------------- */
-
-const blockedOut = document.getElementById('blocked');
-
-function renderBlocked() {
-  const total = fromBrowser
-    ? Number(root.getAttribute('vn-blocked')) || 0
-    : Store.read('blocked', 0);
-  blockedOut.textContent = formatNumber(total);
-}
-
-document.getElementById('reset').addEventListener('click', () => {
-  if (fromBrowser) {
-    root.setAttribute('vn-blocked', '0');
-    ask('ResetBlocked');
-  } else {
-    Store.write('blocked', 0);
-  }
-  renderBlocked();
-});
-
 /* --- Изменения от браузера -------------------------------------------------
  * Новая вкладка готовится заранее, в фоне; когда её показывают, браузер
  * обновляет атрибуты и присылает свежий список посещённых сайтов.
@@ -419,12 +395,11 @@ document.getElementById('reset').addEventListener('click', () => {
 if (fromBrowser) {
   new MutationObserver(records => {
     const changed = new Set(records.map(r => r.attributeName));
-    if (changed.has('vn-blocked')) renderBlocked();
     if (changed.has('vn-palette') || changed.has('vn-mode')) renderTheme();
     if (changed.has('vn-search')) renderEngine();
   }).observe(root, {
     attributes: true,
-    attributeFilter: ['vn-blocked', 'vn-palette', 'vn-mode', 'vn-search'],
+    attributeFilter: ['vn-palette', 'vn-mode', 'vn-search'],
   });
 }
 
@@ -434,7 +409,6 @@ localize();
 renderEngine();
 renderFavorites();
 renderHistory();
-renderBlocked();
 renderTheme();
 if (fromBrowser) {
   ask('RequestHistory');

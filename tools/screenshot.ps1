@@ -30,6 +30,9 @@
 param(
     [string]$Process = 'firefox',
     [string]$Out,
+    # Только окна программ из этой папки (например, тестовая сборка в obj-*),
+    # чтобы не снять открытый рабочий браузер.
+    [string]$PathPrefix,
     [int]$Delay = 2,
     [switch]$FullScreen
 )
@@ -72,6 +75,7 @@ if (-not $Out) {
 if (-not $FullScreen) {
     $proc = Get-Process -Name $Process -ErrorAction SilentlyContinue |
             Where-Object { $_.MainWindowHandle -ne 0 } |
+            Where-Object { -not $PathPrefix -or ($_.Path -and $_.Path.StartsWith($PathPrefix)) } |
             Select-Object -First 1
 
     if (-not $proc) {
