@@ -72,3 +72,5 @@ if (-not (Test-Path $Exe)) {
 
 Start-Process -FilePath $Exe -ArgumentList @('--profile', $ProfileDir)
 Write-Host "  Vantara запущен, профиль: $ProfileDir" -ForegroundColor Green
+# robocopy оставляет код 1 («файлы скопированы») — это не ошибка.
+exit 0
