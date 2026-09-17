@@ -79,18 +79,17 @@ window title bar, the sidebar. Next up is the first release.
 Screenshots of the current build. The browser is in development, and the
 interface will keep changing.
 
-<table>
-  <tr>
-    <td width="50%"><img src="docs/screenshots/readme/home-light-en.png"
-        alt="Home screen in the light scheme"></td>
-    <td width="50%"><img src="docs/screenshots/readme/palettes-en.png"
-        alt="Appearance panel with the Pine palette selected"></td>
-  </tr>
-  <tr>
-    <td align="center"><sub>Light scheme</sub></td>
-    <td align="center"><sub>Appearance panel: scheme and five palettes, Pine shown here</sub></td>
-  </tr>
-</table>
+<p align="center">
+  <img src="docs/screenshots/readme/home-light-en.png" width="900"
+       alt="Home screen in the light scheme">
+  <br><sub>Light scheme</sub>
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/readme/palettes-en.png" width="900"
+       alt="Appearance panel with the Pine palette selected">
+  <br><sub>Appearance panel: scheme and five palettes, Pine shown here</sub>
+</p>
 
 **Tab groups.** Ctrl+click the tabs you want and press the folder button
 on the tab strip, or drag one tab onto another. The tabs fly into the

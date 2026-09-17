@@ -78,18 +78,17 @@ Vantara — форк Firefox с полностью переписанным ин
 
 Снимки текущей сборки. Браузер в разработке, и интерфейс ещё будет меняться.
 
-<table>
-  <tr>
-    <td width="50%"><img src="docs/screenshots/readme/home-light.png"
-        alt="Главный экран в светлой схеме"></td>
-    <td width="50%"><img src="docs/screenshots/readme/palettes.png"
-        alt="Панель оформления с выбранной палитрой «Хвоя»"></td>
-  </tr>
-  <tr>
-    <td align="center"><sub>Светлая схема</sub></td>
-    <td align="center"><sub>Панель оформления: схема и пять палитр, здесь — «Хвоя»</sub></td>
-  </tr>
-</table>
+<p align="center">
+  <img src="docs/screenshots/readme/home-light.png" width="900"
+       alt="Главный экран в светлой схеме">
+  <br><sub>Светлая схема</sub>
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/readme/palettes.png" width="900"
+       alt="Панель оформления с выбранной палитрой «Хвоя»">
+  <br><sub>Панель оформления: схема и пять палитр, здесь — «Хвоя»</sub>
+</p>
 
 **Группы вкладок.** Выделите вкладки щелчком с Ctrl и нажмите кнопку
 с папкой на полосе вкладок — или перетащите одну вкладку на другую.
