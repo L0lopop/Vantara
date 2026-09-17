@@ -124,8 +124,9 @@
   fill: var(--vn-fg-muted) !important;
 }
 
-/* Момент блокировки: один короткий пульс. Атрибут ставит наш JS-модуль
-   (см. ui/chrome/vantara/scripts/shield.uc.js), CSS только рисует. */
+/* Момент блокировки: один короткий пульс. Атрибут ставит
+   ui/scripts/vantara-shield.js, CSS только рисует. Эта иконка видна,
+   когда пользователь выключил панель доверия. */
 #tracking-protection-icon-container[vn-blocked] #tracking-protection-icon {
   animation: vn-shield-pulse var(--vn-dur-slower) var(--vn-ease-spring);
 }
@@ -146,6 +147,16 @@
               var(--vn-accent) 55%,
               transparent);
   animation: vn-progress-sweep 1.1s var(--vn-ease-standard) infinite;
+}
+
+/* Бесконечная волна при уменьшенном движении не нужна: остаётся ровная
+   полоса, по которой всё равно видно, что страница грузится. */
+@media (prefers-reduced-motion: reduce) {
+  #urlbar[vn-loading] .urlbar-background::after {
+    animation: none;
+    background: var(--vn-accent);
+    opacity: 0.6;
+  }
 }
 
 /* --- Выпадающий список подсказок ------------------------------------------- */

@@ -146,11 +146,17 @@ $env:MOZILLABUILD = $MozBuild
 $outLog = Join-Path $StateDir 'mach-out.log'
 $errLog = Join-Path $StateDir 'mach-err.log'
 
+# Без -Wait: в PowerShell 5.1 он ждёт всё дерево процессов, включая
+# фоновые, которые mach оставляет после себя. Сборка при этом уже
+# закончилась, а скрипт висел больше десяти минут.
 $process = Start-Process -FilePath $Bash `
     -ArgumentList '-l', $command `
-    -NoNewWindow -Wait -PassThru `
+    -NoNewWindow -PassThru `
     -RedirectStandardOutput $outLog `
     -RedirectStandardError $errLog
+# Дескриптор нужно взять сразу: иначе после выхода процесса ExitCode пуст.
+$null = $process.Handle
+$process.WaitForExit()
 
 if (Test-Path $outLog) { Get-Content $outLog }
 

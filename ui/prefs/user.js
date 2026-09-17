@@ -180,6 +180,13 @@ user_pref("browser.urlbar.suggest.quicksuggest.nonsponsored", false);
 user_pref("browser.urlbar.trending.featureGate", false);
 user_pref("browser.topsites.contile.enabled", false);
 
+/* Аккаунт Mozilla и синхронизация. Данные шифруются на устройстве, но
+ * вход, время и частота синхронизации видны серверам Mozilla, а кнопка
+ * «Войти в Firefox» — чужой продукт внутри нашего. Выключено целиком:
+ * пункт меню, кнопка, страница синхронизации в настройках. Кому нужна
+ * синхронизация, включает в about:config. */
+user_pref("identity.fxaccounts.enabled", false);
+
 /* == 9a. Обновления ========================================================
  * Проверка обновлений — это сетевой запрос, по которому владелец сервера
  * узнаёт о каждом запуске браузера: версию, платформу, примерное время.
@@ -200,6 +207,21 @@ user_pref("app.update.auto", false);
 user_pref("app.update.background.enabled", false);
 user_pref("app.update.checkInstallTime", false);
 user_pref("app.update.service.enabled", false);
+
+/* == 9b. Вид интерфейса ====================================================
+ * Панель закладок по умолчанию скрыта: на пустом профиле она показывает
+ * только подсказку «разместите закладки здесь» и полосу во всю ширину.
+ * Кнопка загрузок видна всегда — место под неё не прыгает после первой
+ * загрузки.
+ *
+ * Новая вкладка и домашняя страница — наша страница без сетевых запросов
+ * (ui/pages/newtab). Кэш домашней страницы Firefox выключен: он хранит
+ * снимок страницы Firefox и показал бы его вместо нашей при запуске.
+ * ========================================================================== */
+user_pref("browser.toolbars.bookmarks.visibility", "never");
+user_pref("browser.download.autohideButton", false);
+user_pref("vantara.newtab.enabled", true);
+user_pref("browser.startup.homepage.abouthome_cache.enabled", false);
 
 /* == 10. Первый запуск =====================================================
  * Firefox на первом старте открывает mozilla.org и показывает экран

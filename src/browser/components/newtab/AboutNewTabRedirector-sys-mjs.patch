@@ -1,0 +1,23 @@
+diff --git a/browser/components/newtab/AboutNewTabRedirector.sys.mjs b/browser/components/newtab/AboutNewTabRedirector.sys.mjs
+index 33ebe5111a15dcfba5c446efd1292cce4b29af34..2aaad31b875f57b6946176440ea7c4c7e13435f6 100644
+--- a/browser/components/newtab/AboutNewTabRedirector.sys.mjs
++++ b/browser/components/newtab/AboutNewTabRedirector.sys.mjs
+@@ -425,6 +425,10 @@ class BaseAboutNewTabRedirector {
+    * the newtab page has no effect on the result of this function.
+    */
+   get defaultURL() {
++    if (Services.prefs.getBoolPref("vantara.newtab.enabled", false)) {
++      return "chrome://browser/content/vantara/newtab/index.html";
++    }
++
+     if (this.remoteRendererEnabled) {
+       return "resource://newtab/data/content/remote-renderer-host.html";
+     }
+@@ -497,6 +501,7 @@ export class AboutNewTabRedirectorParent extends BaseAboutNewTabRedirector {
+           unload: { capture: true },
+           pageshow: {},
+           visibilitychange: {},
++          "VantaraNewTab:ResetBlocked": { wantUntrusted: true },
+         },
+         observers: ["intl:l10n-sources-changed"],
+       },

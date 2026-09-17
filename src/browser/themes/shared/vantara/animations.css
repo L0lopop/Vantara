@@ -21,21 +21,15 @@
   to   { opacity: 1; transform: translateY(0)    scale(1); }
 }
 
-/* --- Вкладки -------------------------------------------------------------- */
-/* Новая вкладка «вырастает» из точки клика, а не появляется рывком. */
-@keyframes vn-tab-open {
-  from { opacity: 0; transform: scaleX(0.55) translateY(4px); }
-  60%  { opacity: 1; }
-  to   { opacity: 1; transform: scaleX(1)    translateY(0); }
-}
-
-@keyframes vn-tab-close {
-  from { opacity: 1; transform: scaleX(1)    translateY(0); }
-  to   { opacity: 0; transform: scaleX(0.6)  translateY(3px); }
-}
-
 /* Кромка активной вкладки растёт из центра вверх и вниз, а не «включается».
-   Вертикальная — она стоит по левому краю вкладки. */
+   Она нарисована фоном пластины (tabs.css), поэтому анимируется размер
+   фона. Это не свойство композитора, но элемент в два пикселя шириной. */
+@keyframes vn-edge-reveal {
+  from { background-size: 2px 0%; }
+  to   { background-size: 2px 50%; }
+}
+
+/* Та же кромка для превью и страниц, где она отдельный элемент. */
 @keyframes vn-edge-grow {
   from { transform: scaleY(0); opacity: 0; }
   to   { transform: scaleY(1); opacity: 1; }
@@ -82,15 +76,8 @@
   animation: vn-drop-in var(--vn-dur-base) var(--vn-ease-decel);
 }
 
-/* Полное отключение движения — не «ускорение до 1мс», а именно снятие
-   анимаций, чтобы не осталось мерцания на кадре подмены. */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 1ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 1ms !important;
-    scroll-behavior: auto !important;
-  }
-}
+/* Уменьшенное движение: наши длительности обнуляются через токены
+   (tokens.css). Глобального правила для всех элементов здесь нет
+   намеренно — в теме браузера оно задевает и переходы самого Firefox,
+   на окончание которых завязано, например, закрытие вкладки. Бесконечные
+   анимации отключаются там, где объявлены (navbar.css). */

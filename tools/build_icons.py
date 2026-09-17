@@ -63,6 +63,8 @@ ICONS: dict[str, tuple[str, str, bool]] = {
     "split": ("Разделить экран",
               '<rect x="3.5" y="4.5" width="17" height="15" rx="2.2"/>'
               '<path d="M12 4.5v15"/>', False),
+    # Стрелка той же пропорции, что «назад» и «вперёд».
+    "chevron-down": ("Список вкладок", '<path d="M5.5 9 12 15.5 18.5 9"/>', False),
     "pin": ("Закрепить",
             '<path d="M9.2 4h5.6l-.9 5.8 2.9 2.9H7.2l2.9-2.9L9.2 4z"/>'
             '<path d="M12 12.7v7.3"/>', False),
@@ -75,6 +77,10 @@ ICONS: dict[str, tuple[str, str, bool]] = {
     "download": ("Загрузки",
                  '<path d="M12 4v10.5m0 0L8.2 10.7M12 14.5l3.8-3.8"/>'
                  '<path d="M5 18.5h14"/>', False),
+    # Блок с двумя выступами — деталь, которая встаёт в браузер. Только
+    # прямые углы: у привычного «пазла» круглые ушки, в наборе их нет.
+    "extensions": ("Расширения",
+                   '<path d="M5 7.5h4.5V5h3v2.5H17V12h2.5v3H17v4.5H5z"/>', False),
     "history": ("История",
                 '<path d="M4.2 12a7.8 7.8 0 1 0 2.4-5.6"/>'
                 '<path d="M3.8 4.6V9h4.4"/>'
@@ -109,21 +115,35 @@ ICONS: dict[str, tuple[str, str, bool]] = {
                 '<path d="M5 19 19 5"/>', False),
 }
 
-SVG_OPEN = ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" '
-            'width="24" height="24" fill="none" stroke="currentColor" '
-            f'stroke-width="{STROKE}" stroke-linecap="round" stroke-linejoin="round">')
-
-SVG_OPEN_FILLED = ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" '
-                   'width="24" height="24" fill="currentColor" stroke="currentColor" '
-                   f'stroke-width="{STROKE}" stroke-linejoin="round">')
+# Два варианта одной иконки. Разница — только в том, откуда берётся цвет.
+#
+# Для интерфейса браузера (отдельные файлы): context-fill. SVG, подключённый
+# как картинка (list-style-image), не наследует цвет текста — currentColor
+# внутри него чёрный. Firefox передаёт цвет в картинку через свойство fill
+# элемента, а читается оно значением context-fill. Для обводки тоже:
+# stroke="context-fill" значит «обводка цветом, который Firefox передал как fill».
+#
+# Для веб-страниц (спрайт): currentColor. Там SVG встраивается через <use>
+# и наследует цвет как обычный текст, а context-fill не работает.
+#
+# Собственный размер отдельного файла — 16, как у иконок Firefox. Кнопки
+# панели задают размер сами, но индикатор загрузок и часть меню берут его
+# из картинки: с 24 иконка там выходила крупнее соседей.
+def svg_open(filled: bool, paint: str, size: int = 16) -> str:
+    fill = paint if filled else "none"
+    joins = 'stroke-linejoin="round"' if filled else 'stroke-linecap="round" stroke-linejoin="round"'
+    return ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" '
+            f'width="{size}" height="{size}" fill="{fill}" stroke="{paint}" '
+            f'stroke-width="{STROKE}" {joins}>')
 
 
 def build() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
 
+    # Интерфейс браузера: цвет передаёт Firefox. Подпись не нужна —
+    # у кнопки своё доступное имя.
     for name, (title, body, filled) in ICONS.items():
-        head = SVG_OPEN_FILLED if filled else SVG_OPEN
-        svg = f'{head}\n  <title>{title}</title>\n  {body}\n</svg>\n'
+        svg = f'{svg_open(filled, "context-fill")}\n  {body}\n</svg>\n'
         (OUT / f"{name}.svg").write_text(svg, encoding="utf-8")
 
     # Спрайт: один файл для превью и веб-страниц проекта.

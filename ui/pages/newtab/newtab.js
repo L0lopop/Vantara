@@ -179,18 +179,37 @@ document.getElementById('tile-form').addEventListener('submit', () => {
 });
 
 /* --- Сводка защиты --------------------------------------------------------
- * В прототипе счётчик хранится локально. В сборке форка сюда придут
- * настоящие события блокировки от движка — см. этап 2 роадмапа.
+ * В сборке число даёт браузер: до запуска скриптов страницы он кладёт
+ * итог щита (ui/scripts/vantara-shield.js) в атрибут vn-blocked, а сброс
+ * принимает событием. Прочитать настройку браузера сама страница не может.
+ * В прототипе браузера за страницей нет — счётчик локальный.
  * ------------------------------------------------------------------------- */
 
 const blockedOut = document.getElementById('blocked');
+const root = document.documentElement;
+const fromBrowser = root.hasAttribute('vn-blocked');
 
 function renderBlocked() {
-  blockedOut.textContent = Store.read('blocked', 0).toLocaleString('ru-RU');
+  const total = fromBrowser
+    ? Number(root.getAttribute('vn-blocked')) || 0
+    : Store.read('blocked', 0);
+  blockedOut.textContent = total.toLocaleString('ru-RU');
+}
+
+// Новая вкладка готовится заранее, в фоне, и число обновляется, когда
+// её показывают.
+if (fromBrowser) {
+  new MutationObserver(renderBlocked)
+    .observe(root, { attributes: true, attributeFilter: ['vn-blocked'] });
 }
 
 document.getElementById('reset').addEventListener('click', () => {
-  Store.write('blocked', 0);
+  if (fromBrowser) {
+    root.setAttribute('vn-blocked', '0');
+    root.dispatchEvent(new CustomEvent('VantaraNewTab:ResetBlocked', { bubbles: true }));
+  } else {
+    Store.write('blocked', 0);
+  }
   renderBlocked();
 });
 

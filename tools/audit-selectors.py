@@ -36,6 +36,9 @@ CONDITIONAL = re.compile(
     r"\[fadein\]|\[selected\]|\[pinned\]|\[soundplaying\]|\[usercontextid\]|"
     r"\[disabled\]|\[open\]|\[hasException\]|\[focused\]|\[pageproxystate|"
     r":not\(\[|@media|:root\[|\[aria-expanded|\[sidebar-positionend\]|"
+    r"\[starred\]|\[badge-status\]|"
+    # классы состояния панели доверия (browser-trustPanel.js)
+    r"\.(secure|insecure|inactive|scanning|warning|breached)\b|"
     # элементы, которые браузер создаёт только по действию пользователя:
     # панели, меню, подсказки, строка поиска, уведомления
     r"protections-popup|appMenu-popup|urlbarView|findbar|notification-|"
@@ -79,17 +82,51 @@ def selectors_from(path: Path) -> list[str]:
         head = block.group(1).strip()
         if not head or head.startswith("@") or ":" in head.split(",")[0][:1]:
             continue
-        for part in head.split(","):
+        for part in split_top_level(head):
             part = part.strip()
-            if part and not part.startswith("@"):
+            # Вложенное правило вида "> .icon" относительно родителя: само
+            # по себе в документе не ищется.
+            if part and not part.startswith(("@", ">", "+", "~", "&")):
                 found.append(part)
     return found
 
 
-PROBE = """
+def split_top_level(head: str) -> list[str]:
+    """Делит список селекторов по запятым верхнего уровня.
+
+    Запятые внутри :is(...) и :not(...) список не делят: иначе
+    "#a:is(.b, .c)" превращается в два обрывка, и оба выглядят мёртвыми.
+    """
+    parts, depth, current = [], 0, []
+    for ch in head:
+        if ch == "(":
+            depth += 1
+        elif ch == ")":
+            depth -= 1
+        if ch == "," and depth == 0:
+            parts.append("".join(current))
+            current = []
+        else:
+            current.append(ch)
+    parts.append("".join(current))
+    return parts
+
+
+# -2: кнопка есть, но лежит в палитре настройки панелей и в окно не
+# выставлена. Пользователь может добавить её в любой момент.
+PROBE = r"""
+const inPalette = sel => {
+  const id = /^#([\w-]+)/.exec(sel)?.[1];
+  if (!id) return false;
+  if (gNavToolbox.palette.querySelector('#' + id)) return true;
+  return CustomizableUI.getWidget(id)?.provider == CustomizableUI.PROVIDER_API;
+};
 const out = {};
 for (const sel of arguments[0]) {
-  try { out[sel] = document.querySelectorAll(sel).length; }
+  try {
+    out[sel] = document.querySelectorAll(sel).length;
+    if (!out[sel] && inPalette(sel)) out[sel] = -2;
+  }
   catch (e) { out[sel] = -1; }
 }
 return out;
@@ -123,8 +160,8 @@ def main() -> int:
 
             if count > 0:
                 continue                      # работает, показывать нечего
-            if conditional:
-                continue                      # ждёт состояния, это нормально
+            if conditional or count == -2:
+                continue                      # ждёт состояния или кнопки
 
             rows.append(selector)
             dead.append((path.name, selector))

@@ -20,6 +20,7 @@
 
 from __future__ import annotations
 
+import re
 import shutil
 import sys
 from pathlib import Path
@@ -28,6 +29,10 @@ ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / "ui" / "chrome" / "vantara"
 THEMES = ROOT / "engine" / "browser" / "themes"
 DEST = THEMES / "shared" / "vantara"
+# Копия в src/ обязательна: движок пересоздаётся из src/ при каждом
+# обновлении Firefox (surfer import). Без неё там оставались старые стили,
+# и обновление молча вернуло бы исправленные ошибки.
+SRC_DEST = ROOT / "src" / "browser" / "themes" / "shared" / "vantara"
 
 JAR = THEMES / "shared" / "jar.inc.mn"
 PLATFORM_CSS = [THEMES / "windows" / "browser.css",
@@ -36,8 +41,13 @@ PLATFORM_CSS = [THEMES / "windows" / "browser.css",
 
 # Порядок значим: токены объявляют переменные, движение — ключевые кадры,
 # дальше компоненты в порядке слоёв интерфейса.
-ORDER = ["tokens.css", "animations.css", "base.css",
+ORDER = ["tokens.css", "animations.css", "base.css", "icons.css",
          "tabs.css", "navbar.css", "sidebar.css", "menus.css"]
+
+# Иконки интерфейса. Спрайт — вариант для веб-страниц (currentColor),
+# в интерфейсе браузера он не работает и в тему не копируется.
+ICONS_SRC = SRC / "icons"
+ICONS_SKIP = {"sprite.svg"}
 
 IMPORT_LINE = '@import url("chrome://browser/skin/vantara/vantara.css");'
 MARKER = "# Vantara"
@@ -68,20 +78,70 @@ SCRIPTS_TARGETS = [ROOT / "engine" / "browser" / "base" / "content" / "vantara",
 BASE_JAR = ROOT / "engine" / "browser" / "base" / "jar.mn"
 BROWSER_MAIN = ROOT / "engine" / "browser" / "base" / "content" / "browser-main.js"
 
+# Страница новой вкладки. В прототипе она ссылается на файлы по всему
+# репозиторию; в сборке всё лежит в одном каталоге пакета browser,
+# открытого для вкладок (contentaccessible=yes). Адрес страницы задан
+# в AboutNewTabRedirector.sys.mjs.
+NEWTAB_SRC = ROOT / "ui" / "pages" / "newtab"
+NEWTAB_TARGETS = [target / "newtab" for target in SCRIPTS_TARGETS]
+NEWTAB_FILES = {
+    "index.html": NEWTAB_SRC / "index.html",
+    "newtab.css": NEWTAB_SRC / "newtab.css",
+    "newtab.js": NEWTAB_SRC / "newtab.js",
+    "url-parse.js": NEWTAB_SRC / "url-parse.js",
+    "tokens.css": SRC / "tokens.css",
+    "animations.css": SRC / "animations.css",
+    "mark.png": ROOT / "brand" / "logo" / "mark.png",
+}
+# Спрайт встраивается в саму страницу. Внешний <use> браузер рисует только
+# с того же источника, а у страницы источник about:, у спрайта — chrome:.
+# Иконки при этом просто не появляются, без ошибки.
+NEWTAB_SPRITE = ICONS_SRC / "sprite.svg"
+NEWTAB_SPRITE_REF = "../../chrome/vantara/icons/sprite.svg#"
+# Пути прототипа -> полные адреса в пакете. Относительные пути в сборке
+# не работают: адрес документа — about:newtab или about:home, и от него
+# относительный путь не строится. Браузер отбрасывает такой src
+# с предупреждением, и страница остаётся без стилей и скриптов.
+NEWTAB_BASE = "chrome://browser/content/vantara/newtab/"
+NEWTAB_PATHS = {
+    NEWTAB_SPRITE_REF: "#",
+    "../../chrome/vantara/tokens.css": NEWTAB_BASE + "tokens.css",
+    "../../chrome/vantara/animations.css": NEWTAB_BASE + "animations.css",
+    "../../../brand/logo/mark.png": NEWTAB_BASE + "mark.png",
+    'href="newtab.css"': f'href="{NEWTAB_BASE}newtab.css"',
+    'src="newtab.js"': f'src="{NEWTAB_BASE}newtab.js"',
+    "from './url-parse.js'": f"from '{NEWTAB_BASE}url-parse.js'",
+}
+# Страница без сети: грузить можно только из пакетов браузера.
+# frame-ancestors в meta не поддерживается; от встраивания страницу
+# закрывает сам адрес about:, недоступный сайтам.
+NEWTAB_CSP = ('<meta http-equiv="Content-Security-Policy" '
+              'content="default-src chrome:; object-src \'none\'; '
+              'base-uri \'none\'">')
+
 BROWSER_MOZBUILD = ROOT / "engine" / "browser" / "moz.build"
 PACKAGE_MANIFEST = ROOT / "engine" / "browser" / "installer" / "package-manifest.in"
 
 
 def copy_styles() -> list[str]:
-    DEST.mkdir(parents=True, exist_ok=True)
     copied = []
+
+    for icon in sorted(ICONS_SRC.glob("*.svg")):
+        if icon.name in ICONS_SKIP:
+            continue
+        for dest in (DEST, SRC_DEST):
+            (dest / "icons").mkdir(parents=True, exist_ok=True)
+            shutil.copy2(icon, dest / "icons" / icon.name)
+        copied.append(f"icons/{icon.name}")
 
     for name in ORDER:
         source = SRC / name
         if not source.exists():
             print(f"  ПРОПУСК: нет {source.relative_to(ROOT)}")
             continue
-        shutil.copy2(source, DEST / name)
+        for dest in (DEST, SRC_DEST):
+            dest.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(source, dest / name)
         copied.append(name)
 
     # Точка входа темы: один файл, который тянет остальные. Так в
@@ -93,11 +153,14 @@ def copy_styles() -> list[str]:
              '/* Vantara — интерфейс браузера.',
              '   Создаётся tools/sync-ui.py из ui/chrome/vantara/. Править там. */',
              '']
-    entry += [f'@import url("chrome://browser/skin/vantara/{n}");' for n in copied]
-    (DEST / "vantara.css").write_text("\n".join(entry) + "\n", encoding="utf-8")
+    entry += [f'@import url("chrome://browser/skin/vantara/{n}");'
+              for n in copied if n.endswith(".css")]
+    for dest in (DEST, SRC_DEST):
+        (dest / "vantara.css").write_text("\n".join(entry) + "\n", encoding="utf-8")
     copied.append("vantara.css")
 
-    print(f"  Скопировано файлов: {len(copied)}")
+    icons = sum(1 for n in copied if n.startswith("icons/"))
+    print(f"  Скопировано: стилей {len(copied) - icons}, иконок {icons}")
     return copied
 
 
@@ -292,6 +355,63 @@ def sync_scripts() -> None:
     print(f"  browser-main.js: подключено {loaded}")
 
 
+def sync_newtab() -> None:
+    """Кладёт страницу новой вкладки в пакет браузера.
+
+    Пути к общим файлам переписываются на плоские. Тема страницы в сборке
+    не закреплена за тёмной, как в прототипе, а следует системе.
+    """
+    for target in NEWTAB_TARGETS:
+        target.mkdir(parents=True, exist_ok=True)
+        for name, source in NEWTAB_FILES.items():
+            if source.suffix in {".html", ".js"}:
+                text = source.read_text(encoding="utf-8")
+                for old, new in NEWTAB_PATHS.items():
+                    text = text.replace(old, new)
+                if name == "index.html":
+                    text = text.replace(' vn-theme="dark"', "", 1)
+                    text = text.replace('<meta charset="utf-8">',
+                                        '<meta charset="utf-8">\n' + NEWTAB_CSP, 1)
+                    sprite = NEWTAB_SPRITE.read_text(encoding="utf-8").strip()
+                    # style-атрибут запрещён политикой страницы: спрайт
+                    # остался бы видимым блоком 300x150 и сдвинул вёрстку.
+                    sprite = sprite.replace(' style="display:none"',
+                                            ' class="vn-sprite" aria-hidden="true"', 1)
+                    if 'class="vn-sprite"' not in sprite:
+                        raise SystemExit("  sprite.svg: не найден style скрытия")
+                    text = text.replace("<body>", "<body>\n" + sprite, 1)
+                # Любой оставшийся относительный путь сломает страницу
+                # молча — лучше остановить перенос.
+                relative = re.search(r'''(?:href|src)=["'](?!chrome:|#|https?:)'''
+                                     r'''|from ['"]\.''', text)
+                if relative:
+                    raise SystemExit(f"  {name}: относительный путь: {relative.group(0)}")
+                (target / name).write_text(text, encoding="utf-8", newline="\n")
+            elif name == "mark.png":
+                # Исходник — 415 px и 230 КБ, на странице знак 56 px.
+                # Вдвое больше показа хватает для экранов с высокой плотностью.
+                from PIL import Image
+                with Image.open(source) as image:
+                    image.thumbnail((112, 112), Image.LANCZOS)
+                    image.save(target / name, optimize=True)
+            else:
+                shutil.copy2(source, target / name)
+    print(f"  скопировано файлов: {len(NEWTAB_FILES)}")
+
+    jar = BASE_JAR.read_text(encoding="utf-8")
+    anchor = "        content/browser/browser-main.js"
+    added = 0
+    for name in NEWTAB_FILES:
+        path = f"content/browser/vantara/newtab/{name}"
+        if path in jar:
+            continue
+        entry = f"        {path:<55} (content/vantara/newtab/{name})"
+        jar = jar.replace(anchor, entry + "\n" + anchor, 1)
+        added += 1
+    BASE_JAR.write_text(jar, encoding="utf-8")
+    print(f"  browser/base/jar.mn: новых записей {added}")
+
+
 def main() -> int:
     if not THEMES.exists():
         print(f"Нет движка: {THEMES.relative_to(ROOT)}")
@@ -313,6 +433,9 @@ def main() -> int:
 
     print("\nПеренос скриптов окна")
     sync_scripts()
+
+    print("\nПеренос новой вкладки")
+    sync_newtab()
 
     print()
     print("Дальше: экспортировать изменённые файлы движка патчами и собрать.")

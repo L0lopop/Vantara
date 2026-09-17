@@ -1,92 +1,79 @@
 /* ==========================================================================
    Vantara — вкладки
+
    Форма: скруглённая «пластина» вместо трапеции Firefox. Активная вкладка
    приподнята и помечена тёплой кромкой слева — тот же кремовый, что на щите.
+
+   Как и в base.css: где у Firefox есть переменная, меняем её. Firefox 156
+   сам рисует фон и контур вкладки и сам анимирует её появление и закрытие
+   (ширина + атрибут fadein, tabs.css движка). Поверх этого мы только
+   добавляем кромку и проявление содержимого.
    ========================================================================== */
 
 #TabsToolbar {
   background: transparent !important;
-  padding-inline: var(--vn-space-3) !important;
   min-height: calc(var(--vn-tab-height) + var(--vn-space-3)) !important;
 }
 
 #tabbrowser-tabs {
   --tab-min-height: var(--vn-tab-height) !important;
+  --tab-border-radius: var(--vn-radius-md) !important;
+  --tab-background-color-selected: var(--vn-bg-selected) !important;
+  --tab-background-color-hover: var(--vn-bg-hover) !important;
+  --tab-selected-textcolor: var(--vn-fg-primary) !important;
+  /* Контур активной вкладки рисуем рамкой ниже. Родной контур Firefox
+     поверх неё дал бы двойную обводку. */
+  --tab-selected-outline-color: transparent !important;
+  --tab-hover-outline-color: transparent !important;
   border-inline-start: none !important;
-  padding-inline: 0 !important;
 }
 
 /* --- Вкладка -------------------------------------------------------------- */
 .tabbrowser-tab {
-  --tab-block-margin: var(--vn-space-2) !important;
   font-size: var(--vn-text-sm) !important;
   color: var(--vn-fg-secondary) !important;
   transition: color var(--vn-dur-fast) var(--vn-ease-standard);
 }
 
-.tabbrowser-tab .tab-background {
-  border-radius: var(--vn-radius-md) !important;
-  border: 1px solid transparent !important;
-  background: transparent !important;
-  box-shadow: none !important;
-  transition: background-color var(--vn-dur-fast) var(--vn-ease-standard),
-              border-color   var(--vn-dur-fast) var(--vn-ease-standard),
-              box-shadow     var(--vn-dur-base) var(--vn-ease-standard);
-}
-
-.tabbrowser-tab:hover .tab-background {
-  background: var(--vn-bg-hover) !important;
-}
-
-.tabbrowser-tab:hover {
-  color: var(--vn-fg-primary) !important;
-}
-
-/* --- Активная вкладка ------------------------------------------------------ */
+.tabbrowser-tab:hover,
 .tabbrowser-tab[selected] {
   color: var(--vn-fg-primary) !important;
 }
 
-.tabbrowser-tab[selected] .tab-background {
-  background: var(--vn-bg-selected) !important;
+.tab-background {
+  border: 1px solid transparent !important;
+  transition: background-color var(--vn-dur-fast) var(--vn-ease-standard),
+              border-color var(--vn-dur-fast) var(--vn-ease-standard),
+              box-shadow var(--vn-dur-base) var(--vn-ease-standard);
+}
+
+/* --- Активная вкладка ------------------------------------------------------
+   Кромка нарисована фоном самой пластины, а не отдельным элементом.
+   Позиционированный ::before выходил за пределы скругления и стоял
+   полосой во всю высоту полосы вкладок, как разделитель. Фон обрезается
+   рамкой пластины и уйти за неё не может. */
+.tab-background[selected] {
   border-color: var(--vn-border) !important;
   box-shadow: var(--vn-shadow-sm) !important;
+  background-image: linear-gradient(var(--vn-edge), var(--vn-edge)) !important;
+  background-repeat: no-repeat !important;
+  background-position: 0 center !important;
+  background-size: 2px 50% !important;
+  /* Кромка вырастает из центра при выборе вкладки. */
+  animation: vn-edge-reveal var(--vn-dur-slow) var(--vn-ease-decel);
 }
 
-/* Кромка активной вкладки: растёт из центра, а не «включается». */
-.tabbrowser-tab[selected] .tab-background::before {
-  content: "";
-  position: absolute;
-  inset-block: 0;
-  inset-inline-start: 0;
-  width: 2px;
-  border-radius: var(--vn-radius-pill);
-  background: var(--vn-edge);
-  animation: vn-edge-grow var(--vn-dur-slow) var(--vn-ease-decel);
-}
-
-/* --- Открытие и закрытие --------------------------------------------------- */
-.tabbrowser-tab:not([selected]) {
-  transform-origin: center left;
-}
-
-.tabbrowser-tab[fadein]:not([visuallyselected]) {
-  animation: vn-tab-open var(--vn-dur-slow) var(--vn-ease-spring);
-}
-
-.tabbrowser-tab:not([fadein]) {
-  animation: vn-tab-close var(--vn-dur-fast) var(--vn-ease-accel) forwards;
+/* --- Появление -------------------------------------------------------------
+   Анимируется содержимое, а не сама вкладка: при перетаскивании Firefox
+   двигает вкладки через transform, и анимация на .tabbrowser-tab спорила
+   бы с ним. Правило начинает действовать один раз — когда вкладка
+   получает fadein — и больше не перезапускается при переключении. */
+.tabbrowser-tab[fadein] .tab-content {
+  animation: vn-rise-in var(--vn-dur-base) var(--vn-ease-decel);
 }
 
 /* --- Содержимое вкладки ---------------------------------------------------- */
-.tab-label {
-  font-size: var(--vn-text-sm) !important;
-  margin-inline-start: var(--vn-space-3) !important;
-}
-
 .tab-icon-image {
-  width: 16px !important;
-  height: 16px !important;
   transition: transform var(--vn-dur-base) var(--vn-ease-spring);
 }
 
@@ -94,17 +81,16 @@
   transform: scale(1.08);
 }
 
-/* Кнопка закрытия появляется мягко и только там, где она нужна. */
+/* Кнопка закрытия: видна на активной вкладке и при наведении. На остальных
+   она занимает место, но не отвлекает. */
 .tab-close-button {
-  border-radius: var(--vn-radius-sm) !important;
   opacity: 0;
   transition: opacity var(--vn-dur-fast) var(--vn-ease-standard),
               background-color var(--vn-dur-fast) var(--vn-ease-standard);
 }
 
-.tabbrowser-tab:hover .tab-close-button,
-.tabbrowser-tab[selected] .tab-close-button {
-  opacity: 0.7;
+.tabbrowser-tab:is(:hover, [selected]) .tab-close-button {
+  opacity: 0.75;
 }
 
 .tab-close-button:hover {
@@ -112,33 +98,28 @@
   background-color: color-mix(in srgb, var(--vn-threat) 24%, transparent) !important;
 }
 
-/* --- Состояния: звук, закрепление, контейнер ------------------------------- */
+/* --- Состояния ------------------------------------------------------------- */
 .tab-icon-overlay[soundplaying] {
   fill: var(--vn-guard) !important;
 }
 
-.tabbrowser-tab[pinned] .tab-background {
-  background: var(--vn-bg-raised) !important;
+.tabbrowser-tab[pinned] .tab-background:not([selected]) {
+  background-color: var(--vn-bg-raised) !important;
 }
 
-/* Индикатор приватной вкладки — дубовая полоса сверху. */
-.tabbrowser-tab[usercontextid] .tab-background::after {
-  content: "";
-  position: absolute;
-  inset-inline: var(--vn-space-3);
-  inset-block-start: 0;
-  height: 2px;
-  border-radius: var(--vn-radius-pill);
-  background: var(--vn-wood-400);
-}
+/* Цветная полоса контейнера (.tab-context-line) остаётся родной: её цвет
+   несёт смысл — это цвет контейнера. */
 
 /* --- Кнопка «новая вкладка» ------------------------------------------------ */
 #tabs-newtab-button {
-  border-radius: var(--vn-radius-md) !important;
   margin-inline-start: var(--vn-space-2) !important;
 }
 
-#tabs-newtab-button:hover .toolbarbutton-icon {
+#tabs-newtab-button > .toolbarbutton-icon {
+  transition: transform var(--vn-dur-slow) var(--vn-ease-spring),
+              background-color var(--vn-dur-fast) var(--vn-ease-standard);
+}
+
+#tabs-newtab-button:hover > .toolbarbutton-icon {
   transform: rotate(90deg);
-  transition: transform var(--vn-dur-slow) var(--vn-ease-spring);
 }

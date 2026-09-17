@@ -173,6 +173,9 @@
   .newtab:hover { background: var(--vn-bg-hover); color: var(--vn-fg-primary); }
   .newtab .icon { transition: transform var(--vn-dur-slow) var(--vn-ease-spring); }
   .newtab:hover .icon { transform: rotate(90deg); }
+  .newtab[title]:hover .icon { transform: none; }
+
+  .spring { flex: 1; }
 
   /* ===== Панель навигации ================================================= */
   .navbar {
@@ -258,14 +261,6 @@
     min-width: 14px;
   }
   .shield.is-blocking .count { animation: vn-counter-tick var(--vn-dur-base) var(--vn-ease-decel); }
-
-  .divider {
-    width: 1px; height: 16px;
-    background: var(--vn-border);
-    flex: none;
-  }
-
-  .lock { color: var(--vn-guard); flex: none; }
 
   .url {
     flex: 1;
@@ -470,6 +465,8 @@
           <span class="close"><svg class="icon"><use href="../../ui/chrome/vantara/icons/sprite.svg#vn-close"/></svg></span>
         </div>
         <div class="newtab"><svg class="icon"><use href="../../ui/chrome/vantara/icons/sprite.svg#vn-plus"/></svg></div>
+        <span class="spring"></span>
+        <div class="newtab" title="Все вкладки"><svg class="icon"><use href="../../ui/chrome/vantara/icons/sprite.svg#vn-chevron-down"/></svg></div>
       </div>
 
       <div class="navbar">
@@ -483,8 +480,6 @@
               <svg class="icon icon-sm"><use href="../../ui/chrome/vantara/icons/sprite.svg#vn-shield"/></svg>
               <span class="count" id="count">14</span>
             </div>
-            <span class="divider"></span>
-            <svg class="icon icon-sm lock"><use href="../../ui/chrome/vantara/icons/sprite.svg#vn-lock"/></svg>
             <span class="url"><b>vantara.browser</b>/privacy/threat-model</span>
             <div class="navbtn" style="width:24px;height:24px">
               <svg class="icon icon-sm"><use href="../../ui/chrome/vantara/icons/sprite.svg#vn-star"/></svg>
@@ -520,6 +515,7 @@
 
         <div class="navbtn"><svg class="icon"><use href="../../ui/chrome/vantara/icons/sprite.svg#vn-sidebar"/></svg></div>
         <div class="navbtn"><svg class="icon"><use href="../../ui/chrome/vantara/icons/sprite.svg#vn-download"/></svg></div>
+        <div class="navbtn"><svg class="icon"><use href="../../ui/chrome/vantara/icons/sprite.svg#vn-extensions"/></svg></div>
         <div class="navbtn"><svg class="icon"><use href="../../ui/chrome/vantara/icons/sprite.svg#vn-menu"/></svg></div>
       </div>
     </div>
@@ -539,7 +535,7 @@
   </div>
 
   <p class="note">
-    Щит слева в адресной строке — по клику открывается панель защиты. Счётчик
+    Щит слева в адресной строке — он же знак защищённого соединения, как в браузере: отдельного замка нет. По клику открывается панель защиты. Счётчик
     растёт в реальном времени, адресная строка показывает загрузку волной
     по нижней кромке. Наведите курсор на вкладки и кнопки: отклик на наведение
     и нажатие — часть интерфейса, а не украшение.

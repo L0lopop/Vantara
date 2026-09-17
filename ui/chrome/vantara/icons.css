@@ -1,0 +1,123 @@
+/* ==========================================================================
+   Vantara — иконки интерфейса
+
+   Родные иконки Firefox заменяются нашим набором (tools/build_icons.py).
+   Раньше набор жил только в превью, и браузер выглядел иначе, чем то,
+   что показывалось как его дизайн.
+
+   Цвет иконки задаёт не этот файл: Firefox передаёт его в картинку через
+   fill (-moz-context-properties), а наши SVG читают его как context-fill.
+   Поэтому иконки меняют цвет вместе с темой и состоянием кнопки сами.
+
+   Пути относительные: этот файл лежит рядом с каталогом icons/ и в
+   прототипе (ui/chrome/vantara/), и в сборке (skin/classic/browser/vantara/).
+
+   Меняются только иконки, у которых в нашем наборе есть точная пара.
+   Предупреждения безопасности остаются родными: значок опасности должен
+   отличаться от «всё в порядке» с первого взгляда, и свой набор для них
+   нужно рисовать целиком, а не по одному.
+   ========================================================================== */
+
+/* --- Навигация ------------------------------------------------------------ */
+#back-button {
+  list-style-image: url("icons/back.svg") !important;
+}
+
+#forward-button {
+  list-style-image: url("icons/forward.svg") !important;
+}
+
+#reload-button {
+  list-style-image: url("icons/reload.svg") !important;
+}
+
+#stop-button {
+  list-style-image: url("icons/stop.svg") !important;
+}
+
+#home-button {
+  list-style-image: url("icons/home.svg") !important;
+}
+
+/* --- Вкладки и окна ------------------------------------------------------- */
+#new-tab-button,
+#tabs-newtab-button {
+  list-style-image: url("icons/plus.svg") !important;
+}
+
+.tab-close-button {
+  list-style-image: url("icons/close.svg") !important;
+}
+
+#alltabs-button {
+  list-style-image: url("icons/chevron-down.svg") !important;
+}
+
+/* У Firefox для боковой панели шесть иконок: свёрнута, развёрнута,
+   слева, справа. У нас одна; сторону показывает зеркало. */
+#sidebar-button {
+  list-style-image: url("icons/sidebar.svg") !important;
+}
+
+#sidebar-button:-moz-locale-dir(ltr)[sidebar-positionend],
+#sidebar-button:-moz-locale-dir(rtl):not([sidebar-positionend]) {
+  /* Свойство scale, а не transform: transform занят откликом на нажатие. */
+  > .toolbarbutton-icon {
+    scale: -1 1;
+  }
+}
+
+/* --- Панель --------------------------------------------------------------- */
+/* С badge-status Firefox подменяет иконку на вариант со значком
+   предупреждения — например, о проблеме с расширением. Его не трогаем. */
+#PanelUI-menu-button:not([badge-status]) {
+  list-style-image: url("icons/menu.svg") !important;
+}
+
+/* Иконку загрузок Firefox рисует не на самой кнопке, а на отдельном
+   индикаторе: у кнопки она скрыта. Прогресс и анимацию завершения
+   индикатор показывает сам, поверх нашей иконки. */
+#downloads-button,
+#downloads-indicator-anchor {
+  list-style-image: url("icons/download.svg") !important;
+}
+
+/* Точку «расширение требует внимания» Firefox рисует фоном иконки —
+   она сохраняется. */
+#unified-extensions-button {
+  list-style-image: url("icons/extensions.svg") !important;
+}
+
+#preferences-button {
+  list-style-image: url("icons/settings.svg") !important;
+}
+
+#history-panelmenu {
+  list-style-image: url("icons/history.svg") !important;
+}
+
+#privatebrowsing-button {
+  list-style-image: url("icons/private.svg") !important;
+}
+
+/* --- Адресная строка ------------------------------------------------------ */
+/* Панель доверия Firefox 156 (browser-trustPanel.js) ставит значку классы
+   состояния. Наш щит — там, где всё в порядке: HTTPS и защита включена,
+   в том числе пока идёт проверка трекеров (.scanning). Защита на сайте
+   снята — щит без креста. Нет HTTPS (.insecure), утечка (.breached),
+   ошибка сертификата (.warning) — родные значки. */
+#trust-icon-container:is(.secure, .scanning):not(.breached, .warning, .inactive) {
+  list-style-image: url("icons/shield.svg") !important;
+}
+
+#trust-icon-container.secure.inactive:not(.breached, .warning) {
+  list-style-image: url("icons/shield-off.svg") !important;
+}
+
+#star-button {
+  list-style-image: url("icons/star.svg") !important;
+}
+
+#star-button[starred] {
+  list-style-image: url("icons/star-on.svg") !important;
+}

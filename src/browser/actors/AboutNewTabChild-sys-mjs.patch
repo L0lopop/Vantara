@@ -1,0 +1,61 @@
+diff --git a/browser/actors/AboutNewTabChild.sys.mjs b/browser/actors/AboutNewTabChild.sys.mjs
+index 88149c9a741557a58d8799cf5521531e108e09ca..2d5568ef1e368e197bf7f1e5b392c5217abbd521 100644
+--- a/browser/actors/AboutNewTabChild.sys.mjs
++++ b/browser/actors/AboutNewTabChild.sys.mjs
+@@ -27,6 +27,13 @@ XPCOMUtils.defineLazyPreferenceGetter(
+   false
+ );
+ 
++XPCOMUtils.defineLazyPreferenceGetter(
++  lazy,
++  "VANTARA_NEWTAB_ENABLED",
++  "vantara.newtab.enabled",
++  false
++);
++
+ XPCOMUtils.defineLazyPreferenceGetter(
+   lazy,
+   "NEWTAB_REMOTE_RENDERER_ENABLED",
+@@ -37,7 +44,42 @@ XPCOMUtils.defineLazyPreferenceGetter(
+ let gNextPortID = 0;
+ 
+ export class AboutNewTabChild extends RemotePageChild {
++  /**
++   * The page reads the shield's all-time total from the vn-blocked
++   * attribute and asks for a reset by event. The attribute is set before
++   * the page scripts run and refreshed whenever the page is shown, since
++   * new tabs are preloaded in the background.
++   *
++   * @param {Event} event
++   */
++  #handleVantaraEvent(event) {
++    switch (event.type) {
++      case "DOMDocElementInserted":
++      case "pageshow":
++      case "visibilitychange":
++        if (
++          event.type == "DOMDocElementInserted" ||
++          this.document.visibilityState == "visible"
++        ) {
++          this.document.documentElement.setAttribute(
++            "vn-blocked",
++            Services.prefs.getIntPref("vantara.shield.blockedTotal", 0)
++          );
++        }
++        break;
++      case "VantaraNewTab:ResetBlocked":
++        this.sendAsyncMessage("VantaraNewTab:ResetBlocked");
++        break;
++    }
++  }
++
+   async handleEvent(event) {
++    // Vantara serves its own page, which needs none of Activity Stream.
++    if (lazy.VANTARA_NEWTAB_ENABLED) {
++      this.#handleVantaraEvent(event);
++      return;
++    }
++
+     if (event.type == "DOMDocElementInserted") {
+       let portID = Services.appinfo.processID + ":" + ++gNextPortID;
+ 

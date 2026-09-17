@@ -27,6 +27,9 @@
   border: 1px solid var(--vn-border) !important;
   border-radius: var(--vn-radius-md) !important;
   box-shadow: none !important;
+  /* Волна загрузки движется за пределы полосы — без обрезки она торчит
+     за скруглёнными углами. Фон пустой, обрезать в нём больше нечего. */
+  overflow: hidden !important;
   transition: background-color var(--vn-dur-fast) var(--vn-ease-standard),
               border-color     var(--vn-dur-fast) var(--vn-ease-standard),
               box-shadow       var(--vn-dur-base) var(--vn-ease-standard);
@@ -91,6 +94,20 @@
   background-color: var(--vn-bg-hover) !important;
 }
 
+/* Пульс при новой блокировке. Атрибут ставит vantara-shield.js. */
+#trust-icon-container[vn-blocked] #trust-icon {
+  animation: vn-shield-pulse var(--vn-dur-slower) var(--vn-ease-spring);
+}
+
+/* Встроенный счётчик трекеров панели доверия: в палитру защиты вместо
+   нейтрального серого. Сам счётчик включается заводской настройкой
+   browser.urlbar.trackerCount.featureGate. */
+#trust-icon-tracker-count-shortform,
+#trust-icon-tracker-count-longform {
+  color: var(--vn-guard) !important;
+  font-variant-numeric: tabular-nums;
+}
+
 /* --- Щит защиты: фирменный элемент Vantara --------------------------------- */
 #tracking-protection-icon-container {
   border-radius: var(--vn-radius-sm) !important;
@@ -107,20 +124,11 @@
   fill: var(--vn-fg-muted) !important;
 }
 
-/* Момент блокировки: один короткий пульс. Атрибут ставит наш JS-модуль
-   (см. ui/chrome/vantara/scripts/shield.uc.js), CSS только рисует. */
+/* Момент блокировки: один короткий пульс. Атрибут ставит
+   ui/scripts/vantara-shield.js, CSS только рисует. Эта иконка видна,
+   когда пользователь выключил панель доверия. */
 #tracking-protection-icon-container[vn-blocked] #tracking-protection-icon {
   animation: vn-shield-pulse var(--vn-dur-slower) var(--vn-ease-spring);
-}
-
-/* Счётчик заблокированного рядом со щитом. */
-#tracking-protection-icon-container[vn-count]::after {
-  content: attr(vn-count);
-  font-size: var(--vn-text-xs);
-  font-variant-numeric: tabular-nums;
-  color: var(--vn-guard);
-  margin-inline-start: var(--vn-space-1);
-  animation: vn-counter-tick var(--vn-dur-base) var(--vn-ease-decel);
 }
 
 /* --- Индикатор загрузки ---------------------------------------------------- */
@@ -139,6 +147,16 @@
               var(--vn-accent) 55%,
               transparent);
   animation: vn-progress-sweep 1.1s var(--vn-ease-standard) infinite;
+}
+
+/* Бесконечная волна при уменьшенном движении не нужна: остаётся ровная
+   полоса, по которой всё равно видно, что страница грузится. */
+@media (prefers-reduced-motion: reduce) {
+  #urlbar[vn-loading] .urlbar-background::after {
+    animation: none;
+    background: var(--vn-accent);
+    opacity: 0.6;
+  }
 }
 
 /* --- Выпадающий список подсказок ------------------------------------------- */

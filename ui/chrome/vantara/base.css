@@ -1,10 +1,14 @@
 /* ==========================================================================
    Vantara — база: окно, панели, общие элементы управления
+
+   Правило этого файла: где у Firefox есть переменная, меняем переменную,
+   а не рисуем свой слой поверх. Свой слой поверх родного — это два
+   прямоугольника подсветки на одной кнопке, двойная прозрачность
+   неактивных кнопок и рамка фокуса вокруг всей страницы. Всё это было.
    ========================================================================== */
 
 :root {
-  /* Перекрываем встроенные переменные Firefox, чтобы родные компоненты,
-     до которых мы ещё не добрались, не выбивались из палитры. */
+  /* --- Панели и поля ---------------------------------------------------- */
   --toolbar-bgcolor: var(--vn-bg-chrome) !important;
   --toolbar-color: var(--vn-fg-primary) !important;
   --toolbar-field-background-color: var(--vn-bg-surface) !important;
@@ -12,12 +16,26 @@
   --toolbar-field-focus-background-color: var(--vn-bg-raised) !important;
   --toolbar-field-border-color: transparent !important;
   --lwt-accent-color: var(--vn-bg-window) !important;
+
+  /* --- Всплывающие панели ----------------------------------------------- */
   --arrowpanel-background: var(--vn-bg-surface) !important;
   --arrowpanel-color: var(--vn-fg-primary) !important;
   --arrowpanel-border-color: var(--vn-border) !important;
+
+  /* --- Кнопки панелей ----------------------------------------------------
+     Firefox 156 рисует подсветку на иконке (или на стеке со значком), а не
+     на самой кнопке, и берёт цвет отсюда. Иконка при этом получает цвет
+     текста панели (--toolbar-color) — отдельно задавать его не нужно. */
+  --toolbarbutton-background-color-hover: var(--vn-bg-hover) !important;
+  --toolbarbutton-background-color-active: var(--vn-bg-active) !important;
+  --toolbarbutton-border-radius: var(--vn-radius-sm) !important;
+  --toolbarbutton-opacity-disabled: 0.35 !important;
+
+  /* --- Фокус -------------------------------------------------------------
+     Рамку фокуса Firefox рисует сам и только там, где она уместна. Меняем
+     только её цвет. Глобальное правило :focus-visible обводило всю область
+     страницы, когда фокус оказывался внутри неё. */
   --focus-outline-color: var(--vn-accent) !important;
-  --button-hover-bgcolor: var(--vn-bg-hover) !important;
-  --button-active-bgcolor: var(--vn-bg-active) !important;
 }
 
 /* --- Окно ----------------------------------------------------------------- */
@@ -35,43 +53,26 @@
 }
 
 #navigator-toolbox::after,
-#nav-bar::before,
-.titlebar-spacer[type="pre-tabs"] {
+#nav-bar::before {
   border: none !important;
 }
 
-/* --- Кнопки панелей -------------------------------------------------------- */
-toolbarbutton {
-  border-radius: var(--vn-radius-sm) !important;
+/* Промежуток слева от вкладок нужен, чтобы тащить окно, но 40 пикселей
+   выглядят как дыра. Тащить можно и за пустое место справа от вкладок. */
+.titlebar-spacer[type="pre-tabs"] {
+  width: var(--vn-space-4) !important;
+}
+
+/* --- Кнопки: отклик на нажатие ---------------------------------------------
+   Сжимается то, что подсвечено, — иконка или стек со значком. Если сжимать
+   саму кнопку, подсветка и иконка разъезжаются. */
+toolbarbutton > :is(.toolbarbutton-icon, .toolbarbutton-badge-stack) {
   transition: background-color var(--vn-dur-fast) var(--vn-ease-standard),
               transform var(--vn-dur-instant) var(--vn-ease-standard);
 }
 
-toolbarbutton:hover:not([disabled]) {
-  background-color: var(--vn-bg-hover) !important;
-}
-
-/* Лёгкое «вдавливание» при нажатии — тактильная отдача без задержки. */
-toolbarbutton:hover:active:not([disabled]) {
-  background-color: var(--vn-bg-active) !important;
-  transform: scale(0.94);
-}
-
-toolbarbutton .toolbarbutton-icon,
-toolbarbutton image {
-  fill: var(--vn-fg-primary) !important;
-  color: var(--vn-fg-primary) !important;
-}
-
-toolbarbutton[disabled] {
-  opacity: 0.35 !important;
-}
-
-/* --- Фокус: видимый, но не кричащий ---------------------------------------- */
-:focus-visible {
-  outline: 2px solid var(--vn-accent) !important;
-  outline-offset: 1px !important;
-  border-radius: var(--vn-radius-xs);
+toolbarbutton:not([disabled]):hover:active > :is(.toolbarbutton-icon, .toolbarbutton-badge-stack) {
+  transform: scale(0.92);
 }
 
 /* --- Полосы прокрутки в интерфейсе ---------------------------------------- */

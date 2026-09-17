@@ -1,14 +1,21 @@
 diff --git a/browser/base/jar.mn b/browser/base/jar.mn
-index 783c67d397a541a0e78374dc93c930fbd8d2e7e7..0a88c4fd50eb3f9f8074e60685601bda12d1f5bc 100644
+index 783c67d397a541a0e78374dc93c930fbd8d2e7e7..1a208cf0c864cf717604bc96abaa92b8c624c436 100644
 --- a/browser/base/jar.mn
 +++ b/browser/base/jar.mn
-@@ -47,6 +47,9 @@ browser.jar:
+@@ -47,6 +47,16 @@ browser.jar:
          content/browser/browser-fullScreenAndPointerLock.js (content/browser-fullScreenAndPointerLock.js)
          content/browser/browser-gestureSupport.js           (content/browser-gestureSupport.js)
          content/browser/browser-init.js                     (content/browser-init.js)
 +        content/browser/vantara/vantara-shield.js               (content/vantara/vantara-shield.js)
 +        content/browser/vantara/vantara-protection.js           (content/vantara/vantara-protection.js)
 +        content/browser/vantara/vantara-motion.js               (content/vantara/vantara-motion.js)
++        content/browser/vantara/newtab/index.html               (content/vantara/newtab/index.html)
++        content/browser/vantara/newtab/newtab.css               (content/vantara/newtab/newtab.css)
++        content/browser/vantara/newtab/newtab.js                (content/vantara/newtab/newtab.js)
++        content/browser/vantara/newtab/url-parse.js             (content/vantara/newtab/url-parse.js)
++        content/browser/vantara/newtab/tokens.css               (content/vantara/newtab/tokens.css)
++        content/browser/vantara/newtab/animations.css           (content/vantara/newtab/animations.css)
++        content/browser/vantara/newtab/mark.png                 (content/vantara/newtab/mark.png)
          content/browser/browser-main.js                     (content/browser-main.js)
          content/browser/browser-menubar.js                  (content/browser-menubar.js)
          content/browser/browser-pageActions.js              (content/browser-pageActions.js)

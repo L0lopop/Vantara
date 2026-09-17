@@ -199,6 +199,36 @@ found». Плюс вторая запись — в `browser/installer/package-ma
 `loadSubScript` в `browser-main.js`. Без записи в `jar.mn` файла нет в
 сборке, без строки в `browser-main.js` он есть, но не выполняется.
 
+**Иконки** (`tools/build_icons.py`) кладутся рядом со стилями, а
+`icons.css` подменяет ими родные. Отдельные файлы рисуют цветом
+`context-fill`: картинка, подключённая через `list-style-image`, цвет текста
+не наследует, и с `currentColor` иконки выходили чёрными. Собственный размер
+файла — 16 px, как у Firefox: индикатор загрузок берёт размер из картинки.
+
+**Новая вкладка** (`ui/pages/newtab/`) копируется в
+`browser/base/content/vantara/newtab/` и открывается по адресу
+`chrome://browser/content/vantara/newtab/index.html`. Подмена — в
+`AboutNewTabRedirector.sys.mjs` (`defaultURL`, настройка
+`vantara.newtab.enabled`). При переносе:
+
+- все пути переписываются на полные `chrome://`. Адрес документа остаётся
+  `about:newtab` или `about:home`, от него относительный путь не строится —
+  браузер отбрасывает такой `src` с предупреждением, страница остаётся без
+  стилей и скриптов;
+- спрайт иконок встраивается в страницу: внешний `<use>` браузер рисует
+  только с того же источника, иначе иконок просто нет;
+- добавляется CSP без сети. Встроенные `style="..."` она запрещает — для них
+  в `newtab.css` есть классы.
+
+`AboutNewTabChild.sys.mjs` для нашей страницы не подгружает скрипты
+Activity Stream (они рендерили бы свою страницу поверх нашей), зато кладёт
+итог щита в атрибут `vn-blocked` и передаёт в браузер сброс счётчика.
+
+**Раскладка панели по умолчанию** задана патчем
+`CustomizableUI.sys.mjs`: адресная строка на всю ширину, справа боковая
+панель, загрузки, расширения и меню; кнопки аккаунта и «домой» нет.
+На существующих профилях раскладка не меняется — это решение пользователя.
+
 Все шаги делает одна команда:
 
 ```bash
@@ -212,11 +242,33 @@ python tools/sync-ui.py
 
 | Из репозитория | Куда в Firefox |
 |---|---|
-| `ui/chrome/vantara/*.css` | `src/browser/themes/vantara/` |
-| `ui/prefs/user.js` | `src/browser/app/profile/vantara.js` (заводские дефолты) |
-| `ui/pages/newtab/` | `src/browser/components/newtab/vantara/` |
-| `brand/icons/` | `src/browser/branding/vantara/` |
-| chrome-скрипты этапа 2 | `src/browser/base/content/vantara/` |
+| `ui/chrome/vantara/*.css`, `icons/*.svg` | `src/browser/themes/shared/vantara/` |
+| `ui/prefs/user.js` | `src/browser/app/profile/00-vantara.js` (заводские дефолты) |
+| `ui/pages/newtab/` | `src/browser/base/content/vantara/newtab/` |
+| `ui/scripts/*.js` | `src/browser/base/content/vantara/` |
+| `configs/branding/stable/` | брендинг сборки |
+
+### Проверка собранного браузера вживую
+
+```powershell
+.\tools\run-build.ps1          # чистый профиль, Marionette, тёмная тема
+python tools/verify-prefs.py   # заводские настройки действуют
+python tools/audit-hover.py    # у каждой кнопки один слой подсветки
+python tools/audit-selectors.py
+.\tools\screenshot.ps1 -Process vantara -Out shot.png
+```
+
+`vantara.exe` из `obj-*/dist/bin` напрямую запускать нельзя. В сборке для
+разработки файлы интерфейса лежат россыпью (ссылками на `engine/`), а не
+в `omni.ja`, и песочница процессов вкладок их не читает: новая вкладка
+остаётся пустой, а в журнале загрузки — `NS_ERROR_FAILURE`. `mach run`
+открывает доступ переменными `MOZ_DEVELOPER_REPO_DIR` и
+`MOZ_DEVELOPER_OBJ_DIR`; `run-build.ps1` делает то же. Установленного
+браузера это не касается.
+
+Из-за тех же ссылок правка CSS или страницы видна после перезапуска
+браузера без пересборки. Новые файлы и записи в `jar.mn` требуют
+`mach build faster`.
 
 ### Что пришлось чинить под Windows
 
@@ -303,6 +355,11 @@ git commit -m "Milestone marker for build versioning"
 
 Отдельно: mach определяет запуск из-под ИИ-агента по переменной `CLAUDECODE`
 и сокращает вывод до предупреждений и ошибок. Полный вывод — флаг `--verbose`.
+
+`tools/mach.ps1` ждёт только сам процесс mach (`WaitForExit`). С
+`Start-Process -Wait` PowerShell 5.1 ждёт всё дерево процессов, включая
+фоновые, которые mach оставляет после себя: сборка давно закончилась, а
+обёртка висела больше десяти минут.
 
 ### Типичные грабли
 

@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src chrome:; object-src 'none'; base-uri 'none'">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Новая вкладка</title>
+
+<!-- Никаких внешних ресурсов: шрифты системные, иконки локальные.
+     Страница новой вкладки не должна делать ни одного сетевого запроса —
+     иначе браузер сообщает о вашем запуске раньше, чем вы что-то открыли. -->
+<link rel="stylesheet" href="chrome://browser/content/vantara/newtab/tokens.css">
+<link rel="stylesheet" href="chrome://browser/content/vantara/newtab/animations.css">
+<link rel="stylesheet" href="chrome://browser/content/vantara/newtab/newtab.css">
+</head>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg" class="vn-sprite" aria-hidden="true">
+  <symbol id="vn-back" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"><title>Назад</title><path d="M14.5 5.5 8 12l6.5 6.5"/></symbol>
+  <symbol id="vn-forward" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"><title>Вперёд</title><path d="M9.5 5.5 16 12l-6.5 6.5"/></symbol>
+  <symbol id="vn-reload" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"><title>Обновить</title><path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3"/><path d="M19.5 4.5V9H15"/></symbol>
+  <symbol id="vn-stop" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"><title>Остановить</title><path d="M6.5 6.5 17.5 17.5M17.5 6.5 6.5 17.5"/></symbol>
+  <symbol id="vn-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"><title>Домой</title><path d="M3.5 11 12 4l8.5 7"/><path d="M6 9.8V19.5h12V9.8"/></symbol>
+  <symbol id="vn-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"><title>Щит: защита активна</title><path d="M12 3.2 19 6v5.6c0 4.3-2.8 8-7 9.2-4.2-1.2-7-4.9-7-9.2V6l7-2.8z"/><path d="m9.6 9.6 4.8 4.8M14.4 9.6l-4.8 4.8"/></symbol>
+  <symbol id="vn-shield-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"><title>Щит: защита снята</title><path d="M12 3.2 19 6v5.6c0 4.3-2.8 8-7 9.2-4.2-1.2-7-4.9-7-9.2V6l7-2.8z"/><path d="M8.5 12h7"/></symbol>
+  <symbol id="vn-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"><title>Соединение защищено</title><rect x="5" y="10.5" width="14" height="9" rx="2.2"/><path d="M8.2 10.5V7.8a3.8 3.8 0 0 1 7.6 0v2.7"/></symbol>
+  <symbol id="vn-lock-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"><title>Соединение не защищено</title><rect x="5" y="10.5" width="14" height="9" rx="2.2"/><path d="M8.2 10.5V7.8a3.8 3.8 0 0 1 7.3-1.3"/></symbol>
+  <symbol id="vn-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"><title>Новая вкладка</title><path d="M12 5.5v13M5.5 12h13"/></symbol>
+  <symbol id="vn-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"><title>Закрыть</title><path d="M7 7l10 10M17 7L7 17"/></symbol>
+  <symbol id="vn-sidebar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"><title>Боковая панель</title><rect x="3.5" y="4.5" width="17" height="15" rx="2.2"/><path d="M9.5 4.5v15"/></symbol>
+  <symbol id="vn-split" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"><title>Разделить экран</title><rect x="3.5" y="4.5" width="17" height="15" rx="2.2"/><path d="M12 4.5v15"/></symbol>
+  <symbol id="vn-chevron-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"><title>Список вкладок</title><path d="M5.5 9 12 15.5 18.5 9"/></symbol>
+  <symbol id="vn-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"><title>Закрепить</title><path d="M9.2 4h5.6l-.9 5.8 2.9 2.9H7.2l2.9-2.9L9.2 4z"/><path d="M12 12.7v7.3"/></symbol>
+  <symbol id="vn-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"><title>Меню</title><path d="M4.5 7h15M4.5 12h15M4.5 17h15"/></symbol>
+  <symbol id="vn-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"><title>Поиск</title><circle cx="11" cy="11" r="6.2"/><path d="m15.6 15.6 4 4"/></symbol>
+  <symbol id="vn-download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"><title>Загрузки</title><path d="M12 4v10.5m0 0L8.2 10.7M12 14.5l3.8-3.8"/><path d="M5 18.5h14"/></symbol>
+  <symbol id="vn-extensions" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"><title>Расширения</title><path d="M5 7.5h4.5V5h3v2.5H17V12h2.5v3H17v4.5H5z"/></symbol>
+  <symbol id="vn-history" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"><title>История</title><path d="M4.2 12a7.8 7.8 0 1 0 2.4-5.6"/><path d="M3.8 4.6V9h4.4"/><path d="M12 7.8V12l2.9 1.9"/></symbol>
+  <symbol id="vn-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"><title>Настройки</title><path d="M4 7.5h8M16.5 7.5h3.5"/><path d="M4 16.5h3.5M12 16.5h8"/><circle cx="14.2" cy="7.5" r="2.3"/><circle cx="9.8" cy="16.5" r="2.3"/></symbol>
+  <symbol id="vn-bookmark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"><title>Закладка</title><path d="M6.5 4.5h11v15l-5.5-4.2-5.5 4.2v-15z"/></symbol>
+  <symbol id="vn-bookmark-on" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-linejoin="round" stroke-width="1.6"><title>Закладка сохранена</title><path d="M6.5 4.5h11v15l-5.5-4.2-5.5 4.2v-15z"/></symbol>
+  <symbol id="vn-star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"><title>В избранное</title><path d="m12 4 2.6 5.4 5.9.8-4.3 4.1 1 5.9L12 17.4 6.8 20.2l1-5.9-4.3-4.1 5.9-.8L12 4z"/></symbol>
+  <symbol id="vn-star-on" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-linejoin="round" stroke-width="1.6"><title>В избранном</title><path d="m12 4 2.6 5.4 5.9.8-4.3 4.1 1 5.9L12 17.4 6.8 20.2l1-5.9-4.3-4.1 5.9-.8L12 4z"/></symbol>
+  <symbol id="vn-private" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"><title>Приватное окно</title><path d="M3.5 13h17"/><path d="M5.5 13 7.2 7.5h9.6L18.5 13"/><circle cx="7.8" cy="16.2" r="2.6"/><circle cx="16.2" cy="16.2" r="2.6"/></symbol>
+  <symbol id="vn-eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"><title>Скрыто</title><path d="M4 12s3.2-5.5 8-5.5c1.5 0 2.8.5 3.9 1.2"/><path d="M18.6 9.4A13 13 0 0 1 20 12s-3.2 5.5-8 5.5c-1 0-1.9-.2-2.7-.5"/><path d="M5 19 19 5"/></symbol>
+</svg>
+
+<main class="page">
+
+  <!-- Поиск: выше геометрического центра, по правилу третей -->
+  <section class="hero">
+    <img class="brand" src="chrome://browser/content/vantara/newtab/mark.png" alt="Vantara" width="56" height="56">
+
+    <form class="search" id="search" role="search" autocomplete="off">
+      <svg class="icon" aria-hidden="true">
+        <use href="#vn-search"/>
+      </svg>
+      <input type="text" id="q" placeholder="Поиск или адрес" aria-label="Поиск или адрес"
+             spellcheck="false" autocomplete="off">
+      <button type="button" class="engine" id="engine"
+              title="Сменить поисковую систему">DuckDuckGo</button>
+    </form>
+  </section>
+
+  <!-- Закреплённые ссылки. Заполняются вручную: список «часто посещаемых»
+       строится из слежки за историей, и мы его не строим. -->
+  <section class="pinned" aria-label="Закреплённые сайты">
+    <div class="tiles" id="tiles"></div>
+  </section>
+
+  <!-- Сводка защиты -->
+  <footer class="guard" id="guard">
+    <span class="item">
+      <svg class="icon icon-sm" aria-hidden="true">
+        <use href="#vn-shield"/>
+      </svg>
+      Заблокировано попыток слежки <b id="blocked">0</b>
+    </span>
+    <span class="sep"></span>
+    <span class="item">Отправлено о вас <b class="zero">0</b></span>
+    <span class="sep"></span>
+    <button class="item link" id="reset" type="button">Сбросить счётчик</button>
+  </footer>
+
+</main>
+
+<!-- Диалог добавления ссылки -->
+<dialog class="modal" id="dialog">
+  <form method="dialog" id="tile-form">
+    <h2 id="dialog-title">Новая ссылка</h2>
+
+    <label for="tile-url">Адрес</label>
+    <input type="text" id="tile-url" placeholder="example.com" spellcheck="false" required>
+
+    <label for="tile-name">Название</label>
+    <input type="text" id="tile-name" placeholder="необязательно" spellcheck="false">
+
+    <div class="actions">
+      <button type="button" class="btn ghost" id="cancel">Отмена</button>
+      <button type="submit" class="btn primary">Сохранить</button>
+    </div>
+  </form>
+</dialog>
+
+<script type="module" src="chrome://browser/content/vantara/newtab/newtab.js"></script>
+</body>
+</html>
