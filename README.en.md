@@ -91,14 +91,25 @@ interface will keep changing.
   <br><sub>Appearance panel: scheme and five palettes, Pine shown here</sub>
 </p>
 
-**Tab groups.** Ctrl+click the tabs you want and press the folder button
-on the tab strip, or drag one tab onto another. The tabs fly into the
-group and its label pops in.
+**Tab groups.** Ctrl+click the tabs you want and press the group button
+on the tab strip, or drag one tab onto another: as you bring it closer,
+both fill with the colour of the group to be. A group is not a line under
+the tabs but a pool they lie in, and they are pulled into it.
 
 <p align="center">
   <img src="docs/screenshots/readme/tab-groups-merge-en.gif" width="884"
        alt="Animation: tabs gather into the Work and Reading groups">
   <br><sub>Animation slowed down 2x</sub>
+</p>
+
+The group panel holds the name, the colour, the tabs inside the group and
+one action: close the whole group. A closed group is saved and can be
+brought back.
+
+<p align="center">
+  <img src="docs/screenshots/readme/group-panel-en.png" width="900"
+       alt="Tab group panel: name, colours, the tabs inside and the Close group button">
+  <br><sub>The group panel</sub>
 </p>
 
 ## Mockup without building

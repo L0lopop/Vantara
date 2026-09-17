@@ -37,6 +37,11 @@ CONDITIONAL = re.compile(
     r"\[disabled\]|\[open\]|\[hasException\]|\[focused\]|\[pageproxystate|"
     r":not\(\[|@media|:root\[|\[aria-expanded|\[sidebar-positionend\]|"
     r"\[starred\]|\[badge-status\]|"
+    # перетаскивание вкладки к другой: эти атрибуты живут только пока
+    # вкладку тащат (drag-and-drop.js движка)
+    r"\[movingtab|\[dragover-groupTarget\]|\[multiselected\]|"
+    # группы вкладок и их панель: в окне без групп этих элементов нет
+    r"tab-group|\.vn-group-|"
     # классы состояния панели доверия (browser-trustPanel.js)
     r"\.(secure|insecure|inactive|scanning|warning|breached)\b|"
     # элементы, которые браузер создаёт только по действию пользователя:

@@ -125,23 +125,118 @@
 }
 
 /* --- Группы вкладок ----------------------------------------------------------
-   Слияние (ui/scripts/vantara-groups.js ставит vn-merging на полсекунды):
-   ярлык группы появляется с отскоком, линия группы вырастает под
-   вкладками, а сами вкладки на миг подсвечиваются цветом группы. */
-.tab-group-label {
-  border-radius: var(--vn-radius-sm) !important;
-  transition: transform var(--vn-dur-fast) var(--vn-ease-spring);
+   У Firefox группа — подпись и тонкая линия под вкладками: вкладки остаются
+   сами по себе, а связь между ними нарисована отдельной чертой. У нас черты
+   нет. Вкладки группы лежат в общей заливке её цвета — одной «лужице», —
+   а ярлык группы стоит её головой.
+
+   Линию мы не прячем, а растягиваем на всю пластину: движок сам показывает
+   её ровно у вкладок группы, красит в цвет группы и продлевает в промежутки
+   между вкладками. Поэтому заливка получается сплошной, без вычислений в
+   скрипте. */
+.tab-group-line {
+  inset-block: var(--vn-space-1) !important;
+  height: auto !important;
+  border-radius: 0 !important;
+  /* На светлой панели тот же процент цвета читается слабее, чем на тёмной. */
+  background-color: light-dark(
+      color-mix(in srgb, var(--tab-group-line-color, var(--vn-accent)) 26%, transparent),
+      color-mix(in srgb, var(--tab-group-line-color, var(--vn-accent)) 15%, transparent)) !important;
+  transition: background-color var(--vn-dur-base) var(--vn-ease-standard);
+}
+
+/* Скруглены только внешние края лужицы: внутри группы заливка сплошная. */
+tab-group > .tabbrowser-tab:first-of-type .tab-group-line {
+  border-start-start-radius: var(--vn-radius-md) !important;
+  border-end-start-radius: var(--vn-radius-md) !important;
+}
+
+tab-group > .tabbrowser-tab:last-of-type .tab-group-line {
+  border-start-end-radius: var(--vn-radius-md) !important;
+  border-end-end-radius: var(--vn-radius-md) !important;
+}
+
+/* Активная вкладка в группе держит её цвет на кромке: так видно, к какой
+   группе относится то, что открыто. */
+tab-group > .tabbrowser-tab .tab-background[selected] {
+  background-image: linear-gradient(var(--tab-group-color), var(--tab-group-color)) !important;
+}
+
+/* Подчёркивание под ярлыком и счётчиком свёрнутой группы — та же черта,
+   только нарисованная псевдоэлементом. */
+:is(.tab-group-label-container, .tab-group-overflow-count-container)::after {
+  content: none !important;
+}
+
+/* Ярлык — капсула в цвете группы с каплей того же цвета. Заливка сплошным
+   цветом, как у Firefox, спорит с пластинами вкладок: рядом с ними она
+   читается как наклейка. */
+.tab-group-label,
+.tab-group-overflow-count {
+  border-radius: var(--vn-radius-pill) !important;
+  padding-inline: var(--vn-space-3) !important;
+  font-weight: 500 !important;
+  color: var(--vn-fg-primary) !important;
+  background-color: color-mix(in srgb,
+      var(--tab-group-color, var(--vn-accent)) 20%, transparent) !important;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb,
+      var(--tab-group-color, var(--vn-accent)) 45%, transparent) !important;
+  outline: none !important;
+  transition: background-color var(--vn-dur-fast) var(--vn-ease-standard),
+              transform var(--vn-dur-base) var(--vn-ease-spring);
+}
+
+.tab-group-label::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-inline-end: var(--vn-space-2);
+  border-radius: 50%;
+  background-color: var(--tab-group-color, var(--vn-accent));
+  vertical-align: middle;
+}
+
+.tab-group-label:hover {
+  background-color: color-mix(in srgb,
+      var(--tab-group-color, var(--vn-accent)) 32%, transparent) !important;
+  transform: translateY(-1px);
+}
+
+/* --- Слияние ---------------------------------------------------------------
+   Две капли не прыгают друг к другу — они сливаются. Пока вкладку тащат
+   к соседней, обе наливаются цветом будущей группы и медленно дышат:
+   поверхность натягивается. После слияния лужица приливает снизу, по ней
+   проходит волна, а ярлык всплывает.
+
+   Вкладки в это время летят к своим местам с оттяжкой — их ведёт
+   vantara-groups.js (атрибут vn-merging живёт полсекунды). */
+#tabbrowser-tabs[movingtab-group] .tabbrowser-tab[dragover-groupTarget] .tab-background,
+#tabbrowser-tabs:is([movingtab-group], [movingtab-addToGroup]):not([movingtab-ungroup])
+  .tabbrowser-tab:is(:active, [multiselected]) .tab-background {
+  background-color: color-mix(in srgb,
+      var(--dragover-tab-group-color, var(--vn-accent)) 22%, var(--vn-bg-hover)) !important;
+  outline: 1px solid color-mix(in srgb,
+      var(--dragover-tab-group-color, var(--vn-accent)) 55%, transparent) !important;
+  outline-offset: -1px !important;
+}
+
+#tabbrowser-tabs[movingtab-group] .tabbrowser-tab[dragover-groupTarget] .tab-background {
+  animation: vn-magnet var(--vn-dur-slower) var(--vn-ease-standard) infinite alternate;
+}
+
+tab-group[vn-merging] .tab-group-line {
+  transform-origin: 50% 100%;
+  background-image: linear-gradient(100deg,
+      transparent 38%,
+      color-mix(in srgb, var(--tab-group-line-color, var(--vn-accent)) 40%, transparent) 50%,
+      transparent 62%) !important;
+  background-size: 220% 100% !important;
+  background-repeat: no-repeat !important;
+  animation: vn-group-pool var(--vn-dur-slower) var(--vn-ease-spring),
+             vn-group-wave var(--vn-dur-slower) var(--vn-ease-decel);
 }
 
 tab-group[vn-merging] .tab-group-label {
   animation: vn-group-pop var(--vn-dur-slower) var(--vn-ease-spring);
-}
-
-tab-group[vn-merging] .tab-group-line {
-  transform-origin: 0 50%;
-  animation: vn-group-line var(--vn-dur-slower) var(--vn-ease-decel);
-}
-
-tab-group[vn-merging] .tab-background {
-  animation: vn-group-glow var(--vn-dur-slower) var(--vn-ease-decel);
 }

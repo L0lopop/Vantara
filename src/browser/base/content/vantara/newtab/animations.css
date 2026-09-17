@@ -84,17 +84,28 @@
 
 /* Группа вкладок: ярлык, линия и подсветка при слиянии (tabs.css). */
 @keyframes vn-group-pop {
-  0%   { transform: scale(0.4); opacity: 0; }
-  60%  { transform: scale(1.12); opacity: 1; }
+  0%   { transform: scale(0.55) translateY(2px); opacity: 0; }
+  55%  { transform: scale(1.12) translateY(-1px); opacity: 1; }
+  78%  { transform: scale(0.97); }
   100% { transform: scale(1); }
 }
 
-@keyframes vn-group-line {
-  from { transform: scaleX(0); }
-  to   { transform: scaleX(1); }
+/* Лужица группы приливает снизу и слегка переливается через край. */
+@keyframes vn-group-pool {
+  0%   { transform: scaleY(0.2); opacity: 0; }
+  60%  { transform: scaleY(1.08); opacity: 1; }
+  100% { transform: scaleY(1); opacity: 1; }
 }
 
-@keyframes vn-group-glow {
-  0%   { box-shadow: 0 0 0 2px var(--tab-group-color, var(--vn-accent)); }
-  100% { box-shadow: 0 0 0 0 transparent; }
+/* Волна по залитой группе — от ярлыка к последней вкладке. */
+@keyframes vn-group-wave {
+  from { background-position: -120% 0; }
+  to   { background-position: 220% 0; }
+}
+
+/* Вкладка, к которой подтаскивают другую: поверхность дышит, как капля
+   перед слиянием. */
+@keyframes vn-magnet {
+  from { transform: scale(1); }
+  to   { transform: scale(1.04); }
 }

@@ -23,6 +23,7 @@ from __future__ import annotations
 import base64
 import io
 import json
+import subprocess
 import sys
 import time
 from pathlib import Path
@@ -167,6 +168,21 @@ Services.prefs.clearUserPref("vantara.newtab.engine");
 return 1;
 """
 
+# Панель группы — отдельное окно, и снимок средствами браузера её не
+# захватывает: такую панель снимаем с экрана и обрезаем по окну.
+WINDOW_RECT = """
+const dpr = window.devicePixelRatio;
+return [window.screenX, window.screenY, window.outerWidth, window.outerHeight, dpr];
+"""
+
+OPEN_PANEL = """
+const group = gBrowser.tabGroups[0];
+gBrowser.selectedTab = group.tabs[0];
+gBrowser.tabGroupMenu.openEditModal(group);
+document.documentElement.removeAttribute("remotecontrol");
+return 1;
+"""
+
 # Создаёт группу и останавливает её анимацию на нуле: кадры потом
 # выставляются вручную, и скорость снимков не влияет на результат.
 GROUP = """
@@ -228,6 +244,24 @@ def capture(m: Marionette, box: list[int] | None = None) -> Image.Image:
     data = unwrap(m.command("WebDriver:TakeScreenshot", {"full": False}))
     image = Image.open(io.BytesIO(base64.b64decode(data))).convert("RGB")
     return image.crop(tuple(box)) if box else image
+
+
+def screen_capture(m: Marionette) -> Image.Image:
+    """Снимок окна с экрана — вместе со всплывающими панелями."""
+    raw = OUT / ".screen.png"
+    subprocess.run(
+        ["powershell", "-NoProfile", "-File", str(ROOT / "tools" / "screenshot.ps1"),
+         "-Process", "vantara", "-PathPrefix", str(ROOT / "engine"),
+         "-Out", str(raw), "-Delay", "1", "-FullScreen"],
+        check=True, capture_output=True)
+    x, y, width, height, dpr = m.script(WINDOW_RECT)
+    # У окна Windows невидимая рамка: она попадает в размеры, но не рисуется.
+    edge = 8
+    box = [round((x + edge) * dpr), round(y * dpr),
+           round((x + width - edge) * dpr), round((y + height - edge) * dpr)]
+    image = Image.open(raw).convert("RGB").crop(tuple(box))
+    raw.unlink()
+    return image
 
 
 def save(image: Image.Image, name: str) -> None:
@@ -314,6 +348,19 @@ def main() -> int:
                                       for h, n in recent))
 
         merge_animation(m, text["groups"], suffix)
+
+        # Панель группы: имя, цвет, вкладки внутри и одно действие внизу.
+        run_async(m, ARRANGE, [GROUP_TABS, False, "forge", "dark"])
+        label, color = text["groups"][0]
+        m.script(GROUP, [GROUP_TABS[:3], label, color])
+        m.script(SEEK, [100000])
+        m.script(UNFREEZE)
+        m.script(OPEN_PANEL)
+        time.sleep(1.5)
+        save(screen_capture(m), f"group-panel{suffix}.png")
+        m.script("""
+            document.querySelector(".tab-group-editor-panel")?.hidePopup();
+            return 1;""")
 
         # Главный экран.
         tiles = [{"url": url, "name": name} for url, name in text["favorites"]]

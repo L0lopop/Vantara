@@ -108,3 +108,206 @@ findbar {
 .findbar-textbox:focus {
   border-color: var(--vn-accent) !important;
 }
+
+/* --- Панель группы вкладок --------------------------------------------------
+   Родная панель Firefox показывает имя, цвет и столбик действий, но не сами
+   вкладки: что лежит в группе, приходится вспоминать. Список вкладок и
+   кнопку «Закрыть группу» дописывает vantara-groups.js — здесь их вид и
+   правка родных частей: кружки цветов, поле имени, лишние действия. */
+
+.tab-group-editor-panel {
+  --panel-width: 21em !important;
+  /* Цвет группы ставит скрипт; до этого — акцент. */
+  --vn-group-color: var(--vn-accent);
+}
+
+/* В режиме правки заголовок не нужен: панель открыта с самой группы. */
+.tab-group-editor-panel:not(.tab-group-editor-mode-create) > .panel-header {
+  display: none !important;
+}
+
+/* Подпись «Имя» нужна, только когда группу создают: там панель объясняет,
+   что от человека хотят. У открытой группы имя уже стоит в поле. */
+.tab-group-editor-panel:not(.tab-group-editor-mode-create)
+  .tab-group-editor-name > label {
+  display: none !important;
+}
+
+/* Действие продублировано кнопкой внизу, а «Поделиться группой» — служба
+   Mozilla, которой в Vantara нет. */
+#tabGroupEditor_saveAndCloseGroup,
+#tabGroupEditor_shareTabGroup {
+  display: none !important;
+}
+
+/* --- Имя группы ------------------------------------------------------------ */
+.tab-group-editor-panel .tab-group-editor-name {
+  position: relative;
+}
+
+.tab-group-editor-panel #tab-group-name {
+  padding-inline-end: 28px !important;
+  border: 1px solid var(--vn-border) !important;
+  border-radius: var(--vn-radius-sm) !important;
+  background-color: var(--vn-bg-raised) !important;
+  color: var(--vn-fg-primary) !important;
+}
+
+.tab-group-editor-panel #tab-group-name:focus-visible {
+  border-color: var(--vn-accent) !important;
+  outline: none !important;
+}
+
+.vn-group-clear {
+  position: absolute;
+  inset-inline-end: var(--vn-space-2);
+  inset-block-end: var(--vn-space-2);
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: var(--vn-radius-xs);
+  background-color: transparent;
+  background-image: url("icons/close.svg");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 12px;
+  -moz-context-properties: fill;
+  fill: var(--vn-fg-secondary);
+  opacity: 0.7;
+}
+
+.vn-group-clear:hover {
+  background-color: var(--vn-bg-hover);
+  opacity: 1;
+}
+
+/* --- Цвета ------------------------------------------------------------------
+   Круг вместо квадрата: цвет группы — метка, а не плитка. Выбранный обведён
+   своим же цветом с зазором, как образцы палитр на новой вкладке. */
+.tab-group-editor-panel .tab-group-editor-swatch {
+  width: 20px !important;
+  height: 20px !important;
+  border-radius: 50% !important;
+  border-color: transparent !important;
+  transition: transform var(--vn-dur-fast) var(--vn-ease-spring);
+}
+
+.tab-group-editor-panel .tab-group-editor-swatch:hover {
+  transform: scale(1.12);
+}
+
+.tab-group-editor-panel input:checked + .tab-group-editor-swatch {
+  border-color: transparent !important;
+  box-shadow: 0 0 0 2px var(--vn-bg-surface),
+              0 0 0 4px var(--tabgroup-swatch-color) !important;
+}
+
+/* --- Вкладки группы -------------------------------------------------------- */
+.vn-group-tabs {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin: 0 var(--vn-space-3) var(--vn-space-2);
+  max-height: 264px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.vn-group-tab {
+  display: flex;
+  align-items: center;
+  gap: var(--vn-space-3);
+  padding: var(--vn-space-2) var(--vn-space-3);
+  border-radius: var(--vn-radius-sm);
+  color: var(--vn-fg-primary);
+  transition: background-color var(--vn-dur-fast) var(--vn-ease-standard);
+}
+
+.vn-group-tab:hover {
+  background-color: var(--vn-bg-hover);
+}
+
+/* Открытая вкладка помечена кромкой в цвете группы — тем же приёмом, что
+   активная вкладка на полосе. */
+.vn-group-tab.vn-current {
+  background-color: var(--vn-bg-selected);
+  background-image: linear-gradient(var(--vn-group-color), var(--vn-group-color));
+  background-repeat: no-repeat;
+  background-position: 0 center;
+  background-size: 2px 56%;
+}
+
+.vn-group-tab-icon {
+  width: 16px;
+  height: 16px;
+  flex: none;
+}
+
+.vn-group-tab-name {
+  flex: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.vn-group-tab-close {
+  width: 20px;
+  height: 20px;
+  flex: none;
+  border: none;
+  border-radius: var(--vn-radius-xs);
+  background-color: transparent;
+  background-image: url("icons/close.svg");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 11px;
+  -moz-context-properties: fill;
+  fill: var(--vn-fg-secondary);
+  opacity: 0;
+  transition: opacity var(--vn-dur-fast) var(--vn-ease-standard);
+}
+
+.vn-group-tab:hover .vn-group-tab-close,
+.vn-group-tab-close:focus-visible {
+  opacity: 0.75;
+}
+
+.vn-group-tab-close:hover {
+  opacity: 1;
+  background-color: color-mix(in srgb, var(--vn-threat) 24%, transparent);
+}
+
+/* --- Закрыть группу ---------------------------------------------------------
+   Одно действие внизу вместо строки в списке: группа сохраняется, её можно
+   вернуть из меню вкладок. */
+.vn-group-close {
+  display: flex;
+  /* Кнопка HTML сама по себе ширины своего текста, даже как flex. */
+  width: -moz-available;
+  align-items: center;
+  justify-content: center;
+  gap: var(--vn-space-2);
+  margin: var(--vn-space-2) var(--vn-space-3) var(--vn-space-3);
+  padding: var(--vn-space-3);
+  border: none;
+  border-radius: var(--vn-radius-sm);
+  background-color: color-mix(in srgb, var(--vn-group-color) 18%, transparent);
+  color: var(--vn-fg-primary);
+  font: inherit;
+  font-weight: 500;
+  transition: background-color var(--vn-dur-fast) var(--vn-ease-standard);
+}
+
+.vn-group-close:hover {
+  background-color: color-mix(in srgb, var(--vn-group-color) 30%, transparent);
+}
+
+.vn-group-count {
+  color: var(--vn-fg-secondary);
+}
+
+.vn-group-count::before {
+  content: "·";
+  margin-inline-end: var(--vn-space-2);
+}
+
