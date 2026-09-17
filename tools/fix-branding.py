@@ -77,6 +77,10 @@ NSIS_URLS = {
 
 FOREIGN = re.compile(r"zen-browser|zen_browser", re.I)
 
+# Плитка меню «Пуск»: имя программы и цвет фона — сталь из tokens.css.
+APP_NAME = "vantara"
+TILE_COLOR = "#16181D"
+
 
 def fix_prefs() -> int:
     path = BRANDING / "pref" / "firefox-branding.js"
@@ -154,6 +158,20 @@ def scan_rest() -> list[str]:
     return leftovers
 
 
+def fix_tile() -> None:
+    """Плитка меню «Пуск». Windows ищет <имя программы>.VisualElementsManifest.xml
+    рядом с программой; шаблон Firefox называется firefox.* и был бы
+    пропущен (имя в сборке задаёт патч branding-common.mozbuild)."""
+    source = BRANDING / "firefox.VisualElementsManifest.xml"
+    if not source.exists():
+        print(f"  ПРОПУСК: нет {source.relative_to(ROOT)}")
+        return
+    text = re.sub(r"BackgroundColor='#[0-9a-fA-F]{6}'",
+                  f"BackgroundColor='{TILE_COLOR}'", source.read_text(encoding="utf-8"))
+    (BRANDING / f"{APP_NAME}.VisualElementsManifest.xml").write_text(text, encoding="utf-8")
+    print(f"  {APP_NAME}.VisualElementsManifest.xml создан (фон {TILE_COLOR})")
+
+
 def main() -> int:
     if not BRANDING.exists():
         print(f"Нет каталога брендинга: {BRANDING.relative_to(ROOT)}")
@@ -163,6 +181,7 @@ def main() -> int:
     print("Чистка брендинга")
     fixed = fix_prefs() + fix_nsis()
     fix_vendor()
+    fix_tile()
 
     leftovers = scan_rest()
     print()

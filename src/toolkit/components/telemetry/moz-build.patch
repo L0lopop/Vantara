@@ -1,0 +1,19 @@
+diff --git a/toolkit/components/telemetry/moz.build b/toolkit/components/telemetry/moz.build
+index 91ae53839b6911348977407a4f01e91874ed39e8..e07819886d833c2bdb54b619bb09f930ad8d2398 100644
+--- a/toolkit/components/telemetry/moz.build
++++ b/toolkit/components/telemetry/moz.build
+@@ -6,9 +6,11 @@ include("/ipc/chromium/chromium-config.mozbuild")
+ 
+ FINAL_LIBRARY = "xul"
+ 
+-DIRS = [
+-    "pingsender",
+-]
++# Vantara: pingsender only sends telemetry pings, which are compiled out.
++if CONFIG["MOZ_DATA_REPORTING"]:
++    DIRS += [
++        "pingsender",
++    ]
+ 
+ DEFINES["MOZ_APP_VERSION"] = '"%s"' % CONFIG["MOZ_APP_VERSION"]
+ 

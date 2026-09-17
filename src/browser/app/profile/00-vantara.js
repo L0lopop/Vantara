@@ -220,6 +220,16 @@ pref("browser.newtabpage.activity-stream.asrouter.userprefs.cfr.addons", false);
 pref("browser.newtabpage.activity-stream.asrouter.userprefs.cfr.features", false);
 pref("browser.newtabpage.activity-stream.asrouter.useRemoteL10n", false);
 
+/* Реклама продуктов Mozilla внутри браузера: раздел «Больше от Mozilla»
+ * в настройках, карточки Monitor, VPN, Relay, менеджера паролей и
+ * мобильного приложения на странице защиты (about:protections). */
+pref("browser.preferences.moreFromMozilla", false);
+pref("browser.contentblocking.report.lockwise.enabled", false);
+pref("browser.contentblocking.report.show_mobile_app", false);
+pref("browser.vpn_promo.enabled", false);
+pref("browser.promo.pin.enabled", false);
+pref("browser.promo.relay.enabled", false);
+
 /* Аккаунт Mozilla и синхронизация. Данные шифруются на устройстве, но
  * вход, время и частота синхронизации видны серверам Mozilla, а кнопка
  * «Войти в Firefox» — чужой продукт внутри нашего. Выключено целиком:

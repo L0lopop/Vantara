@@ -1,8 +1,8 @@
 diff --git a/browser/themes/shared/jar.inc.mn b/browser/themes/shared/jar.inc.mn
-index 6dc7a8fa3098a9c93e4e17d8b7782a66d64a81b0..0ffe2883658fc908345583e0b76d05744237e574 100644
+index 6dc7a8fa3098a9c93e4e17d8b7782a66d64a81b0..c10212e2038ff1bc8c9f7204db12aab2e33b0494 100644
 --- a/browser/themes/shared/jar.inc.mn
 +++ b/browser/themes/shared/jar.inc.mn
-@@ -372,3 +372,44 @@
+@@ -372,3 +372,62 @@
    skin/classic/browser/illustrations/market-opt-in.svg         (../shared/illustrations/market-opt-in.svg)
    skin/classic/browser/illustrations/tab-groups.svg            (../shared/illustrations/tab-groups.svg)
    skin/classic/browser/illustrations/yelpRealtime-opt-in.svg   (../shared/illustrations/yelpRealtime-opt-in.svg)
@@ -47,3 +47,21 @@ index 6dc7a8fa3098a9c93e4e17d8b7782a66d64a81b0..0ffe2883658fc908345583e0b76d0574
 +  skin/classic/browser/vantara/menus.css                     (../shared/vantara/menus.css)
 +  skin/classic/browser/vantara/leaks.css                     (../shared/vantara/leaks.css)
 +  skin/classic/browser/vantara/vantara.css                   (../shared/vantara/vantara.css)
++  skin/classic/browser/vantara/about-pages.css               (../shared/vantara/about-pages.css)
++  skin/classic/browser/vantara/illustration.svg              (../shared/vantara/illustration.svg)
++  skin/classic/browser/vantara/shield-page.svg               (../shared/vantara/shield-page.svg)
++% override chrome://global/skin/illustrations/kit-concerned.svg chrome://browser/skin/vantara/illustration.svg
++% override chrome://global/skin/illustrations/kit-confetti.svg chrome://browser/skin/vantara/illustration.svg
++% override chrome://global/skin/illustrations/kit-happy.svg chrome://browser/skin/vantara/illustration.svg
++% override chrome://global/skin/illustrations/kit-in-circle.svg chrome://browser/skin/vantara/illustration.svg
++% override chrome://global/skin/illustrations/kit-holding-lock.svg chrome://browser/skin/vantara/illustration.svg
++% override chrome://mozapps/skin/extensions/kit-addons.svg chrome://browser/skin/vantara/illustration.svg
++% override chrome://mozapps/skin/extensions/kit-themes.svg chrome://browser/skin/vantara/illustration.svg
++% override chrome://browser/skin/sidebar/kit-page-history.svg chrome://browser/skin/vantara/illustration.svg
++% override chrome://browser/skin/sidebar/kit-tabs-devices.svg chrome://browser/skin/vantara/illustration.svg
++% override chrome://browser/skin/sidebar/kit-tabs-devices-error.svg chrome://browser/skin/vantara/illustration.svg
++% override chrome://browser/skin/sidebar/kit-qr-tabs-devices-empty.svg chrome://browser/skin/vantara/illustration.svg
++% override chrome://browser/content/kit-signed-out.svg chrome://browser/skin/vantara/illustration.svg
++% override chrome://browser/skin/sidebar/firefox.svg chrome://browser/skin/vantara/icons/shield.svg
++% override chrome://browser/content/logos/tracking-protection.svg chrome://browser/skin/vantara/shield-page.svg
++% override chrome://browser/content/logos/tracking-protection-dark-theme.svg chrome://browser/skin/vantara/shield-page.svg

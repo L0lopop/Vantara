@@ -12,6 +12,12 @@
  * Светлая или тёмная схема сюда не относится: её задают встроенные темы
  * Firefox, и наши цвета следуют им сами (light-dark() в tokens.css).
  *
+ * Служебные страницы (настройки, дополнения, ошибки) красит отдельный
+ * лист about-pages.css. Скрипт регистрирует его один раз на сеанс как
+ * пользовательский: такой лист движок применяет ко всем документам во
+ * всех процессах, а внутри он сам ограничен адресами служебных страниц.
+ * Палитру там выбирает @media -moz-pref(), без этого скрипта.
+ *
  * Создаётся tools/sync-ui.py из ui/scripts/. Править там.
  */
 
@@ -21,8 +27,11 @@ var gVantaraTheme = {
   PREF: "vantara.theme.palette",
   DEFAULT: "forge",
 
+  PAGES_SHEET: "chrome://browser/skin/vantara/about-pages.css",
+
   init() {
     this.apply();
+    this.registerPagesSheet();
     Services.prefs.addObserver(this.PREF, this);
     window.addEventListener("unload", this, { once: true });
   },
@@ -35,6 +44,18 @@ var gVantaraTheme = {
 
   observe() {
     this.apply();
+  },
+
+  // Сервис общий для всех окон, поэтому повторная регистрация из второго
+  // окна отсекается проверкой.
+  registerPagesSheet() {
+    let sss = Cc["@mozilla.org/content/style-sheet-service;1"].getService(
+      Ci.nsIStyleSheetService
+    );
+    let uri = Services.io.newURI(this.PAGES_SHEET);
+    if (!sss.sheetRegistered(uri, sss.USER_SHEET)) {
+      sss.loadAndRegisterSheet(uri, sss.USER_SHEET);
+    }
   },
 
   apply() {

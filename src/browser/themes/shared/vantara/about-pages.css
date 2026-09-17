@@ -1,0 +1,404 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/* Vantara — служебные страницы. Создаётся tools/sync-ui.py из
+   ui/chrome/vantara/tokens.css и pages.css. Править там. */
+
+@-moz-document url-prefix("about:preferences"),
+  url-prefix("about:settings"),
+  url-prefix("about:addons"),
+  url-prefix("about:config"),
+  url-prefix("about:support"),
+  url-prefix("about:profiles"),
+  url-prefix("about:downloads"),
+  url-prefix("about:logins"),
+  url-prefix("about:protections"),
+  url-prefix("about:privatebrowsing"),
+  url-prefix("about:policies"),
+  url-prefix("about:about"),
+  url-prefix("about:processes"),
+  url-prefix("about:license"),
+  url-prefix("about:rights"),
+  url-prefix("about:certerror"),
+  url-prefix("about:neterror"),
+  url-prefix("about:httpsonlyerror"),
+  url-prefix("about:blocked"),
+  url-prefix("about:unloads"),
+  url-prefix("about:translations"),
+  url-prefix("about:serviceworkers"),
+  url-prefix("about:crashes"),
+  url-prefix("about:editprofile"),
+  url-prefix("about:profilemanager"),
+  url-prefix("about:deleteprofile"),
+  url-prefix("about:loginsimportreport") {
+
+/* ==========================================================================
+   Vantara — дизайн-токены «Forge»
+   Единственный источник правды по цвету, форме, ритму и времени.
+   Палитра выведена из логотипа: дуб щита, сталь топоров, кремовая кромка.
+   Никакой файл ниже по иерархии не имеет права задавать цвет напрямую.
+   ========================================================================== */
+
+:root {
+  /* Обе схемы разрешены, поэтому по умолчанию интерфейс следует за системой.
+     Явный выбор пользователя — атрибут vn-theme в конце файла. */
+  color-scheme: light dark;
+
+  /* --- Сталь: корпус интерфейса ------------------------------------------ */
+  --vn-steel-950: #101216;
+  --vn-steel-900: #16181D;
+  --vn-steel-850: #1C1F25;
+  --vn-steel-800: #23272E;
+  --vn-steel-700: #2D323A;
+  --vn-steel-600: #3A404A;
+  --vn-steel-500: #4B525F;
+  --vn-steel-400: #667085;
+  --vn-steel-300: #8B95A7;
+
+  /* --- Дуб: тёплые акценты, активные состояния --------------------------- */
+  --vn-wood-800: #2E1F16;
+  --vn-wood-700: #3D2A1E;
+  --vn-wood-600: #5A3A28;
+  --vn-wood-500: #6E4733;
+  --vn-wood-400: #8A5C43;
+
+  /* --- Кромка: текст и иконки -------------------------------------------- */
+  --vn-ember-100: #FFF6E8;
+  --vn-ember-200: #F0DCC0;
+  --vn-ember-300: #D8C0A0;
+  --vn-ember-400: #B09877;
+
+  /* --- Бумага и чернила: светлая схема ----------------------------------- */
+  --vn-paper-50:  #FFFFFF;
+  --vn-paper-100: #F5F1EA;
+  --vn-paper-200: #EFE9E0;
+  --vn-paper-300: #E5DDD2;
+  --vn-ink-900:   #241A13;
+  --vn-ink-700:   #5C5046;
+  --vn-ink-500:   #8A7D71;
+
+  /* --- Семантика --------------------------------------------------------- */
+  --vn-guard:   #6FBF9B;  /* защита активна, соединение безопасно */
+  --vn-warn:    #E0A458;  /* внимание, частичная защита */
+  --vn-threat:  #D9584A;  /* блокировка, угроза, отозванный сертификат */
+  --vn-info:    #6A9FD4;
+
+  /* --- Роли поверхностей ---------------------------------------------------
+     Компоненты обращаются только к ролям, никогда к палитре напрямую.
+     Каждая роль объявлена один раз через light-dark(светлая, тёмная):
+     значение выбирается по color-scheme ниже. Так светлая и тёмная темы
+     не могут разъехаться — они физически в одной строке.
+     ---------------------------------------------------------------------- */
+  --vn-bg-window:    light-dark(var(--vn-paper-200), var(--vn-steel-900));
+  --vn-bg-chrome:    light-dark(var(--vn-paper-300), var(--vn-steel-850));
+  --vn-bg-surface:   light-dark(var(--vn-paper-100), var(--vn-steel-800));
+  --vn-bg-raised:    light-dark(var(--vn-paper-50), var(--vn-steel-700));
+  --vn-bg-selected:  light-dark(var(--vn-paper-50), var(--vn-steel-700));
+
+  --vn-bg-hover:  color-mix(in srgb,
+                    light-dark(var(--vn-wood-800), var(--vn-ember-200)) 8%, transparent);
+  --vn-bg-active: color-mix(in srgb,
+                    light-dark(var(--vn-wood-800), var(--vn-ember-200)) 14%, transparent);
+
+  --vn-fg-primary:   light-dark(var(--vn-ink-900), var(--vn-ember-200));
+  --vn-fg-secondary: light-dark(var(--vn-ink-700), var(--vn-steel-300));
+  --vn-fg-muted:     light-dark(var(--vn-ink-500), var(--vn-steel-400));
+  --vn-fg-inverted:  light-dark(var(--vn-ember-100), var(--vn-steel-950));
+
+  --vn-border:        color-mix(in srgb,
+                        light-dark(var(--vn-wood-800), var(--vn-ember-200)) 12%, transparent);
+  --vn-border-strong: color-mix(in srgb,
+                        light-dark(var(--vn-wood-800), var(--vn-ember-200)) 24%, transparent);
+  --vn-accent:       light-dark(var(--vn-wood-600), var(--vn-wood-500));
+  --vn-accent-fg:    var(--vn-ember-100);
+
+  /* Кромка активного элемента. В тёмной теме это кремовый с логотипа,
+     в светлой он сливается с белой поверхностью — там работает дуб. */
+  --vn-edge:         light-dark(var(--vn-wood-600), var(--vn-ember-200));
+
+  /* --- Форма -------------------------------------------------------------- */
+  --vn-radius-xs: 3px;
+  --vn-radius-sm: 5px;
+  --vn-radius-md: 8px;
+  --vn-radius-lg: 12px;
+  --vn-radius-xl: 16px;
+  --vn-radius-pill: 999px;
+
+  /* --- Размеры интерфейса ------------------------------------------------- */
+  --vn-chrome-height: 38px;   /* высота панели навигации */
+  --vn-tab-height:    34px;   /* высота вкладки */
+  --vn-urlbar-height: 34px;   /* высота адресной строки */
+
+  /* --- Ритм: шаг сетки 4px ------------------------------------------------ */
+  --vn-space-1: 2px;
+  --vn-space-2: 4px;
+  --vn-space-3: 8px;
+  --vn-space-4: 12px;
+  --vn-space-5: 16px;
+  --vn-space-6: 24px;
+
+  /* --- Глубина ------------------------------------------------------------ */
+  /* Тень в светлой теме — тёплая коричневая, а не чёрная: чёрная тень
+     на пергаментном фоне читается как грязь. */
+  --vn-shadow-tint: light-dark(rgb(46 31 22 / 0.13), rgb(0 0 0 / 0.36));
+  --vn-shadow-sm: 0 1px 2px  var(--vn-shadow-tint);
+  --vn-shadow-md: 0 4px 12px var(--vn-shadow-tint);
+  --vn-shadow-lg: 0 12px 32px var(--vn-shadow-tint);
+  --vn-glow-guard: 0 0 0 1px color-mix(in srgb, var(--vn-guard) 40%, transparent),
+                   0 0 12px color-mix(in srgb, var(--vn-guard) 25%, transparent);
+
+  /* --- Время: единая шкала для всех анимаций ------------------------------ */
+  --vn-dur-instant: 70ms;
+  --vn-dur-fast:    130ms;
+  --vn-dur-base:    200ms;
+  --vn-dur-slow:    320ms;
+  --vn-dur-slower:  520ms;
+
+  /* Кривые. standard — почти всё; decel — появление; accel — исчезновение;
+     spring — подчёркнуто «живые» элементы (вкладки, щит).                   */
+  --vn-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --vn-ease-decel:    cubic-bezier(0.05, 0.7, 0.1, 1);
+  --vn-ease-accel:    cubic-bezier(0.3, 0, 0.8, 0.15);
+  --vn-ease-spring:   cubic-bezier(0.34, 1.4, 0.64, 1);
+
+  /* --- Типографика -------------------------------------------------------- */
+  --vn-font-ui: system-ui, "Segoe UI Variable Text", "Segoe UI", sans-serif;
+  --vn-font-mono: "Cascadia Code", "JetBrains Mono", Consolas, monospace;
+  --vn-text-xs: 11px;
+  --vn-text-sm: 12px;
+  --vn-text-md: 13px;
+  --vn-text-lg: 15px;
+}
+
+/* --- Выбор темы ------------------------------------------------------------
+   Без атрибута интерфейс следует за системой (color-scheme: light dark).
+   Атрибут переключает схему, а значения ролей подставляет light-dark() —
+   поэтому здесь не нужно повторять ни одного цвета.
+   В сборке форка атрибут ставится по настройке браузера, в прототипе —
+   темой Firefox и переключателем в превью.
+   -------------------------------------------------------------------------- */
+
+
+/* --- Палитры ---------------------------------------------------------------
+   Палитра меняет только шкалы: сталь (тёмные поверхности), дуб (акцент),
+   кромку (текст и иконки в тёмной схеме), бумагу и чернила (светлая
+   схема). Роли выше ссылаются на шкалы, поэтому весь интерфейс
+   перекрашивается без единого правила в компонентах.
+
+   Атрибут vn-palette ставит ui/scripts/vantara-theme.js по настройке
+   vantara.theme.palette; на новой вкладке — браузер через AboutNewTab.
+   Без атрибута действует «Кузница» — значения в начале файла.
+   -------------------------------------------------------------------------- */
+
+/* Полночь: холодный синий, как ночное небо над кузницей. */
+@media -moz-pref("vantara.theme.palette", "midnight") {
+  :root {
+  --vn-steel-950: #0B0F17;
+  --vn-steel-900: #10151F;
+  --vn-steel-850: #151B27;
+  --vn-steel-800: #1B2230;
+  --vn-steel-700: #242C3C;
+  --vn-steel-600: #313B4E;
+  --vn-steel-500: #445066;
+  --vn-steel-400: #62708A;
+  --vn-steel-300: #8C9AB3;
+  --vn-wood-800: #16213A;
+  --vn-wood-700: #1E2D4F;
+  --vn-wood-600: #2F4A7D;
+  --vn-wood-500: #3D5F9E;
+  --vn-wood-400: #5577B8;
+  --vn-ember-100: #F2F6FF;
+  --vn-ember-200: #D9E3F5;
+  --vn-ember-300: #B7C6E0;
+  --vn-ember-400: #93A4C2;
+  --vn-paper-100: #F1F4F9;
+  --vn-paper-200: #E9EDF4;
+  --vn-paper-300: #DDE3EC;
+  --vn-ink-900: #141B2B;
+  --vn-ink-700: #47536A;
+  --vn-ink-500: #74819A;
+}
+}
+
+/* Хвоя: приглушённый зелёный северного леса. */
+@media -moz-pref("vantara.theme.palette", "pine") {
+  :root {
+  --vn-steel-950: #0C120F;
+  --vn-steel-900: #111814;
+  --vn-steel-850: #161F1A;
+  --vn-steel-800: #1C2721;
+  --vn-steel-700: #25322B;
+  --vn-steel-600: #324137;
+  --vn-steel-500: #43554A;
+  --vn-steel-400: #637869;
+  --vn-steel-300: #8FA396;
+  --vn-wood-800: #15261C;
+  --vn-wood-700: #1D3526;
+  --vn-wood-600: #2E5A3F;
+  --vn-wood-500: #3C7352;
+  --vn-wood-400: #53906A;
+  --vn-ember-100: #F1F8F2;
+  --vn-ember-200: #DCEADF;
+  --vn-ember-300: #BBD0C0;
+  --vn-ember-400: #97AE9D;
+  --vn-paper-100: #F1F5F1;
+  --vn-paper-200: #E8EEE9;
+  --vn-paper-300: #DCE5DE;
+  --vn-ink-900: #15201A;
+  --vn-ink-700: #4A5A50;
+  --vn-ink-500: #778A7E;
+}
+}
+
+/* Пепел: нейтральный серый без оттенка — для тех, кому нужна тишина. */
+@media -moz-pref("vantara.theme.palette", "ash") {
+  :root {
+  --vn-steel-950: #0F0F10;
+  --vn-steel-900: #141415;
+  --vn-steel-850: #1A1A1C;
+  --vn-steel-800: #212123;
+  --vn-steel-700: #2A2A2D;
+  --vn-steel-600: #37373B;
+  --vn-steel-500: #4A4A4F;
+  --vn-steel-400: #6B6B72;
+  --vn-steel-300: #9A9AA2;
+  --vn-wood-800: #1F1F22;
+  --vn-wood-700: #2B2B2F;
+  --vn-wood-600: #4A4A52;
+  --vn-wood-500: #5E5E68;
+  --vn-wood-400: #7A7A85;
+  --vn-ember-100: #FAFAFA;
+  --vn-ember-200: #E6E6E9;
+  --vn-ember-300: #C8C8CD;
+  --vn-ember-400: #A5A5AC;
+  --vn-paper-100: #F4F4F5;
+  --vn-paper-200: #ECECEE;
+  --vn-paper-300: #E1E1E4;
+  --vn-ink-900: #18181B;
+  --vn-ink-700: #52525B;
+  --vn-ink-500: #7C7C85;
+}
+}
+
+/* Янтарь: тёплый смоляной, акцент цвета расплавленного металла. */
+@media -moz-pref("vantara.theme.palette", "amber") {
+  :root {
+  --vn-steel-950: #140F0A;
+  --vn-steel-900: #1A140E;
+  --vn-steel-850: #211912;
+  --vn-steel-800: #291F16;
+  --vn-steel-700: #33281D;
+  --vn-steel-600: #433528;
+  --vn-steel-500: #584736;
+  --vn-steel-400: #7D6A55;
+  --vn-steel-300: #A8937B;
+  --vn-wood-800: #3A2310;
+  --vn-wood-700: #5A3514;
+  --vn-wood-600: #8A5418;
+  --vn-wood-500: #B06C1E;
+  --vn-wood-400: #CF8A32;
+  --vn-ember-100: #FFF6E6;
+  --vn-ember-200: #F6E3C3;
+  --vn-ember-300: #E2C79C;
+  --vn-ember-400: #C2A57A;
+  --vn-paper-100: #FBF4E8;
+  --vn-paper-200: #F5EBDB;
+  --vn-paper-300: #EDDFC9;
+  --vn-ink-900: #2A1B0C;
+  --vn-ink-700: #6A5238;
+  --vn-ink-500: #967C5E;
+}
+}
+
+/* --- Доступность: уважаем системную настройку «меньше движения» ----------- */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --vn-dur-instant: 1ms;
+    --vn-dur-fast:    1ms;
+    --vn-dur-base:    1ms;
+    --vn-dur-slow:    1ms;
+    --vn-dur-slower:  1ms;
+  }
+}
+
+/* ==========================================================================
+   Vantara — служебные страницы: настройки, дополнения, загрузки, ошибки
+
+   Эти страницы красит дизайн-система Firefox (Nova, tokens-shared.css) —
+   своими синими и фиолетовыми. Здесь её токены переводятся на роли
+   Vantara, и страницы следуют палитре и схеме браузера.
+
+   Файл не подключается как есть. tools/sync-ui.py собирает из tokens.css
+   и этого файла about-pages.css: оборачивает всё в @-moz-document с
+   адресами служебных страниц, а палитры переводит с атрибута vn-palette
+   на @media -moz-pref("vantara.theme.palette", ...) — на этих страницах
+   атрибута нет. Лист регистрируется как пользовательский
+   (ui/scripts/vantara-theme.js), поэтому !important здесь перекрывает
+   токены Firefox, в том числе объявленные в слоях.
+
+   Обычные сайты этот лист не видят: иначе переменные --vn-* можно было
+   бы прочитать со страницы и узнать по ним Vantara.
+   ========================================================================== */
+
+:root {
+  /* Ссылки и выделенный текст: в тёмной схеме акцент палитры темноват для
+     текста, поэтому там — светлая кромка. */
+  --vn-page-link: light-dark(var(--vn-wood-600), var(--vn-ember-300));
+  --vn-page-link-hover: light-dark(var(--vn-wood-700), var(--vn-ember-200));
+
+  /* --- Поверхности ------------------------------------------------------ */
+  --background-color-canvas: var(--vn-bg-window) !important;
+  --background-color-box: var(--vn-bg-surface) !important;
+  --background-color-box-info: var(--vn-bg-raised) !important;
+  --card-background-color: var(--vn-bg-surface) !important;
+  --table-row-background-color: var(--vn-bg-surface) !important;
+  --table-row-background-color-alternate: var(--vn-bg-window) !important;
+
+  /* --- Текст ------------------------------------------------------------ */
+  --text-color: var(--vn-fg-primary) !important;
+  --text-color-deemphasized: var(--vn-fg-muted) !important;
+
+  /* --- Рамки ------------------------------------------------------------ */
+  --border-color: var(--vn-border-strong) !important;
+  --border-color-deemphasized: var(--vn-border) !important;
+  --border-color-card: var(--vn-border) !important;
+  --border-color-interactive: var(--vn-border-strong) !important;
+  --border-color-interactive-hover: color-mix(in srgb, var(--vn-fg-primary) 40%, transparent) !important;
+
+  /* --- Акцент: переключатели, флажки, основные кнопки ------------------- */
+  --color-accent-primary: var(--vn-accent) !important;
+  --color-accent-primary-hover: light-dark(var(--vn-wood-700), var(--vn-wood-400)) !important;
+  --color-accent-primary-active: light-dark(var(--vn-wood-800), var(--vn-wood-600)) !important;
+  --color-accent-primary-selected: var(--vn-accent) !important;
+  --focus-outline-color: var(--vn-accent) !important;
+
+  /* --- Кнопки ----------------------------------------------------------- */
+  --button-background-color: color-mix(in srgb, var(--vn-fg-primary) 7%, transparent) !important;
+  --button-background-color-hover: var(--vn-bg-hover) !important;
+  --button-background-color-active: var(--vn-bg-active) !important;
+  --button-text-color: var(--vn-fg-primary) !important;
+  --button-text-color-primary: var(--vn-accent-fg) !important;
+  --button-text-color-primary-hover: var(--vn-accent-fg) !important;
+  --button-text-color-primary-active: var(--vn-accent-fg) !important;
+  --button-border-color: var(--vn-border-strong) !important;
+
+  /* --- Ссылки ----------------------------------------------------------- */
+  --link-color: var(--vn-page-link) !important;
+  --link-color-hover: var(--vn-page-link-hover) !important;
+  --link-color-active: var(--vn-page-link-hover) !important;
+}
+
+/* Вход в аккаунт Mozilla выключен (identity.fxaccounts.enabled), и
+   карточка «Настройки аккаунта недоступны» с логотипом Mozilla на
+   главной странице настроек только путает. */
+setting-group[groupid="accountDisabled"] {
+  display: none !important;
+}
+
+/* Выделение текста — цветом палитры, а не системным синим. */
+::selection {
+  background-color: color-mix(in srgb, var(--vn-accent) 45%, transparent) !important;
+}
+
+}

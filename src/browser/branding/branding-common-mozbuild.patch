@@ -1,0 +1,19 @@
+diff --git a/browser/branding/branding-common.mozbuild b/browser/branding/branding-common.mozbuild
+index dd02e32066e356c735294ff60287c24d9f16dcea..9b234837f1797adc7e65e45f43f00caf03268f4a 100644
+--- a/browser/branding/branding-common.mozbuild
++++ b/browser/branding/branding-common.mozbuild
+@@ -15,10 +15,11 @@ def FirefoxBranding():
+         ]
+ 
+     if CONFIG["MOZ_WIDGET_TOOLKIT"] == "windows":
+-        FINAL_TARGET_FILES[".."] += [
+-            "firefox.VisualElementsManifest.xml",
++        # Windows looks for <exe name>.VisualElementsManifest.xml.
++        FINAL_TARGET_FILES[".."] += sorted([
++            "%s.VisualElementsManifest.xml" % CONFIG["MOZ_APP_NAME"],
+             "private_browsing.VisualElementsManifest.xml",
+-        ]
++        ])
+         FINAL_TARGET_FILES.VisualElements += [
+             "PrivateBrowsing_150.png",
+             "PrivateBrowsing_70.png",

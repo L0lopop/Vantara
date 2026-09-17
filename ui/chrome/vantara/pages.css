@@ -1,0 +1,78 @@
+/* ==========================================================================
+   Vantara — служебные страницы: настройки, дополнения, загрузки, ошибки
+
+   Эти страницы красит дизайн-система Firefox (Nova, tokens-shared.css) —
+   своими синими и фиолетовыми. Здесь её токены переводятся на роли
+   Vantara, и страницы следуют палитре и схеме браузера.
+
+   Файл не подключается как есть. tools/sync-ui.py собирает из tokens.css
+   и этого файла about-pages.css: оборачивает всё в @-moz-document с
+   адресами служебных страниц, а палитры переводит с атрибута vn-palette
+   на @media -moz-pref("vantara.theme.palette", ...) — на этих страницах
+   атрибута нет. Лист регистрируется как пользовательский
+   (ui/scripts/vantara-theme.js), поэтому !important здесь перекрывает
+   токены Firefox, в том числе объявленные в слоях.
+
+   Обычные сайты этот лист не видят: иначе переменные --vn-* можно было
+   бы прочитать со страницы и узнать по ним Vantara.
+   ========================================================================== */
+
+:root {
+  /* Ссылки и выделенный текст: в тёмной схеме акцент палитры темноват для
+     текста, поэтому там — светлая кромка. */
+  --vn-page-link: light-dark(var(--vn-wood-600), var(--vn-ember-300));
+  --vn-page-link-hover: light-dark(var(--vn-wood-700), var(--vn-ember-200));
+
+  /* --- Поверхности ------------------------------------------------------ */
+  --background-color-canvas: var(--vn-bg-window) !important;
+  --background-color-box: var(--vn-bg-surface) !important;
+  --background-color-box-info: var(--vn-bg-raised) !important;
+  --card-background-color: var(--vn-bg-surface) !important;
+  --table-row-background-color: var(--vn-bg-surface) !important;
+  --table-row-background-color-alternate: var(--vn-bg-window) !important;
+
+  /* --- Текст ------------------------------------------------------------ */
+  --text-color: var(--vn-fg-primary) !important;
+  --text-color-deemphasized: var(--vn-fg-muted) !important;
+
+  /* --- Рамки ------------------------------------------------------------ */
+  --border-color: var(--vn-border-strong) !important;
+  --border-color-deemphasized: var(--vn-border) !important;
+  --border-color-card: var(--vn-border) !important;
+  --border-color-interactive: var(--vn-border-strong) !important;
+  --border-color-interactive-hover: color-mix(in srgb, var(--vn-fg-primary) 40%, transparent) !important;
+
+  /* --- Акцент: переключатели, флажки, основные кнопки ------------------- */
+  --color-accent-primary: var(--vn-accent) !important;
+  --color-accent-primary-hover: light-dark(var(--vn-wood-700), var(--vn-wood-400)) !important;
+  --color-accent-primary-active: light-dark(var(--vn-wood-800), var(--vn-wood-600)) !important;
+  --color-accent-primary-selected: var(--vn-accent) !important;
+  --focus-outline-color: var(--vn-accent) !important;
+
+  /* --- Кнопки ----------------------------------------------------------- */
+  --button-background-color: color-mix(in srgb, var(--vn-fg-primary) 7%, transparent) !important;
+  --button-background-color-hover: var(--vn-bg-hover) !important;
+  --button-background-color-active: var(--vn-bg-active) !important;
+  --button-text-color: var(--vn-fg-primary) !important;
+  --button-text-color-primary: var(--vn-accent-fg) !important;
+  --button-text-color-primary-hover: var(--vn-accent-fg) !important;
+  --button-text-color-primary-active: var(--vn-accent-fg) !important;
+  --button-border-color: var(--vn-border-strong) !important;
+
+  /* --- Ссылки ----------------------------------------------------------- */
+  --link-color: var(--vn-page-link) !important;
+  --link-color-hover: var(--vn-page-link-hover) !important;
+  --link-color-active: var(--vn-page-link-hover) !important;
+}
+
+/* Вход в аккаунт Mozilla выключен (identity.fxaccounts.enabled), и
+   карточка «Настройки аккаунта недоступны» с логотипом Mozilla на
+   главной странице настроек только путает. */
+setting-group[groupid="accountDisabled"] {
+  display: none !important;
+}
+
+/* Выделение текста — цветом палитры, а не системным синим. */
+::selection {
+  background-color: color-mix(in srgb, var(--vn-accent) 45%, transparent) !important;
+}

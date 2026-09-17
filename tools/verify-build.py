@@ -41,6 +41,8 @@ FORBIDDEN_FILES = [
     # Служба Windows с правами SYSTEM для тихих обновлений Mozilla.
     "maintenanceservice.exe",
     "maintenanceservice_installer.exe",
+    # Отправщик пингов телеметрии: без телеметрии ему нечего отправлять.
+    "pingsender.exe",
 ]
 
 # Ключевые обещания продукта. Если хоть одного нет в заводских настройках,
@@ -182,6 +184,13 @@ def main() -> int:
         check(not mozilla_download, "Установщик не ссылается на загрузки Mozilla",
               "download.mozilla.org в branding.nsi — tools/fix-branding.py"
               if mozilla_download else "")
+
+    # --- Плитка меню «Пуск» ---------------------------------------------------
+    # Windows ищет <имя программы>.VisualElementsManifest.xml рядом с ней.
+    if packaged.exists():
+        tile = packaged / f"{EXPECTED_NAME}.VisualElementsManifest.xml"
+        check(tile.exists(), "Плитка меню «Пуск» названа по программе",
+              "" if tile.exists() else f"нет {tile.name} в упакованной сборке")
 
     # --- Языки ---------------------------------------------------------------
     # Переводы без res/multilocale.txt лежат в сборке, но не используются.

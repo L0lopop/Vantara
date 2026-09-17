@@ -50,7 +50,56 @@ ICONS_SRC = SRC / "icons"
 ICONS_SKIP = {"sprite.svg"}
 
 IMPORT_LINE = '@import url("chrome://browser/skin/vantara/vantara.css");'
+
+# Служебные страницы (about:preferences и другие). Их красит отдельный
+# пользовательский лист about-pages.css, собранный из tokens.css и
+# pages.css. Список адресов — единственное, что пускает лист на страницу:
+# обычные сайты его не видят.
+PAGES_SOURCE = SRC / "pages.css"
+PAGES_NAME = "about-pages.css"
+PAGES_URLS = [
+    "about:preferences", "about:settings", "about:addons", "about:config",
+    "about:support", "about:profiles", "about:downloads", "about:logins",
+    "about:protections", "about:privatebrowsing", "about:policies",
+    "about:about", "about:processes", "about:license", "about:rights",
+    "about:certerror", "about:neterror", "about:httpsonlyerror",
+    "about:blocked", "about:unloads", "about:translations",
+    "about:serviceworkers", "about:crashes", "about:editprofile",
+    "about:profilemanager", "about:deleteprofile", "about:loginsimportreport",
+]
 MARKER = "# Vantara"
+
+# Талисман Firefox (лиса Kit) и его логотип в интерфейсе. Вместо них
+# подставляется знак Vantara: строки override в манифесте пакета
+# перенаправляют адреса Firefox на наши файлы, не трогая код, который их
+# показывает. Так замена переживает обновление движка.
+ILLUSTRATION_NAME = "illustration.svg"
+ILLUSTRATION_SOURCE = ROOT / "brand" / "logo" / "mark.png"
+ILLUSTRATION_OVERRIDES = [
+    "chrome://global/skin/illustrations/kit-concerned.svg",
+    "chrome://global/skin/illustrations/kit-confetti.svg",
+    "chrome://global/skin/illustrations/kit-happy.svg",
+    "chrome://global/skin/illustrations/kit-in-circle.svg",
+    "chrome://global/skin/illustrations/kit-holding-lock.svg",
+    "chrome://mozapps/skin/extensions/kit-addons.svg",
+    "chrome://mozapps/skin/extensions/kit-themes.svg",
+    "chrome://browser/skin/sidebar/kit-page-history.svg",
+    "chrome://browser/skin/sidebar/kit-tabs-devices.svg",
+    "chrome://browser/skin/sidebar/kit-tabs-devices-error.svg",
+    "chrome://browser/skin/sidebar/kit-qr-tabs-devices-empty.svg",
+    "chrome://browser/content/kit-signed-out.svg",
+]
+# Значок-логотип Firefox (пункт «О браузере» в настройках, боковая панель)
+# -> щит Vantara из набора иконок.
+ICON_OVERRIDES = {
+    "chrome://browser/skin/sidebar/firefox.svg": "icons/shield.svg",
+    # Щит на странице защиты. Страница — обычный документ, context-fill
+    # там не работает, поэтому щит перекрашен в цвет защиты заранее.
+    "chrome://browser/content/logos/tracking-protection.svg": "shield-page.svg",
+    "chrome://browser/content/logos/tracking-protection-dark-theme.svg": "shield-page.svg",
+}
+# Цвет защиты (--vn-guard), чуть темнее, чтобы щит читался и на светлом фоне.
+SHIELD_PAGE_COLOR = "#4FA37E"
 
 PREFS_SRC = ROOT / "ui" / "prefs" / "user.js"
 # Имя начинается с «00-» не для красоты. Движок читает файлы заводских
@@ -167,9 +216,91 @@ def copy_styles() -> list[str]:
         (dest / "vantara.css").write_text("\n".join(entry) + "\n", encoding="utf-8")
     copied.append("vantara.css")
 
+    build_pages_sheet()
+    copied.append(PAGES_NAME)
+
+    build_illustration()
+    copied.append(ILLUSTRATION_NAME)
+
+    shield = (ICONS_SRC / "shield.svg").read_text(encoding="utf-8")
+    shield = shield.replace("context-fill", SHIELD_PAGE_COLOR)
+    for dest in (DEST, SRC_DEST):
+        (dest / "shield-page.svg").write_text(shield, encoding="utf-8", newline="\n")
+    copied.append("shield-page.svg")
+
     icons = sum(1 for n in copied if n.startswith("icons/"))
     print(f"  Скопировано: стилей {len(copied) - icons}, иконок {icons}")
     return copied
+
+
+def build_illustration() -> None:
+    """Иллюстрация вместо талисмана Firefox: знак Vantara в SVG-обёртке.
+
+    Обёртка нужна, чтобы адрес с расширением .svg отдавал SVG: часть
+    страниц рисует эти картинки как SVG. Растр внутри уменьшен до 240 px —
+    иллюстрации показываются не крупнее.
+    """
+    import base64
+    import io
+    from PIL import Image
+
+    with Image.open(ILLUSTRATION_SOURCE) as image:
+        image.thumbnail((240, 240), Image.LANCZOS)
+        width, height = image.size
+        buffer = io.BytesIO()
+        image.save(buffer, format="PNG", optimize=True)
+    data = base64.b64encode(buffer.getvalue()).decode("ascii")
+    svg = (f'<svg xmlns="http://www.w3.org/2000/svg" '
+           f'xmlns:xlink="http://www.w3.org/1999/xlink" '
+           f'viewBox="0 0 {width} {height}" width="{width}" height="{height}">'
+           f'<image width="{width}" height="{height}" '
+           f'href="data:image/png;base64,{data}"/></svg>\n')
+    for dest in (DEST, SRC_DEST):
+        (dest / ILLUSTRATION_NAME).write_text(svg, encoding="utf-8", newline="\n")
+    print(f"  {ILLUSTRATION_NAME}: {len(svg) // 1024} КБ, замен {len(ILLUSTRATION_OVERRIDES)}")
+
+
+def build_pages_sheet() -> None:
+    """Собирает about-pages.css: токены и pages.css внутри @-moz-document.
+
+    На служебных страницах нет атрибута vn-palette, поэтому блоки палитр
+    из tokens.css переводятся на @media -moz-pref(): Firefox сам
+    пересчитывает такие запросы, когда настройка меняется.
+    """
+    tokens = (SRC / "tokens.css").read_text(encoding="utf-8")
+    palettes = re.compile(r':root\[vn-palette="([\w-]+)"\]\s*\{([^}]*)\}')
+    found = palettes.findall(tokens)
+    if not found:
+        raise SystemExit("  tokens.css: не найдено ни одной палитры")
+    tokens = palettes.sub(
+        lambda m: (f'@media -moz-pref("vantara.theme.palette", "{m.group(1)}") {{\n'
+                   f'  :root {{{m.group(2)}}}\n}}'),
+        tokens)
+    # Выбор схемы атрибутом и темой Firefox на страницах не нужен:
+    # они следуют схеме браузера сами.
+    tokens = re.sub(r'\n:root\[vn-theme="\w+"\],\n[^{]*\{[^}]*\}\n', "\n", tokens)
+
+    urls = ",\n  ".join(f'url-prefix("{url}")' for url in PAGES_URLS)
+    sheet = "\n".join([
+        "/* This Source Code Form is subject to the terms of the Mozilla Public",
+        " * License, v. 2.0. If a copy of the MPL was not distributed with this",
+        " * file, You can obtain one at http://mozilla.org/MPL/2.0/. */",
+        "",
+        "/* Vantara — служебные страницы. Создаётся tools/sync-ui.py из",
+        "   ui/chrome/vantara/tokens.css и pages.css. Править там. */",
+        "",
+        f"@-moz-document {urls} {{",
+        "",
+        tokens.strip(),
+        "",
+        PAGES_SOURCE.read_text(encoding="utf-8").strip(),
+        "",
+        "}",
+        "",
+    ])
+    for dest in (DEST, SRC_DEST):
+        (dest / PAGES_NAME).write_text(sheet, encoding="utf-8", newline="\n")
+    print(f"  {PAGES_NAME}: страниц {len(PAGES_URLS)}, палитр {len(found)}")
 
 
 def register_in_jar(files: list[str]) -> None:
@@ -187,6 +318,11 @@ def register_in_jar(files: list[str]) -> None:
     for name in files:
         target = f"skin/classic/browser/vantara/{name}"
         block.append(f"  {target:<58} (../shared/vantara/{name})")
+    base = "chrome://browser/skin/vantara/"
+    for original in ILLUSTRATION_OVERRIDES:
+        block.append(f"% override {original} {base}{ILLUSTRATION_NAME}")
+    for original, name in ICON_OVERRIDES.items():
+        block.append(f"% override {original} {base}{name}")
 
     JAR.write_text(text.rstrip() + "\n\n" + "\n".join(block) + "\n",
                    encoding="utf-8")

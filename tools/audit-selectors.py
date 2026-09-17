@@ -43,8 +43,9 @@ CONDITIONAL = re.compile(
     # панели, меню, подсказки, строка поиска, уведомления
     r"protections-popup|appMenu-popup|urlbarView|findbar|notification-|"
     r"panel-arrowcontent|scrollbar|"
-    # наши утилитарные классы: применяются из скриптов, а не из разметки
-    r"\.vn-anim-")
+    # наши утилитарные классы: применяются из скриптов, а не из разметки;
+    # панель журнала запросов создаётся при первом открытии
+    r"\.vn-anim-|\.vn-leaks")
 
 
 def strip_at_blocks(text: str, keyword: str) -> str:
@@ -139,7 +140,9 @@ def main() -> int:
         print(f"{RED}Не найдены файлы в {CSS_DIR}{RESET}")
         return 2
 
-    per_file = {f: selectors_from(f) for f in files if f.name != "tokens.css"}
+    # pages.css относится к служебным страницам, а не к окну браузера.
+    per_file = {f: selectors_from(f) for f in files
+                if f.name not in ("tokens.css", "pages.css")}
     every = sorted({s for group in per_file.values() for s in group})
 
     try:

@@ -258,6 +258,24 @@ found». Плюс вторая запись — в `browser/installer/package-ma
 `documentGlobal`), а `Services.search` больше не существует — сервис
 поиска подключается через `ChromeUtils.importESModule`.
 
+**Служебные страницы** (`about:preferences`, `about:addons`, страницы
+ошибок) красит дизайн-система Firefox. `sync-ui.py` собирает из
+`tokens.css` и `pages.css` лист `about-pages.css`: всё внутри
+`@-moz-document` со списком адресов служебных страниц, палитры — через
+`@media -moz-pref("vantara.theme.palette", …)`, потому что атрибута
+`vn-palette` на этих страницах нет. `vantara-theme.js` регистрирует лист
+как пользовательский (`nsIStyleSheetService`): такой лист действует во
+всех процессах, а его `!important` перекрывает токены Firefox, в том
+числе объявленные в слоях. На обычные сайты лист не попадает — иначе по
+переменным `--vn-*` страница могла бы узнать Vantara.
+
+**Талисман и логотип Firefox.** Иллюстрации с лисой (`kit-*.svg`),
+значок-логотип Firefox и щит на странице защиты подменяются строками
+`% override` в блоке Vantara в `jar.inc.mn`: адреса Firefox
+перенаправляются на `illustration.svg` (знак Vantara) и наши иконки.
+Код, который показывает картинки, не меняется, поэтому замена
+переживает обновление движка. Список адресов — в `tools/sync-ui.py`.
+
 **Модули** основного процесса (`ui/modules/*.sys.mjs`) кладутся в
 `browser/base/content/vantara/modules/` и в окно не подключаются: их
 импортирует тот, кому они нужны. `VantaraNewTab.sys.mjs` отвечает
