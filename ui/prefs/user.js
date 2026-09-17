@@ -184,6 +184,20 @@ user_pref("browser.urlbar.suggest.quicksuggest.nonsponsored", false);
 user_pref("browser.urlbar.trending.featureGate", false);
 user_pref("browser.topsites.contile.enabled", false);
 
+/* Система сообщений Firefox (ASRouter): рекомендации расширений и функций,
+ * промо «сделайте браузером по умолчанию» с лисой Mozilla в меню,
+ * сообщения экспериментов. Три источника из четырёх качаются с серверов
+ * Mozilla, четвёртый (onboarding) встроен, но показывает рекламу Firefox
+ * внутри нашего браузера. Выключены все; значения — заводские Firefox
+ * с enabled:false. */
+user_pref("browser.newtabpage.activity-stream.asrouter.providers.cfr", "{\"id\":\"cfr\",\"enabled\":false,\"type\":\"remote-settings\",\"collection\":\"cfr\",\"updateCycleInMs\":3600000}");
+user_pref("browser.newtabpage.activity-stream.asrouter.providers.message-groups", "{\"id\":\"message-groups\",\"enabled\":false,\"type\":\"remote-settings\",\"collection\":\"message-groups\",\"updateCycleInMs\":3600000}");
+user_pref("browser.newtabpage.activity-stream.asrouter.providers.messaging-experiments", "{\"id\":\"messaging-experiments\",\"enabled\":false,\"type\":\"remote-experiments\",\"updateCycleInMs\":3600000}");
+user_pref("browser.newtabpage.activity-stream.asrouter.providers.onboarding", "{\"id\":\"onboarding\",\"type\":\"local\",\"localProvider\":\"OnboardingMessageProvider\",\"enabled\":false,\"exclude\":[]}");
+user_pref("browser.newtabpage.activity-stream.asrouter.userprefs.cfr.addons", false);
+user_pref("browser.newtabpage.activity-stream.asrouter.userprefs.cfr.features", false);
+user_pref("browser.newtabpage.activity-stream.asrouter.useRemoteL10n", false);
+
 /* Аккаунт Mozilla и синхронизация. Данные шифруются на устройстве, но
  * вход, время и частота синхронизации видны серверам Mozilla, а кнопка
  * «Войти в Firefox» — чужой продукт внутри нашего. Выключено целиком:
@@ -211,6 +225,10 @@ user_pref("app.update.auto", false);
 user_pref("app.update.background.enabled", false);
 user_pref("app.update.checkInstallTime", false);
 user_pref("app.update.service.enabled", false);
+/* Агент браузера по умолчанию в сборку не входит (configs/windows/mozconfig).
+ * Настройка — на случай сборки, где его включили: задача в планировщике
+ * Windows тогда не регистрируется. */
+user_pref("default-browser-agent.enabled", false);
 
 /* == 9b. Вид интерфейса ====================================================
  * Панель закладок по умолчанию скрыта: на пустом профиле она показывает
@@ -222,6 +240,12 @@ user_pref("app.update.service.enabled", false);
  * (ui/pages/newtab). Кэш домашней страницы Firefox выключен: он хранит
  * снимок страницы Firefox и показал бы его вместо нашей при запуске.
  * ========================================================================== */
+/* Язык интерфейса — как в системе. Пустая строка здесь не «ничего»:
+ * для движка это прямой запрос брать языки ОС (LocaleService.cpp,
+ * ReadRequestedLocales). Без настройки сборка всегда английская.
+ * В сборку входят английский и русский (tools/fetch-l10n.py). */
+user_pref("intl.locale.requested", "");
+
 user_pref("browser.toolbars.bookmarks.visibility", "never");
 user_pref("browser.download.autohideButton", false);
 user_pref("vantara.newtab.enabled", true);

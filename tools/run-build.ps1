@@ -21,14 +21,23 @@
 .PARAMETER Light
     Светлая тема системы вместо тёмной.
 
+.PARAMETER Packaged
+    Запустить упакованную сборку (obj-*/dist/vantara, как в установщике)
+    вместо сборки для разработки. Нужна для проверки языков: в dist/bin
+    список языков (res/multilocale.txt) движок не читает, и интерфейс там
+    всегда английский. Собирается командой
+    .\tools\mach.ps1 package-multi-locale --locales en-US ru
+
 .EXAMPLE
     .\tools\run-build.ps1
     .\tools\run-build.ps1 -Light
+    .\tools\run-build.ps1 -Packaged
 #>
 [CmdletBinding()]
 param(
     [string]$ProfileDir,
-    [switch]$Light
+    [switch]$Light,
+    [switch]$Packaged
 )
 
 $ErrorActionPreference = 'Stop'
@@ -36,7 +45,8 @@ $ErrorActionPreference = 'Stop'
 $Root   = Split-Path -Parent $PSScriptRoot
 $Engine = Join-Path $Root 'engine'
 $ObjDir = Join-Path $Engine 'obj-x86_64-pc-windows-msvc'
-$Exe    = Join-Path $ObjDir 'dist\bin\vantara.exe'
+$Exe    = if ($Packaged) { Join-Path $ObjDir 'dist\vantara\vantara.exe' }
+          else { Join-Path $ObjDir 'dist\bin\vantara.exe' }
 if (-not $ProfileDir) { $ProfileDir = Join-Path $Root '.native-profile' }
 
 if (-not (Test-Path $Exe)) {
@@ -62,8 +72,11 @@ if ($LASTEXITCODE -ne 0) {
 $dark = if ($Light) { 0 } else { 1 }
 Add-Content -Encoding utf8 (Join-Path $ProfileDir 'user.js') "user_pref(`"ui.systemUsesDarkTheme`", $dark);"
 
-$env:MOZ_DEVELOPER_REPO_DIR = $Engine
-$env:MOZ_DEVELOPER_OBJ_DIR  = $ObjDir
+# Упакованной сборке доступ не нужен: её файлы в omni.ja.
+if (-not $Packaged) {
+    $env:MOZ_DEVELOPER_REPO_DIR = $Engine
+    $env:MOZ_DEVELOPER_OBJ_DIR  = $ObjDir
+}
 
 Start-Process -FilePath $Exe -ArgumentList @(
     '--marionette', '-remote-allow-system-access', '-no-remote',

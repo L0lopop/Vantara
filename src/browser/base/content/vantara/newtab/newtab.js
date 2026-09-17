@@ -11,6 +11,7 @@
  * ========================================================================== */
 
 import { resolveTarget, nameFromUrl } from 'chrome://browser/content/vantara/newtab/url-parse.js';
+import { t, localize, formatNumber } from 'chrome://browser/content/vantara/newtab/strings.js';
 
 /* --- Хранилище ------------------------------------------------------------ */
 
@@ -94,9 +95,7 @@ function renderTiles() {
   if (tiles.length === 0 && !hint) {
     const p = document.createElement('p');
     p.className = 'empty';
-    p.textContent = 'Здесь только те сайты, которые вы добавили сами. ' +
-                    'Список «часто посещаемых» строится из слежки за вашей ' +
-                    'историей, поэтому его нет.';
+    p.textContent = t('pinnedHint');
     pinnedSection.insertBefore(p, tilesRoot);
   } else if (tiles.length > 0 && hint) {
     hint.remove();
@@ -123,7 +122,7 @@ function renderTiles() {
     const remove = document.createElement('button');
     remove.className = 'remove';
     remove.type = 'button';
-    remove.title = 'Убрать';
+    remove.title = t('tileRemove');
     remove.innerHTML =
       '<svg class="icon" aria-hidden="true">' +
       '<use href="#vn-close"/></svg>';
@@ -143,12 +142,13 @@ function renderTiles() {
   const add = document.createElement('button');
   add.className = 'tile add';
   add.type = 'button';
-  add.title = 'Добавить ссылку';
+  add.title = t('tileAdd');
   add.style.animationDelay = `${tiles.length * 35}ms`;
   add.innerHTML =
     '<span class="glyph"><svg class="icon" aria-hidden="true">' +
     '<use href="#vn-plus"/></svg></span>' +
-    '<span class="name">Добавить</span>';
+    '<span class="name"></span>';
+  add.querySelector('.name').textContent = t('tileAddShort');
   add.addEventListener('click', openDialog);
   tilesRoot.append(add);
 }
@@ -193,7 +193,7 @@ function renderBlocked() {
   const total = fromBrowser
     ? Number(root.getAttribute('vn-blocked')) || 0
     : Store.read('blocked', 0);
-  blockedOut.textContent = total.toLocaleString('ru-RU');
+  blockedOut.textContent = formatNumber(total);
 }
 
 // Новая вкладка готовится заранее, в фоне, и число обновляется, когда
@@ -215,6 +215,7 @@ document.getElementById('reset').addEventListener('click', () => {
 
 /* --- Запуск --------------------------------------------------------------- */
 
+localize();
 renderEngine();
 renderTiles();
 renderBlocked();

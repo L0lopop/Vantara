@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Новая вкладка</title>
+<title data-l10n="title">Новая вкладка</title>
 
 <!-- Никаких внешних ресурсов: шрифты системные, иконки локальные.
      Страница новой вкладки не должна делать ни одного сетевого запроса —
@@ -25,15 +25,18 @@
         <use href="../../chrome/vantara/icons/sprite.svg#vn-search"/>
       </svg>
       <input type="text" id="q" placeholder="Поиск или адрес" aria-label="Поиск или адрес"
+             data-l10n-attrs="placeholder:search, aria-label:search"
              spellcheck="false" autocomplete="off">
       <button type="button" class="engine" id="engine"
-              title="Сменить поисковую систему">DuckDuckGo</button>
+              title="Сменить поисковую систему"
+              data-l10n-attrs="title:engineSwitch">DuckDuckGo</button>
     </form>
   </section>
 
   <!-- Закреплённые ссылки. Заполняются вручную: список «часто посещаемых»
        строится из слежки за историей, и мы его не строим. -->
-  <section class="pinned" aria-label="Закреплённые сайты">
+  <section class="pinned" aria-label="Закреплённые сайты"
+           data-l10n-attrs="aria-label:pinned">
     <div class="tiles" id="tiles"></div>
   </section>
 
@@ -43,12 +46,13 @@
       <svg class="icon icon-sm" aria-hidden="true">
         <use href="../../chrome/vantara/icons/sprite.svg#vn-shield"/>
       </svg>
-      Заблокировано попыток слежки <b id="blocked">0</b>
+      <span data-l10n="blockedLabel">Заблокировано попыток слежки</span>
+      <b id="blocked">0</b>
     </span>
     <span class="sep"></span>
-    <span class="item">Отправлено о вас <b class="zero">0</b></span>
+    <span class="item"><span data-l10n="sentLabel">Отправлено о вас</span> <b class="zero">0</b></span>
     <span class="sep"></span>
-    <button class="item link" id="reset" type="button">Сбросить счётчик</button>
+    <button class="item link" id="reset" type="button" data-l10n="reset">Сбросить счётчик</button>
   </footer>
 
 </main>
@@ -56,17 +60,18 @@
 <!-- Диалог добавления ссылки -->
 <dialog class="modal" id="dialog">
   <form method="dialog" id="tile-form">
-    <h2 id="dialog-title">Новая ссылка</h2>
+    <h2 id="dialog-title" data-l10n="dialogTitle">Новая ссылка</h2>
 
-    <label for="tile-url">Адрес</label>
+    <label for="tile-url" data-l10n="fieldUrl">Адрес</label>
     <input type="text" id="tile-url" placeholder="example.com" spellcheck="false" required>
 
-    <label for="tile-name">Название</label>
-    <input type="text" id="tile-name" placeholder="необязательно" spellcheck="false">
+    <label for="tile-name" data-l10n="fieldName">Название</label>
+    <input type="text" id="tile-name" placeholder="необязательно" spellcheck="false"
+           data-l10n-attrs="placeholder:fieldNameHint">
 
     <div class="actions">
-      <button type="button" class="btn ghost" id="cancel">Отмена</button>
-      <button type="submit" class="btn primary">Сохранить</button>
+      <button type="button" class="btn ghost" id="cancel" data-l10n="cancel">Отмена</button>
+      <button type="submit" class="btn primary" data-l10n="save">Сохранить</button>
     </div>
   </form>
 </dialog>

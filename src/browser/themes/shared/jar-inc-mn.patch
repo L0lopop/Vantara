@@ -1,8 +1,8 @@
 diff --git a/browser/themes/shared/jar.inc.mn b/browser/themes/shared/jar.inc.mn
-index 6dc7a8fa3098a9c93e4e17d8b7782a66d64a81b0..481f0361b4005a8d0ff4a73c4a58463ea855f9ad 100644
+index 6dc7a8fa3098a9c93e4e17d8b7782a66d64a81b0..f677e00ec344303926da5130ec893ffcdd048dbc 100644
 --- a/browser/themes/shared/jar.inc.mn
 +++ b/browser/themes/shared/jar.inc.mn
-@@ -372,3 +372,41 @@
+@@ -372,3 +372,43 @@
    skin/classic/browser/illustrations/market-opt-in.svg         (../shared/illustrations/market-opt-in.svg)
    skin/classic/browser/illustrations/tab-groups.svg            (../shared/illustrations/tab-groups.svg)
    skin/classic/browser/illustrations/yelpRealtime-opt-in.svg   (../shared/illustrations/yelpRealtime-opt-in.svg)
@@ -19,6 +19,7 @@ index 6dc7a8fa3098a9c93e4e17d8b7782a66d64a81b0..481f0361b4005a8d0ff4a73c4a58463e
 +  skin/classic/browser/vantara/icons/forward.svg             (../shared/vantara/icons/forward.svg)
 +  skin/classic/browser/vantara/icons/history.svg             (../shared/vantara/icons/history.svg)
 +  skin/classic/browser/vantara/icons/home.svg                (../shared/vantara/icons/home.svg)
++  skin/classic/browser/vantara/icons/journal.svg             (../shared/vantara/icons/journal.svg)
 +  skin/classic/browser/vantara/icons/lock-open.svg           (../shared/vantara/icons/lock-open.svg)
 +  skin/classic/browser/vantara/icons/lock.svg                (../shared/vantara/icons/lock.svg)
 +  skin/classic/browser/vantara/icons/menu.svg                (../shared/vantara/icons/menu.svg)
@@ -43,4 +44,5 @@ index 6dc7a8fa3098a9c93e4e17d8b7782a66d64a81b0..481f0361b4005a8d0ff4a73c4a58463e
 +  skin/classic/browser/vantara/navbar.css                    (../shared/vantara/navbar.css)
 +  skin/classic/browser/vantara/sidebar.css                   (../shared/vantara/sidebar.css)
 +  skin/classic/browser/vantara/menus.css                     (../shared/vantara/menus.css)
++  skin/classic/browser/vantara/leaks.css                     (../shared/vantara/leaks.css)
 +  skin/classic/browser/vantara/vantara.css                   (../shared/vantara/vantara.css)

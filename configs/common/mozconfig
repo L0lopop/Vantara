@@ -13,7 +13,9 @@
 ac_add_options --with-app-name=${binName}
 ac_add_options --with-branding=${brandingDir}
 
-export MOZ_USER_DIR="${name}"
+# Каталог профиля на Windows — %APPDATA%\Vantara\vantara, он следует из
+# Vendor и Name в application.ini. MOZ_USER_DIR через export не действует;
+# для Linux каталог задаётся опцией --with-user-appdir=.vantara.
 export MOZ_APP_BASENAME=${binName}
 export MOZ_DISTRIBUTION_ID=${appId}
 
@@ -42,6 +44,14 @@ export MOZ_TELEMETRY_REPORTING=
 #   MOZ_DATA_REPORTING         — вычисляется из двух предыдущих
 #
 # См. src/browser/moz-configure.patch.
+
+# --- Локализация -------------------------------------------------------------
+# Переводы Firefox лежат не в исходниках движка, а в firefox-l10n.
+# tools/fetch-l10n.py скачивает нужные языки в .l10n/ рядом с engine/.
+# Без каталога сборка остаётся только английской и не падает.
+if test -d "$topsrcdir/../.l10n"; then
+  ac_add_options --with-l10n-base="$topsrcdir/../.l10n"
+fi
 
 # --- Сборка ------------------------------------------------------------------
 ac_add_options --enable-optimize

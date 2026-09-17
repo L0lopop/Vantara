@@ -35,6 +35,12 @@ FIREFOX_APP_ID = "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}"
 FORBIDDEN_FILES = [
     "crashreporter.exe",
     "minidump-analyzer.exe",
+    # Ежедневная задача в планировщике Windows с отчётом Mozilla о браузере
+    # по умолчанию (configs/windows/mozconfig).
+    "default-browser-agent.exe",
+    # Служба Windows с правами SYSTEM для тихих обновлений Mozilla.
+    "maintenanceservice.exe",
+    "maintenanceservice_installer.exe",
 ]
 
 # Ключевые обещания продукта. Если хоть одного нет в заводских настройках,
@@ -117,9 +123,13 @@ def main() -> int:
         check(False, "application.ini на месте", "файла нет")
 
     # --- Подсистемы сбора данных --------------------------------------------
+    # Упакованная сборка (dist/vantara) — то, что попадает в установщик.
+    packaged = DIST.parent / EXPECTED_NAME
     for name in FORBIDDEN_FILES:
-        check(not (DIST / name).exists(), f"{name} не собран",
-              "подсистема отключена при компиляции")
+        found = [d for d in (DIST, packaged) if (d / name).exists()]
+        check(not found, f"{name} не собран",
+              "найден в " + ", ".join(str(d.relative_to(ROOT)) for d in found)
+              if found else "подсистема отключена при компиляции")
 
     # --- Настройки по умолчанию ---------------------------------------------
     # Без vantara.js браузер у пользователя работает на настройках Firefox:
@@ -157,6 +167,34 @@ def main() -> int:
         mozilla_update = "aus5.mozilla.org" in raw or "mozilla.org/updates" in raw
         check(not mozilla_update, "Обновления не ведут к Mozilla",
               "найден aus5.mozilla.org" if mozilla_update else "")
+
+    # --- Установщик ----------------------------------------------------------
+    # Stub-установщик Firefox качает браузер с download.mozilla.org и
+    # проверяет подпись Mozilla: под нашим брендом он поставил бы Firefox.
+    packages = DIST.parent
+    stubs = sorted(p.name for p in packages.glob("*installer-stub*"))
+    check(not stubs, "Нет stub-установщика, качающего Firefox",
+          ", ".join(stubs) + " — удалить и пересобрать без MOZ_STUB_INSTALLER"
+          if stubs else "")
+    nsis = ROOT / "engine" / "browser" / "branding" / "stable" / "branding.nsi"
+    if nsis.exists():
+        mozilla_download = "download.mozilla.org" in nsis.read_text(encoding="utf-8")
+        check(not mozilla_download, "Установщик не ссылается на загрузки Mozilla",
+              "download.mozilla.org в branding.nsi — tools/fix-branding.py"
+              if mozilla_download else "")
+
+    # --- Языки ---------------------------------------------------------------
+    # Переводы без res/multilocale.txt лежат в сборке, но не используются.
+    l10n = ROOT / ".l10n"
+    if l10n.exists():
+        wanted = sorted(p.name for p in l10n.iterdir()
+                        if p.is_dir() and not p.name.startswith("."))
+        listed = (DIST / "res" / "multilocale.txt").read_text(
+            encoding="utf-8").strip().split(",")
+        missing = [loc for loc in wanted if loc not in listed]
+        check(not missing, f"Языки интерфейса: {', '.join(listed)}",
+              f"нет {', '.join(missing)} — mach package-multi-locale"
+              if missing else "")
 
     # --- Чужой брендинг ------------------------------------------------------
     foreign = []

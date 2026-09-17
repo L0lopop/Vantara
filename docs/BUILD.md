@@ -118,6 +118,9 @@ python tools/fix-branding.py    # убрать адреса zen-browser.app
 # 5. Интерфейс, настройки и скрипты окна — в исходники
 python tools/sync-ui.py
 
+# 5a. Переводы Firefox (github.com/mozilla-l10n/firefox-l10n, ~15 МБ на язык)
+python tools/fetch-l10n.py ru
+
 # 6. Конфигурация сборки. surfer build сам сборку не запустит (препятствие 2),
 #    но сгенерирует engine/mozconfig — и упадёт на вызове mach. Это ожидаемо.
 npx surfer build
@@ -125,9 +128,51 @@ npx surfer build
 # 7. Сборка
 .\tools\mach.ps1 build
 
+# 7a. Русский язык: переводы раскладываются в dist/bin, собирается архив
+.\tools\mach.ps1 package-multi-locale --locales en-US ru
+
 # 8. Приёмка — по фактам, а не по коду возврата
 python tools/verify-build.py
 ```
+
+### Конфигурация сборки
+
+Источник — `configs/common/mozconfig` и `configs/windows/mozconfig`.
+`engine/mozconfig` из них собирает `npx surfer build`, и правка в
+`configs/` сама в сборку не попадает: нужно перезапустить `surfer build`
+(он пересоздаст файл и ожидаемо упадёт на вызове mach) или перенести
+изменение в `engine/mozconfig` вручную. Новые опции configure — например,
+`--disable-default-browser-agent` — требуют полной `mach build`, а не
+`build faster`: они меняют условную компиляцию C++.
+
+### Локализация
+
+Строки Firefox переводятся не в исходниках движка, а в отдельном
+репозитории `mozilla-l10n/firefox-l10n`. Версия Firefox закрепляет ревизию
+переводов в `browser/locales/l10n-changesets.json`; `tools/fetch-l10n.py`
+берёт ровно её — иначе строки разойдутся с интерфейсом: новых не будет,
+удалённые останутся. Качается только папка языка, без истории.
+
+`configs/common/mozconfig` передаёт сборке `--with-l10n-base=.l10n`, если
+каталог есть. Без него сборка остаётся английской и не падает.
+
+`mach package-multi-locale --locales en-US ru` делает три вещи: сливает
+перевод с английскими строками (недостающие строки остаются английскими,
+а не пустыми), раскладывает его в `dist/bin` и пишет `res/multilocale.txt` —
+список языков, которые браузер вообще считает доступными. Без этого файла
+переводы лежат в сборке, но не используются.
+
+Проверять язык можно только на упакованной сборке
+(`.\tools\run-build.ps1 -Packaged`, каталог `obj-*/dist/vantara`). В
+`dist/bin` движок список языков не читает, и интерфейс там английский при
+любых настройках. По той же причине после правки заводских настроек
+упакованную сборку нужно перепаковать: там они лежат в `omni.ja`.
+
+Язык интерфейса выбирается по системе: заводское `intl.locale.requested`
+равно пустой строке, а это для движка прямой запрос брать языки ОС
+(`LocaleService.cpp`, `ReadRequestedLocales`). Без настройки сборка из
+архива всегда английская. Бренд не переводится: `brand.ftl` один на все
+языки, «Vantara» так и пишется.
 
 Собранный браузер: `engine/obj-x86_64-pc-windows-msvc/dist/bin/vantara.exe`.
 
@@ -198,6 +243,26 @@ found». Плюс вторая запись — в `browser/installer/package-ma
 `browser/base/content/vantara/`, запись в `browser/base/jar.mn`, строка
 `loadSubScript` в `browser-main.js`. Без записи в `jar.mn` файла нет в
 сборке, без строки в `browser-main.js` он есть, но не выполняется.
+
+| Скрипт | Что делает |
+|---|---|
+| `vantara-shield.js` | Пульс щита при блокировке, общий итог попыток слежки |
+| `vantara-protection.js` | Строгая защита на новом профиле |
+| `vantara-search.js` | DuckDuckGo поиском по умолчанию на новом профиле |
+| `vantara-motion.js` | Волна загрузки по кромке адресной строки |
+| `vantara-leaks.js` | Журнал запросов: кнопка у адресной строки и панель |
+
+Скрипты работают в окне Firefox 156, и старые привычки из расширений
+там подводят молча: у элементов нет `ownerGlobal` (теперь
+`documentGlobal`), а `Services.search` больше не существует — сервис
+поиска подключается через `ChromeUtils.importESModule`.
+
+Журнал запросов берёт данные из уведомлений `http-on-opening-request` и
+`http-on-stop-request`: основной процесс получает их по каждому запросу
+любой вкладки. Остановленный защитой запрос завершается дважды, поэтому
+завершения считаются по `channelId`. Панель — `panelview` в шаблоне
+`appMenu-viewCache`, как у панелей самого Firefox, кнопка — виджет
+CustomizableUI; её место по умолчанию задано в том же патче раскладки.
 
 **Иконки** (`tools/build_icons.py`) кладутся рядом со стилями, а
 `icons.css` подменяет ими родные. Отдельные файлы рисуют цветом

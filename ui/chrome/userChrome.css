@@ -19,5 +19,6 @@
 @import url("vantara/navbar.css");
 @import url("vantara/sidebar.css");
 @import url("vantara/menus.css");
+@import url("vantara/leaks.css");
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");

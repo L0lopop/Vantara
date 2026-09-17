@@ -1,5 +1,5 @@
 diff --git a/browser/actors/AboutNewTabChild.sys.mjs b/browser/actors/AboutNewTabChild.sys.mjs
-index 88149c9a741557a58d8799cf5521531e108e09ca..2d5568ef1e368e197bf7f1e5b392c5217abbd521 100644
+index 88149c9a741557a58d8799cf5521531e108e09ca..a8642f425ca0a9a6442d84c4496a855fb26c00cf 100644
 --- a/browser/actors/AboutNewTabChild.sys.mjs
 +++ b/browser/actors/AboutNewTabChild.sys.mjs
 @@ -27,6 +27,13 @@ XPCOMUtils.defineLazyPreferenceGetter(
@@ -16,13 +16,13 @@ index 88149c9a741557a58d8799cf5521531e108e09ca..2d5568ef1e368e197bf7f1e5b392c521
  XPCOMUtils.defineLazyPreferenceGetter(
    lazy,
    "NEWTAB_REMOTE_RENDERER_ENABLED",
-@@ -37,7 +44,42 @@ XPCOMUtils.defineLazyPreferenceGetter(
+@@ -37,7 +44,48 @@ XPCOMUtils.defineLazyPreferenceGetter(
  let gNextPortID = 0;
  
  export class AboutNewTabChild extends RemotePageChild {
 +  /**
-+   * The page reads the shield's all-time total from the vn-blocked
-+   * attribute and asks for a reset by event. The attribute is set before
++   * The page reads the UI locale from vn-locale and the shield's all-time
++   * total from vn-blocked, and asks for a reset by event. The attribute is set before
 +   * the page scripts run and refreshed whenever the page is shown, since
 +   * new tabs are preloaded in the background.
 +   *
@@ -33,6 +33,12 @@ index 88149c9a741557a58d8799cf5521531e108e09ca..2d5568ef1e368e197bf7f1e5b392c521
 +      case "DOMDocElementInserted":
 +      case "pageshow":
 +      case "visibilitychange":
++        if (event.type == "DOMDocElementInserted") {
++          this.document.documentElement.setAttribute(
++            "vn-locale",
++            Services.locale.appLocaleAsBCP47
++          );
++        }
 +        if (
 +          event.type == "DOMDocElementInserted" ||
 +          this.document.visibilityState == "visible"

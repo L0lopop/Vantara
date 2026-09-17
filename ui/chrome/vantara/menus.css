@@ -2,21 +2,25 @@
    Vantara — меню, панели, всплывающие окна
    ========================================================================== */
 
+/* Цвета панелей задаются на :root (base.css). Здесь — то, что popup.css
+   Firefox переопределяет на самих меню: у обычных (не стрелочных) меню он
+   ставит системные цвета Menu/MenuText. */
 menupopup,
 panel {
-  --panel-background: var(--vn-bg-surface) !important;
-  --panel-color: var(--vn-fg-primary) !important;
+  --panel-background-color: var(--vn-bg-surface) !important;
+  --panel-text-color: var(--vn-fg-primary) !important;
   --panel-border-color: var(--vn-border) !important;
   --panel-border-radius: var(--vn-radius-lg) !important;
-  --panel-shadow-margin: 8px !important;
 }
 
+/* Фон, рамку и тень меню Firefox 156 рисует на внутренней части
+   (::part(content)), а сам элемент растянут на поле под тень. Свой фон
+   на menupopup давал второй прямоугольник вокруг меню — поэтому только
+   переменные. */
 menupopup {
-  background: var(--vn-bg-surface) !important;
-  border: 1px solid var(--vn-border) !important;
-  border-radius: var(--vn-radius-md) !important;
-  box-shadow: var(--vn-shadow-md) !important;
-  padding: var(--vn-space-2) !important;
+  --panel-border-radius: var(--vn-radius-md) !important;
+  --panel-box-shadow: var(--vn-shadow-md) !important;
+  --panel-padding: var(--vn-space-2) !important;
 }
 
 /* Меню появляется сверху вниз — направление совпадает с жестом мыши. */
@@ -24,37 +28,40 @@ menupopup:not([animate="false"]) {
   animation: vn-drop-in var(--vn-dur-fast) var(--vn-ease-decel);
 }
 
+/* Размеры — переменными Firefox 156 (toolkit/themes/shared/menu.css). */
+menupopup {
+  --menuitem-border-radius: var(--vn-radius-sm) !important;
+  --menuitem-padding: 6px var(--vn-space-3) !important;
+}
+
 menuitem,
 menu {
-  border-radius: var(--vn-radius-sm) !important;
-  padding-block: var(--vn-space-2) !important;
-  padding-inline: var(--vn-space-3) !important;
   font-size: var(--vn-text-md) !important;
   transition: background-color var(--vn-dur-instant) var(--vn-ease-standard);
 }
 
-menuitem:hover:not([disabled]),
-menu:hover:not([disabled]) {
+/* Активный пункт Firefox отмечает атрибутом, а не :hover: так же
+   подсвечивается и пункт, выбранный стрелками с клавиатуры. */
+menuitem[_moz-menuactive]:not([disabled]),
+menu[_moz-menuactive]:not([disabled]) {
   background-color: var(--vn-bg-hover) !important;
+  color: var(--vn-fg-primary) !important;
 }
 
-menuseparator {
-  border-top: 1px solid var(--vn-border) !important;
-  margin-block: var(--vn-space-2) !important;
-}
+/* Линию разделителя Firefox рисует псевдоэлементом цветом
+   --panel-separator-color (base.css); своя рамка давала вторую линию. */
 
 /* --- Главное меню (гамбургер) ---------------------------------------------- */
 #appMenu-popup .panel-subview-body {
   padding: var(--vn-space-2) !important;
 }
 
+/* Подсветку пунктов Firefox берёт из --button-background-color-menu-hover
+   (base.css). Свой фон на :hover здесь давал бы второй слой в строках,
+   где Firefox подсвечивает не пункт, а его части (масштаб, правка). */
 .subviewbutton {
   border-radius: var(--vn-radius-sm) !important;
   transition: background-color var(--vn-dur-instant) var(--vn-ease-standard);
-}
-
-.subviewbutton:hover {
-  background-color: var(--vn-bg-hover) !important;
 }
 
 /* --- Панель защиты: ключевой экран приватности ----------------------------- */
@@ -77,7 +84,6 @@ menuseparator {
 }
 
 /* --- Уведомления и панели разрешений --------------------------------------- */
-.panel-arrowcontent,
 notification-message {
   background: var(--vn-bg-surface) !important;
   color: var(--vn-fg-primary) !important;

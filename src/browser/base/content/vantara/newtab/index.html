@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta http-equiv="Content-Security-Policy" content="default-src chrome:; object-src 'none'; base-uri 'none'">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Новая вкладка</title>
+<title data-l10n="title">Новая вкладка</title>
 
 <!-- Никаких внешних ресурсов: шрифты системные, иконки локальные.
      Страница новой вкладки не должна делать ни одного сетевого запроса —
@@ -33,6 +33,7 @@
   <symbol id="vn-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"><title>Меню</title><path d="M4.5 7h15M4.5 12h15M4.5 17h15"/></symbol>
   <symbol id="vn-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"><title>Поиск</title><circle cx="11" cy="11" r="6.2"/><path d="m15.6 15.6 4 4"/></symbol>
   <symbol id="vn-download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"><title>Загрузки</title><path d="M12 4v10.5m0 0L8.2 10.7M12 14.5l3.8-3.8"/><path d="M5 18.5h14"/></symbol>
+  <symbol id="vn-journal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"><title>Журнал запросов</title><path d="M4.5 7h8M4.5 12h6M4.5 17h8"/><path d="m15.5 8.5 3.5 3.5-3.5 3.5"/></symbol>
   <symbol id="vn-extensions" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"><title>Расширения</title><path d="M5 7.5h4.5V5h3v2.5H17V12h2.5v3H17v4.5H5z"/></symbol>
   <symbol id="vn-history" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"><title>История</title><path d="M4.2 12a7.8 7.8 0 1 0 2.4-5.6"/><path d="M3.8 4.6V9h4.4"/><path d="M12 7.8V12l2.9 1.9"/></symbol>
   <symbol id="vn-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"><title>Настройки</title><path d="M4 7.5h8M16.5 7.5h3.5"/><path d="M4 16.5h3.5M12 16.5h8"/><circle cx="14.2" cy="7.5" r="2.3"/><circle cx="9.8" cy="16.5" r="2.3"/></symbol>
@@ -55,15 +56,18 @@
         <use href="#vn-search"/>
       </svg>
       <input type="text" id="q" placeholder="Поиск или адрес" aria-label="Поиск или адрес"
+             data-l10n-attrs="placeholder:search, aria-label:search"
              spellcheck="false" autocomplete="off">
       <button type="button" class="engine" id="engine"
-              title="Сменить поисковую систему">DuckDuckGo</button>
+              title="Сменить поисковую систему"
+              data-l10n-attrs="title:engineSwitch">DuckDuckGo</button>
     </form>
   </section>
 
   <!-- Закреплённые ссылки. Заполняются вручную: список «часто посещаемых»
        строится из слежки за историей, и мы его не строим. -->
-  <section class="pinned" aria-label="Закреплённые сайты">
+  <section class="pinned" aria-label="Закреплённые сайты"
+           data-l10n-attrs="aria-label:pinned">
     <div class="tiles" id="tiles"></div>
   </section>
 
@@ -73,12 +77,13 @@
       <svg class="icon icon-sm" aria-hidden="true">
         <use href="#vn-shield"/>
       </svg>
-      Заблокировано попыток слежки <b id="blocked">0</b>
+      <span data-l10n="blockedLabel">Заблокировано попыток слежки</span>
+      <b id="blocked">0</b>
     </span>
     <span class="sep"></span>
-    <span class="item">Отправлено о вас <b class="zero">0</b></span>
+    <span class="item"><span data-l10n="sentLabel">Отправлено о вас</span> <b class="zero">0</b></span>
     <span class="sep"></span>
-    <button class="item link" id="reset" type="button">Сбросить счётчик</button>
+    <button class="item link" id="reset" type="button" data-l10n="reset">Сбросить счётчик</button>
   </footer>
 
 </main>
@@ -86,17 +91,18 @@
 <!-- Диалог добавления ссылки -->
 <dialog class="modal" id="dialog">
   <form method="dialog" id="tile-form">
-    <h2 id="dialog-title">Новая ссылка</h2>
+    <h2 id="dialog-title" data-l10n="dialogTitle">Новая ссылка</h2>
 
-    <label for="tile-url">Адрес</label>
+    <label for="tile-url" data-l10n="fieldUrl">Адрес</label>
     <input type="text" id="tile-url" placeholder="example.com" spellcheck="false" required>
 
-    <label for="tile-name">Название</label>
-    <input type="text" id="tile-name" placeholder="необязательно" spellcheck="false">
+    <label for="tile-name" data-l10n="fieldName">Название</label>
+    <input type="text" id="tile-name" placeholder="необязательно" spellcheck="false"
+           data-l10n-attrs="placeholder:fieldNameHint">
 
     <div class="actions">
-      <button type="button" class="btn ghost" id="cancel">Отмена</button>
-      <button type="submit" class="btn primary">Сохранить</button>
+      <button type="button" class="btn ghost" id="cancel" data-l10n="cancel">Отмена</button>
+      <button type="submit" class="btn primary" data-l10n="save">Сохранить</button>
     </div>
   </form>
 </dialog>

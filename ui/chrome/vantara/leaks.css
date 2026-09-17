@@ -1,0 +1,115 @@
+/* ==========================================================================
+   Vantara — журнал запросов (ui/scripts/vantara-leaks.js)
+
+   Цвет метки читается как смысл, а не как украшение:
+     заблокирован — зелёный: защита сработала;
+     трекер       — красный: следящий адрес, который защита пропустила;
+     сторонний    — янтарный: чужой сайт, не обязательно плохой;
+     этот сайт    — приглушённый: запросы к самой странице.
+   ========================================================================== */
+
+.vn-leaks {
+  min-width: 26em;
+  max-width: 32em;
+  padding: var(--vn-space-2) var(--vn-space-3) var(--vn-space-3) !important;
+}
+
+.vn-leaks-title {
+  font-size: var(--vn-text-md);
+  font-weight: 600;
+  margin: 0;
+}
+
+.vn-leaks-summary {
+  padding: var(--vn-space-2) 6px var(--vn-space-3);
+  color: var(--vn-fg-secondary);
+  font-size: var(--vn-text-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.vn-leaks-summary b {
+  color: var(--vn-guard);
+  font-weight: 500;
+}
+
+.vn-leaks-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 24em;
+  overflow-y: auto;
+}
+
+/* Строки, не поместившиеся в список, не рисуются — о них говорит
+   последняя строка. */
+.vn-leaks-list[vn-truncated]::after {
+  content: attr(vn-more);
+  display: block;
+  padding: 6px;
+  color: var(--vn-fg-muted);
+  font-size: var(--vn-text-xs);
+}
+
+.vn-leaks-row {
+  display: flex;
+  align-items: center;
+  gap: var(--vn-space-3);
+  padding: 5px 6px;
+  border-radius: var(--vn-radius-sm);
+  font-size: var(--vn-text-sm);
+  transition: background-color var(--vn-dur-instant) var(--vn-ease-standard);
+}
+
+.vn-leaks-row:hover {
+  background-color: var(--vn-bg-hover);
+}
+
+/* Новый адрес появляется, пока панель открыта: страница прямо сейчас
+   куда-то обратилась. */
+.vn-leaks-row[vn-new] {
+  animation: vn-rise-in var(--vn-dur-base) var(--vn-ease-decel);
+}
+
+.vn-leaks-host {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--vn-fg-muted);
+}
+
+/* Сайт читается, поддомен приглушён — как в адресной строке превью. */
+.vn-leaks-host b {
+  color: var(--vn-fg-primary);
+  font-weight: 500;
+}
+
+.vn-leaks-badge {
+  flex: none;
+  padding: 1px 7px;
+  border: 1px solid color-mix(in srgb, currentColor 45%, transparent);
+  border-radius: var(--vn-radius-pill);
+  font-size: var(--vn-text-xs);
+  line-height: 1.5;
+}
+
+.vn-leaks-badge[kind="blocked"] { color: var(--vn-guard); }
+.vn-leaks-badge[kind="tracker"] { color: var(--vn-threat); }
+.vn-leaks-badge[kind="third"]   { color: var(--vn-warn); }
+.vn-leaks-badge[kind="first"]   { color: var(--vn-fg-muted); }
+
+.vn-leaks-count {
+  flex: none;
+  min-width: 3ch;
+  text-align: end;
+  color: var(--vn-fg-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.vn-leaks-note {
+  margin: var(--vn-space-3) 6px 0;
+  color: var(--vn-fg-muted);
+  font-size: var(--vn-text-xs);
+  line-height: 1.5;
+}

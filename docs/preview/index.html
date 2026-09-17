@@ -9,6 +9,8 @@
      разойтись с продуктом, потому что читает те же файлы. -->
 <link rel="stylesheet" href="../../ui/chrome/vantara/tokens.css">
 <link rel="stylesheet" href="../../ui/chrome/vantara/animations.css">
+<!-- Журнал запросов — тот же файл стилей, что в браузере. -->
+<link rel="stylesheet" href="../../ui/chrome/vantara/leaks.css">
 
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -331,9 +333,32 @@
     animation: vn-bar-grow var(--vn-dur-slow) var(--vn-ease-decel) backwards;
   }
 
+  /* ===== Журнал запросов ================================================
+     Сама панель оформлена ui/chrome/vantara/leaks.css; здесь только
+     рамка всплывающего окна, которую в браузере рисует Firefox. */
+  .journal-wrap { position: relative; }
+  .journal {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    background: var(--vn-bg-surface);
+    border: 1px solid var(--vn-border);
+    border-radius: var(--vn-radius-lg);
+    box-shadow: var(--vn-shadow-lg);
+    z-index: 10;
+    transform-origin: top right;
+  }
+  .journal[hidden] { display: none; }
+  .journal.is-open { animation: vn-drop-in var(--vn-dur-base) var(--vn-ease-decel); }
+  .journal-head {
+    padding: var(--vn-space-3) var(--vn-space-4);
+    border-bottom: 1px solid var(--vn-border);
+  }
+  .journal .vn-leaks-list { padding: 0; }
+
   /* ===== Область контента ================================================= */
   .content {
-    min-height: 250px;
+    min-height: 340px;
     padding: 52px var(--vn-space-6) 40px;
     background: var(--vn-bg-window);
     display: flex;
@@ -513,6 +538,24 @@
           </div>
         </div>
 
+        <div class="journal-wrap">
+          <div class="navbtn" id="journal-btn" title="Журнал запросов"><svg class="icon"><use href="../../ui/chrome/vantara/icons/sprite.svg#vn-journal"/></svg></div>
+          <div class="journal" id="journal" hidden>
+            <div class="journal-head"><h1 class="vn-leaks-title">Журнал запросов</h1></div>
+            <div class="vn-leaks">
+              <div class="vn-leaks-summary">45 запросов к 6 адресам<b> · заблокировано 21</b></div>
+              <ul class="vn-leaks-list">
+                <li class="vn-leaks-row"><span class="vn-leaks-host">stats.<b>doubleclick.net</b></span><span class="vn-leaks-badge" kind="blocked">заблокирован</span><span class="vn-leaks-count">12</span></li>
+                <li class="vn-leaks-row"><span class="vn-leaks-host">www.<b>google-analytics.com</b></span><span class="vn-leaks-badge" kind="blocked">заблокирован</span><span class="vn-leaks-count">6</span></li>
+                <li class="vn-leaks-row"><span class="vn-leaks-host">connect.<b>facebook.net</b></span><span class="vn-leaks-badge" kind="blocked">заблокирован</span><span class="vn-leaks-count">3</span></li>
+                <li class="vn-leaks-row"><span class="vn-leaks-host">cdn.<b>jsdelivr.net</b></span><span class="vn-leaks-badge" kind="third">сторонний</span><span class="vn-leaks-count">4</span></li>
+                <li class="vn-leaks-row"><span class="vn-leaks-host">fonts.<b>gstatic.com</b></span><span class="vn-leaks-badge" kind="third">сторонний</span><span class="vn-leaks-count">2</span></li>
+                <li class="vn-leaks-row"><span class="vn-leaks-host"><b>vantara.browser</b></span><span class="vn-leaks-badge" kind="first">этот сайт</span><span class="vn-leaks-count">18</span></li>
+              </ul>
+              <p class="vn-leaks-note">Журнал хранится только в памяти и начинается заново на каждой странице.</p>
+            </div>
+          </div>
+        </div>
         <div class="navbtn"><svg class="icon"><use href="../../ui/chrome/vantara/icons/sprite.svg#vn-sidebar"/></svg></div>
         <div class="navbtn"><svg class="icon"><use href="../../ui/chrome/vantara/icons/sprite.svg#vn-download"/></svg></div>
         <div class="navbtn"><svg class="icon"><use href="../../ui/chrome/vantara/icons/sprite.svg#vn-extensions"/></svg></div>
@@ -596,7 +639,23 @@
     }
   });
 
+  /* --- Журнал запросов ---------------------------------------------------- */
+  const journalBtn = document.getElementById('journal-btn');
+  const journal = document.getElementById('journal');
+
+  journalBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    const open = !journal.hidden;
+    journal.hidden = open;
+    if (!open) {
+      journal.classList.remove('is-open');
+      void journal.offsetWidth;
+      journal.classList.add('is-open');
+    }
+  });
+
   document.addEventListener('click', e => {
+    if (!journal.contains(e.target)) journal.hidden = true;
     if (!urlbar.contains(e.target)) urlbar.classList.remove('is-focused');
     if (!prot.contains(e.target) && !shield.contains(e.target)) prot.hidden = true;
   });

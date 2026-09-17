@@ -1,8 +1,8 @@
 diff --git a/browser/components/customizableui/CustomizableUI.sys.mjs b/browser/components/customizableui/CustomizableUI.sys.mjs
-index 875f8b03d979353ef44a57c15ef1ae09d33ab730..bcdfca23f1f3229df5706d2f108a9b976f90d381 100644
+index 875f8b03d979353ef44a57c15ef1ae09d33ab730..40c4b3e80d5eeef87546a8c17b4812b5258e46b9 100644
 --- a/browser/components/customizableui/CustomizableUI.sys.mjs
 +++ b/browser/components/customizableui/CustomizableUI.sys.mjs
-@@ -357,22 +357,20 @@ var CustomizableUIInternal = {
+@@ -357,22 +357,21 @@ var CustomizableUIInternal = {
        false
      );
  
@@ -19,6 +19,7 @@ index 875f8b03d979353ef44a57c15ef1ae09d33ab730..bcdfca23f1f3229df5706d2f108a9b97
        "vertical-spacer",
        "urlbar-container",
 -      "spring",
++      "vantara-leaks-button",
 +      "sidebar-button",
        "downloads-button",
        AppConstants.MOZ_DEV_EDITION ? "developer-button" : null,

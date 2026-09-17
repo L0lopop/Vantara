@@ -88,6 +88,10 @@
   list-style-image: url("icons/extensions.svg") !important;
 }
 
+#vantara-leaks-button {
+  list-style-image: url("icons/journal.svg") !important;
+}
+
 #preferences-button {
   list-style-image: url("icons/settings.svg") !important;
 }

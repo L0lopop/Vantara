@@ -42,7 +42,7 @@ PLATFORM_CSS = [THEMES / "windows" / "browser.css",
 # Порядок значим: токены объявляют переменные, движение — ключевые кадры,
 # дальше компоненты в порядке слоёв интерфейса.
 ORDER = ["tokens.css", "animations.css", "base.css", "icons.css",
-         "tabs.css", "navbar.css", "sidebar.css", "menus.css"]
+         "tabs.css", "navbar.css", "sidebar.css", "menus.css", "leaks.css"]
 
 # Иконки интерфейса. Спрайт — вариант для веб-страниц (currentColor),
 # в интерфейсе браузера он не работает и в тему не копируется.
@@ -89,6 +89,7 @@ NEWTAB_FILES = {
     "newtab.css": NEWTAB_SRC / "newtab.css",
     "newtab.js": NEWTAB_SRC / "newtab.js",
     "url-parse.js": NEWTAB_SRC / "url-parse.js",
+    "strings.js": NEWTAB_SRC / "strings.js",
     "tokens.css": SRC / "tokens.css",
     "animations.css": SRC / "animations.css",
     "mark.png": ROOT / "brand" / "logo" / "mark.png",
@@ -111,6 +112,7 @@ NEWTAB_PATHS = {
     'href="newtab.css"': f'href="{NEWTAB_BASE}newtab.css"',
     'src="newtab.js"': f'src="{NEWTAB_BASE}newtab.js"',
     "from './url-parse.js'": f"from '{NEWTAB_BASE}url-parse.js'",
+    "from './strings.js'": f"from '{NEWTAB_BASE}strings.js'",
 }
 # Страница без сети: грузить можно только из пакетов браузера.
 # frame-ancestors в meta не поддерживается; от встраивания страницу

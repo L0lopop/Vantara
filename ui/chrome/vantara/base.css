@@ -17,10 +17,16 @@
   --toolbar-field-border-color: transparent !important;
   --lwt-accent-color: var(--vn-bg-window) !important;
 
-  /* --- Всплывающие панели ----------------------------------------------- */
-  --arrowpanel-background: var(--vn-bg-surface) !important;
-  --arrowpanel-color: var(--vn-fg-primary) !important;
-  --arrowpanel-border-color: var(--vn-border) !important;
+  /* --- Всплывающие панели и меню ----------------------------------------
+     Имена Firefox 156 (design-system/tokens-shared.css). Прежние
+     --arrowpanel-* движок больше не читает: меню оставались серыми
+     #42414D, хотя переменные были заданы. */
+  --panel-background-color: var(--vn-bg-surface) !important;
+  --panel-text-color: var(--vn-fg-primary) !important;
+  --panel-border-color: var(--vn-border) !important;
+  --panel-separator-color: var(--vn-border) !important;
+  --button-background-color-menu-hover: var(--vn-bg-hover) !important;
+  --button-background-color-menu-active: var(--vn-bg-active) !important;
 
   /* --- Кнопки панелей ----------------------------------------------------
      Firefox 156 рисует подсветку на иконке (или на стеке со значком), а не

@@ -68,6 +68,11 @@ NSIS_URLS = {
     "HelpLink": f"{REPO}/issues",
     "URLManualDownload": f"{REPO}/releases",
     "URLSystemRequirements": f"{REPO}#требования",
+    # Stub-установщик в сборку не входит (configs/windows/mozconfig), но
+    # если его включат, он не должен молча качать Firefox с серверов Mozilla.
+    "URLStubDownloadX86": f"{REPO}/releases",
+    "URLStubDownloadAMD64": f"{REPO}/releases",
+    "URLStubDownloadAArch64": f"{REPO}/releases",
 }
 
 FOREIGN = re.compile(r"zen-browser|zen_browser", re.I)
