@@ -175,6 +175,10 @@ user_pref("browser.newtabpage.activity-stream.showSponsored", false);
 user_pref("browser.newtabpage.activity-stream.showSponsoredTopSites", false);
 user_pref("browser.newtabpage.activity-stream.feeds.section.topstories", false);
 user_pref("browser.newtabpage.activity-stream.feeds.discoverystreamfeed", false);
+/* Поисковые подсказки: каждое нажатие клавиши в адресной строке уходит
+ * поисковой системе — вместе с набранными адресами, пока браузер не понял,
+ * что это адрес. Включаются одним переключателем в настройках поиска. */
+user_pref("browser.search.suggest.enabled", false);
 user_pref("browser.urlbar.suggest.quicksuggest.sponsored", false);
 user_pref("browser.urlbar.suggest.quicksuggest.nonsponsored", false);
 user_pref("browser.urlbar.trending.featureGate", false);
