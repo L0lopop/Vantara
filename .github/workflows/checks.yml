@@ -48,10 +48,15 @@ jobs:
 
           root = Path("ui/chrome")
           problems = []
+          sheets = {}
+
+          def without_comments(text):
+              return re.sub(r'/\*.*?\*/', '', text, flags=re.S)
 
           for f in sorted(root.rglob("*.css")):
               text = f.read_text(encoding="utf-8")
-              stripped = re.sub(r'/\*.*?\*/', '', text, flags=re.S)
+              stripped = without_comments(text)
+              sheets[f] = stripped
               braces = stripped.count("{") - stripped.count("}")
               comments = text.count("/*") - text.count("*/")
               if braces:
@@ -61,18 +66,20 @@ jobs:
 
           # Точка входа: @import обязан идти раньше @namespace, иначе
           # все импорты молча игнорируются и интерфейс не применяется.
-          entry = (root / "userChrome.css").read_text(encoding="utf-8")
+          entry = sheets[root / "userChrome.css"]
           ns = entry.find("@namespace")
           last_import = entry.rfind("@import")
           if ns != -1 and last_import > ns:
               problems.append("userChrome.css: @import после @namespace — импорты не сработают")
 
-          # Каждый использованный токен должен быть объявлен.
-          declared = set(re.findall(r'(--vn-[\w-]+)\s*:',
-                                    (root / "vantara" / "tokens.css").read_text(encoding="utf-8")))
+          # Каждый использованный токен должен быть объявлен: в tokens.css
+          # или в самом листе, который его завёл (так делает pages.css).
+          declared = set()
           used = set()
           for f in list(root.rglob("*.css")) + list(Path("ui/pages").rglob("*.css")):
-              used |= set(re.findall(r'var\((--vn-[\w-]+)', f.read_text(encoding="utf-8")))
+              text = without_comments(f.read_text(encoding="utf-8"))
+              declared |= set(re.findall(r'(--vn-[\w-]+)\s*:', text))
+              used |= set(re.findall(r'var\((--vn-[\w-]+)', text))
           for token in sorted(used - declared):
               problems.append(f"токен не объявлен: {token}")
 
