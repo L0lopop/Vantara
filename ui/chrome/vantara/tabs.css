@@ -202,16 +202,14 @@ tab-group > .tabbrowser-tab:last-of-type .tab-group-line {
   border-end-end-radius: var(--vn-radius-md) !important;
 }
 
-/* Активная вкладка поднята над лужицей: заливка группы лежала бы поверх
-   её пластины и гасила и кромку, и саму подсветку выбора. Связь с группой
-   держат кромка и рамка в цвете группы. */
-tab-group > .tabbrowser-tab .tab-background[selected] {
-  background-image: linear-gradient(var(--tab-group-color), var(--tab-group-color)) !important;
-}
-
+/* Активная вкладка поднята над углублением: затемнение группы лежало бы
+   поверх её пластины и гасило подсветку выбора. Кромку активной вкладки
+   оставляем обычной: цвет группы рядом с ней, на палочке, и вторая цветная
+   метка в паре сантиметров выглядит лишней. */
 tab-group > .tabbrowser-tab .tab-background[selected] > .tab-group-line {
   background-color: transparent !important;
   background-image: none !important;
+  border-color: transparent !important;
 }
 
 /* Подчёркивание под ярлыком и счётчиком свёрнутой группы — та же черта,
@@ -271,12 +269,10 @@ tab-group > .tabbrowser-tab .tab-background[selected] > .tab-group-line {
   padding-inline-end: var(--vn-space-1) !important;
 }
 
-/* Свёрнутая группа — та же палочка, но имя лежит в том же углублении, что
-   и вкладки развёрнутой группы: видно, что за ним спрятаны вкладки. */
+/* Свёрнутая группа — только палочка и, если имя задано, само имя.
+   Плашка вокруг имени у группы без имени превращалась в пустой квадратик
+   вплотную к палочке, и та выглядела кривой. */
 tab-group[collapsed] > .tab-group-label-container .tab-group-label {
-  background-color: light-dark(rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.3)) !important;
-  box-shadow: inset 0 0 0 1px light-dark(rgba(0, 0, 0, 0.08),
-                                         rgba(255, 255, 255, 0.07)) !important;
   color: var(--vn-fg-primary) !important;
 }
 
@@ -285,7 +281,7 @@ tab-group[collapsed] > .tab-group-label-container .tab-group-label {
   border-radius: var(--vn-radius-xs) !important;
   background-color: transparent !important;
   box-shadow: none !important;
-  color: var(--tab-group-color, var(--vn-accent)) !important;
+  color: var(--vn-fg-secondary) !important;
   font-weight: 500 !important;
 }
 
