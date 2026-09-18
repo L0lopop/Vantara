@@ -15,6 +15,14 @@
   min-height: calc(var(--vn-tab-height) + var(--vn-space-3)) !important;
 }
 
+/* Высоту полосы движок считает из --tab-min-height там, где объявляет
+   --tabstrip-min-height, — выше по дереву, чем #tabbrowser-tabs. Если
+   задать высоту только на полосе вкладок, пластина остаётся прежней,
+   а вокруг неё появляется пустое поле. */
+:root {
+  --tab-min-height: var(--vn-tab-height) !important;
+}
+
 #tabbrowser-tabs {
   --tab-min-height: var(--vn-tab-height) !important;
   --tab-border-radius: var(--vn-radius-md) !important;
@@ -163,7 +171,9 @@
    между вкладками. Поэтому заливка получается сплошной, без вычислений в
    скрипте. */
 .tab-group-line {
-  inset-block: var(--vn-space-1) !important;
+  /* Ровно по пластине: движок держит эту черту тоньше и ниже вкладки,
+     и растянутая заливка выпирала бы из ряда. */
+  inset-block: var(--tab-margin-block) !important;
   height: auto !important;
   border-radius: 0 !important;
   /* На светлой панели тот же процент цвета читается слабее, чем на тёмной. */
@@ -173,21 +183,37 @@
   transition: background-color var(--vn-dur-base) var(--vn-ease-standard);
 }
 
-/* Скруглены только внешние края лужицы: внутри группы заливка сплошная. */
+/* Внутри группы заливка переходит через промежутки между пластинами,
+   а по краям обрывается ровно по их углам: движок иначе не доводит её
+   до конца последней вкладки, и правый край выглядит обрубленным. */
 tab-group > .tabbrowser-tab:first-of-type .tab-group-line {
+  inset-inline-start: 0 !important;
   border-start-start-radius: var(--vn-radius-md) !important;
   border-end-start-radius: var(--vn-radius-md) !important;
 }
 
 tab-group > .tabbrowser-tab:last-of-type .tab-group-line {
+  inset-inline-end: 0 !important;
   border-start-end-radius: var(--vn-radius-md) !important;
   border-end-end-radius: var(--vn-radius-md) !important;
 }
 
-/* Активная вкладка в группе держит её цвет на кромке: так видно, к какой
-   группе относится то, что открыто. */
+/* Активная вкладка поднята над лужицей: заливка группы лежала бы поверх
+   её пластины и гасила и кромку, и саму подсветку выбора. Связь с группой
+   держат кромка и рамка в цвете группы. */
 tab-group > .tabbrowser-tab .tab-background[selected] {
+  /* Цвет группы остаётся в самой пластине — иначе группа разрывается там,
+     где открыта вкладка. */
+  background-color: color-mix(in srgb,
+      var(--tab-group-color, var(--vn-accent)) 10%, var(--vn-bg-selected)) !important;
   background-image: linear-gradient(var(--tab-group-color), var(--tab-group-color)) !important;
+  border-color: color-mix(in srgb,
+      var(--tab-group-color, var(--vn-accent)) 40%, var(--vn-border)) !important;
+}
+
+tab-group > .tabbrowser-tab .tab-background[selected] > .tab-group-line {
+  background-color: transparent !important;
+  background-image: none !important;
 }
 
 /* Подчёркивание под ярлыком и счётчиком свёрнутой группы — та же черта,
@@ -206,7 +232,7 @@ tab-group > .tabbrowser-tab .tab-background[selected] {
      это перестаёт работать. */
   min-width: 0 !important;
   text-align: start !important;
-  padding-inline: var(--vn-space-2) !important;
+  padding-inline: var(--vn-space-1) !important;
   border-radius: var(--vn-radius-xs) !important;
   background-color: transparent !important;
   box-shadow: none !important;
@@ -221,7 +247,7 @@ tab-group > .tabbrowser-tab .tab-background[selected] {
   content: "";
   display: inline-block;
   width: 3px;
-  height: 15px;
+  height: 14px;
   margin-inline-end: var(--vn-space-2);
   vertical-align: middle;
   border-radius: var(--vn-radius-pill);
@@ -231,6 +257,13 @@ tab-group > .tabbrowser-tab .tab-background[selected] {
 .tab-group-label:hover {
   background-color: var(--vn-bg-hover) !important;
   color: var(--vn-fg-primary) !important;
+}
+
+/* Поля вокруг метки движок делает шире, чем промежуток между пластинами,
+   и группа отрывается от соседей. */
+.tab-group-label-container {
+  margin-inline-start: var(--vn-space-1) !important;
+  padding-inline-end: var(--vn-space-1) !important;
 }
 
 /* Свёрнутая группа — та же палочка, но с лёгкой заливкой: видно, что за
