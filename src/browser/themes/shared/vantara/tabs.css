@@ -241,14 +241,18 @@ tab-group > .tabbrowser-tab .tab-background[selected] > .tab-group-line {
   position: relative !important;
   box-sizing: border-box !important;
   min-width: 0 !important;
-  min-height: var(--vn-tab-height) !important;
-  line-height: var(--vn-tab-height) !important;
+  /* Чуть ниже вкладки: метка — не вкладка, и не должна с ними равняться. */
+  min-height: calc(var(--vn-tab-height) - 4px) !important;
+  line-height: calc(var(--vn-tab-height) - 4px) !important;
   text-align: start !important;
   /* Слева — место под палочку: она лежит внутри пластины. */
-  padding-inline: 20px var(--vn-space-3) !important;
+  padding-inline: 18px var(--vn-space-3) !important;
   border-radius: var(--vn-radius-md) !important;
-  background-color: transparent !important;
-  box-shadow: none !important;
+  /* Пластина видна всегда — тем же углублением, что и полоса под вкладками
+     группы: иначе палочка висит в пустоте и не читается как кнопка. */
+  background-color: light-dark(rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.3)) !important;
+  box-shadow: inset 0 0 0 1px light-dark(rgba(0, 0, 0, 0.08),
+                                         rgba(255, 255, 255, 0.07)) !important;
   outline: none !important;
   color: var(--vn-fg-secondary) !important;
   font-weight: 500 !important;
@@ -263,7 +267,7 @@ tab-group > .tabbrowser-tab .tab-background[selected] > .tab-group-line {
   top: 50%;
   translate: 0 -50%;
   width: 4px;
-  height: 18px;
+  height: 16px;
   border-radius: var(--vn-radius-pill);
   background-color: var(--tab-group-color, var(--vn-accent));
 }
@@ -271,7 +275,7 @@ tab-group > .tabbrowser-tab .tab-background[selected] > .tab-group-line {
 /* Группа без имени: движок держит в метке пробел нулевой ширины и пишет
    его же в атрибут — по нему и отличаем такую группу. */
 tab-group[label="\200b"] > .tab-group-label-container .tab-group-label {
-  padding-inline: 14px !important;
+  padding-inline: 10px !important;
 }
 
 tab-group[label="\200b"] > .tab-group-label-container .tab-group-label::before {
@@ -284,10 +288,11 @@ tab-group[label="\200b"] > .tab-group-label-container .tab-group-label::before {
   color: var(--vn-fg-primary) !important;
 }
 
-/* Поля вокруг пластины метки — такие же, как между пластинами вкладок. */
+/* Поля вокруг пластины метки: сами вкладки отделены друг от друга на два
+   пикселя с каждой стороны, метка встаёт в тот же ритм. */
 .tab-group-label-container {
-  margin-inline-start: var(--vn-space-1) !important;
-  padding-inline-end: var(--vn-space-1) !important;
+  margin-inline-start: 0 !important;
+  padding-inline-end: 0 !important;
 }
 
 /* Свёрнутая группа — только палочка и, если имя задано, само имя.

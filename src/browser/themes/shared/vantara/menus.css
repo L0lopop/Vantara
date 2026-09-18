@@ -30,7 +30,7 @@ menupopup:not([animate="false"]) {
 
 /* Размеры — переменными Firefox 156 (toolkit/themes/shared/menu.css). */
 menupopup {
-  --menuitem-border-radius: var(--vn-radius-sm) !important;
+  --menuitem-border-radius: var(--vn-radius-md) !important;
   --menuitem-padding: 6px var(--vn-space-3) !important;
 }
 
@@ -218,7 +218,7 @@ findbar {
   align-items: center;
   gap: var(--vn-space-3);
   padding: var(--vn-space-2) var(--vn-space-3);
-  border-radius: var(--vn-radius-sm);
+  border-radius: var(--vn-radius-md);
   color: var(--vn-fg-primary);
   transition: background-color var(--vn-dur-fast) var(--vn-ease-standard);
 }
@@ -290,7 +290,7 @@ findbar {
   margin: var(--vn-space-2) var(--vn-space-3) var(--vn-space-3);
   padding: var(--vn-space-3);
   border: none;
-  border-radius: var(--vn-radius-sm);
+  border-radius: var(--vn-radius-md);
   background-color: color-mix(in srgb, var(--vn-group-color) 18%, transparent);
   color: var(--vn-fg-primary);
   font: inherit;
@@ -311,3 +311,7 @@ findbar {
   margin-inline-end: var(--vn-space-2);
 }
 
+/* Список вкладок свёрнутой группы — тот же ряд, что и в панели группы. */
+#tabgroup-preview-panel .subviewbutton {
+  border-radius: var(--vn-radius-md) !important;
+}

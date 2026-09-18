@@ -45,7 +45,7 @@
      текста панели (--toolbar-color) — отдельно задавать его не нужно. */
   --toolbarbutton-background-color-hover: var(--vn-bg-hover) !important;
   --toolbarbutton-background-color-active: var(--vn-bg-active) !important;
-  --toolbarbutton-border-radius: var(--vn-radius-sm) !important;
+  --toolbarbutton-border-radius: var(--vn-radius-md) !important;
   --toolbarbutton-opacity-disabled: 0.35 !important;
 
   /* --- Фокус -------------------------------------------------------------
