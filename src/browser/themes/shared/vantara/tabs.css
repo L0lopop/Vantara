@@ -146,7 +146,18 @@
 /* Цветная полоса контейнера (.tab-context-line) остаётся родной: её цвет
    несёт смысл — это цвет контейнера. */
 
-/* --- Кнопка «новая вкладка» ------------------------------------------------ */
+/* --- Кнопки полосы вкладок -------------------------------------------------
+   Значок в 16 пикселей рядом с вкладкой в 31 выглядит мелким, а «плюс» —
+   самая нужная кнопка полосы. Поле внутри кнопки уменьшено, поэтому сам
+   значок стал крупнее, а площадь для щелчка осталась прежней. */
+#tabs-newtab-button > .toolbarbutton-icon,
+#vantara-group-button > .toolbarbutton-icon,
+#alltabs-button > .toolbarbutton-badge-stack {
+  padding: 6px !important;
+  width: 31px !important;
+  height: 31px !important;
+}
+
 #tabs-newtab-button {
   margin-inline-start: var(--vn-space-2) !important;
 }
@@ -218,20 +229,24 @@ tab-group > .tabbrowser-tab .tab-background[selected] > .tab-group-line {
   content: none !important;
 }
 
-/* Метка группы — палочка её цвета: тонкая вертикальная черта и имя рядом.
-   Капсула вокруг имени занимала полвкладки, а у группы без имени
-   превращалась в кружок посреди полосы. Палочка стоит столько же, сколько
-   цветная метка, и остаётся меткой даже без имени. Цвет и имя меняются
-   в панели группы — она открывается щелчком по этой же палочке. */
+/* Метка группы — палочка её цвета на такой же пластине, как у вкладки.
+   Отдельно стоящая палочка была меткой, но не кнопкой: по четырём
+   пикселям трудно попасть, а панель группы открывается именно отсюда.
+   Пластина даёт и площадь для щелчка, и подсветку под курсором — ту же,
+   что у вкладок. Имя, если оно есть, стоит рядом с палочкой внутри
+   пластины; у группы без имени пластина короткая, палочка посередине. */
 .tab-group-label {
   /* Не flex: у метки длинное имя обрезается многоточием, а в flex-строке
      это перестаёт работать. */
+  position: relative !important;
+  box-sizing: border-box !important;
   min-width: 0 !important;
+  min-height: var(--vn-tab-height) !important;
+  line-height: var(--vn-tab-height) !important;
   text-align: start !important;
-  /* Слева — место под палочку: её рисует контейнер, чтобы она встала по
-     центру полосы вкладок, а не по середине строки текста. */
-  padding-inline: var(--vn-space-3) var(--vn-space-1) !important;
-  border-radius: var(--vn-radius-xs) !important;
+  /* Слева — место под палочку: она лежит внутри пластины. */
+  padding-inline: 20px var(--vn-space-3) !important;
+  border-radius: var(--vn-radius-md) !important;
   background-color: transparent !important;
   box-shadow: none !important;
   outline: none !important;
@@ -241,20 +256,27 @@ tab-group > .tabbrowser-tab .tab-background[selected] > .tab-group-line {
               background-color var(--vn-dur-fast) var(--vn-ease-standard);
 }
 
-.tab-group-label-container {
-  position: relative;
-}
-
-.tab-group-label-container::before {
+.tab-group-label::before {
   content: "";
   position: absolute;
-  inset-inline-start: var(--vn-space-1);
+  inset-inline-start: var(--vn-space-3);
   top: 50%;
   translate: 0 -50%;
   width: 4px;
-  height: 20px;
+  height: 18px;
   border-radius: var(--vn-radius-pill);
   background-color: var(--tab-group-color, var(--vn-accent));
+}
+
+/* Группа без имени: движок держит в метке пробел нулевой ширины и пишет
+   его же в атрибут — по нему и отличаем такую группу. */
+tab-group[label="\200b"] > .tab-group-label-container .tab-group-label {
+  padding-inline: 14px !important;
+}
+
+tab-group[label="\200b"] > .tab-group-label-container .tab-group-label::before {
+  inset-inline-start: 50%;
+  translate: -50% -50%;
 }
 
 .tab-group-label:hover {
@@ -262,10 +284,9 @@ tab-group > .tabbrowser-tab .tab-background[selected] > .tab-group-line {
   color: var(--vn-fg-primary) !important;
 }
 
-/* Поля вокруг метки движок делает шире, чем промежуток между пластинами,
-   и группа отрывается от соседей. */
+/* Поля вокруг пластины метки — такие же, как между пластинами вкладок. */
 .tab-group-label-container {
-  margin-inline-start: var(--vn-space-2) !important;
+  margin-inline-start: var(--vn-space-1) !important;
   padding-inline-end: var(--vn-space-1) !important;
 }
 
