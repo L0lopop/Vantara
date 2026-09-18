@@ -42,6 +42,8 @@ CONDITIONAL = re.compile(
     r"\[movingtab|\[dragover-groupTarget\]|\[multiselected\]|"
     # группы вкладок и их панель: в окне без групп этих элементов нет
     r"tab-group|\.vn-group-|"
+    # правила для языков справа налево: в ru и en не срабатывают
+    r":dir\(rtl\)|"
     # классы состояния панели доверия (browser-trustPanel.js)
     r"\.(secure|insecure|inactive|scanning|warning|breached)\b|"
     # элементы, которые браузер создаёт только по действию пользователя:
