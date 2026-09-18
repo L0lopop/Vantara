@@ -7,6 +7,9 @@
    ставит системные цвета Menu/MenuText. */
 menupopup,
 panel {
+  /* Не только переменная: пункты меню и кнопки внутри панелей берут цвет
+     по наследству, а он у Firefox свой. */
+  color: var(--vn-fg-primary) !important;
   --panel-background-color: var(--vn-bg-surface) !important;
   --panel-text-color: var(--vn-fg-primary) !important;
   --panel-border-color: var(--vn-border) !important;
@@ -65,8 +68,34 @@ menu[_moz-menuactive]:not([disabled]) {
 }
 
 /* --- Панель защиты: ключевой экран приватности ----------------------------- */
-#protections-popup {
+#protections-popup,
+#trustpanel-popup {
   --panel-border-radius: var(--vn-radius-lg) !important;
+}
+
+/* Карточка «вы защищены» в панели доверия. У Firefox она фиолетовая и с
+   лисой; лиса заменена щитом в jar (tools/sync-ui.py), здесь — цвета.
+   Фон карточки говорит о состоянии: зелёный — защита работает, красный —
+   выключена или сайт небезопасен. */
+#trustpanel-popup {
+  --trustpanel-highlight-bg: color-mix(in srgb, var(--vn-guard) 16%, transparent) !important;
+  --trustpanel-warning-bg: color-mix(in srgb, var(--vn-threat) 16%, transparent) !important;
+  --trustpanel-graphic-bg: var(--vn-bg-raised) !important;
+}
+
+#trustpanel-graphic-section {
+  border-radius: var(--vn-radius-md) !important;
+}
+
+/* Щит рисуется цветом состояния: движок ставил сюда свой синий. */
+#trustpanel-graphic-image,
+#trustpanel-graphic-image-legacy {
+  fill: var(--vn-guard) !important;
+}
+
+#trustpanel-popup:is([tracking-protection="disabled"], [tracking-protection="warning"])
+  :is(#trustpanel-graphic-image, #trustpanel-graphic-image-legacy) {
+  fill: var(--vn-threat) !important;
 }
 
 #protections-popup-mainView {
@@ -92,6 +121,7 @@ notification-message {
 
 /* --- Строка поиска по странице --------------------------------------------- */
 findbar {
+  color: var(--vn-fg-primary) !important;
   background: var(--vn-bg-chrome) !important;
   border-top: 1px solid var(--vn-border) !important;
   padding: var(--vn-space-2) var(--vn-space-3) !important;

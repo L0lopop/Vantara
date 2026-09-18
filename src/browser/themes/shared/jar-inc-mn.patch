@@ -1,8 +1,8 @@
 diff --git a/browser/themes/shared/jar.inc.mn b/browser/themes/shared/jar.inc.mn
-index 6dc7a8fa3098a9c93e4e17d8b7782a66d64a81b0..7ef285d493e9bf212fa31ca7215c3b8b91b9f348 100644
+index 6dc7a8fa3098a9c93e4e17d8b7782a66d64a81b0..007fd67d4490e8ef890c03c50dc7b55723fe182a 100644
 --- a/browser/themes/shared/jar.inc.mn
 +++ b/browser/themes/shared/jar.inc.mn
-@@ -372,3 +372,63 @@
+@@ -372,3 +372,66 @@
    skin/classic/browser/illustrations/market-opt-in.svg         (../shared/illustrations/market-opt-in.svg)
    skin/classic/browser/illustrations/tab-groups.svg            (../shared/illustrations/tab-groups.svg)
    skin/classic/browser/illustrations/yelpRealtime-opt-in.svg   (../shared/illustrations/yelpRealtime-opt-in.svg)
@@ -66,3 +66,6 @@ index 6dc7a8fa3098a9c93e4e17d8b7782a66d64a81b0..7ef285d493e9bf212fa31ca7215c3b8b
 +% override chrome://browser/skin/sidebar/firefox.svg chrome://browser/skin/vantara/icons/shield.svg
 +% override chrome://browser/content/logos/tracking-protection.svg chrome://browser/skin/vantara/shield-page.svg
 +% override chrome://browser/content/logos/tracking-protection-dark-theme.svg chrome://browser/skin/vantara/shield-page.svg
++% override chrome://browser/skin/trustpanel-graphic-enabled.svg chrome://browser/skin/vantara/icons/shield.svg
++% override chrome://browser/skin/trustpanel-graphic-disabled.svg chrome://browser/skin/vantara/icons/shield-off.svg
++% override chrome://browser/skin/trustpanel-graphic-warning.svg chrome://browser/skin/vantara/icons/shield-off.svg

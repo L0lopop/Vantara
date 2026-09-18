@@ -49,7 +49,7 @@ CONDITIONAL = re.compile(
     # элементы, которые браузер создаёт только по действию пользователя:
     # панели, меню, подсказки, строка поиска, уведомления
     r"protections-popup|appMenu-popup|urlbarView|findbar|notification-|"
-    r"tabgroup-preview-panel|"
+    r"tabgroup-preview-panel|trustpanel-popup:is|"
     r"panel-arrowcontent|scrollbar|"
     # наши утилитарные классы: применяются из скриптов, а не из разметки;
     # панель журнала запросов создаётся при первом открытии

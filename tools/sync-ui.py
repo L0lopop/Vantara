@@ -97,6 +97,10 @@ ICON_OVERRIDES = {
     # там не работает, поэтому щит перекрашен в цвет защиты заранее.
     "chrome://browser/content/logos/tracking-protection.svg": "shield-page.svg",
     "chrome://browser/content/logos/tracking-protection-dark-theme.svg": "shield-page.svg",
+    # Картинка в панели доверия у адресной строки: у Firefox там лиса.
+    "chrome://browser/skin/trustpanel-graphic-enabled.svg": "icons/shield.svg",
+    "chrome://browser/skin/trustpanel-graphic-disabled.svg": "icons/shield-off.svg",
+    "chrome://browser/skin/trustpanel-graphic-warning.svg": "icons/shield-off.svg",
 }
 # Цвет защиты (--vn-guard), чуть темнее, чтобы щит читался и на светлом фоне.
 SHIELD_PAGE_COLOR = "#4FA37E"

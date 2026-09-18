@@ -285,6 +285,16 @@ pref("browser.toolbars.bookmarks.visibility", "never");
  * им нужна модель ИИ, которую Firefox скачивает с серверов Mozilla. */
 pref("browser.tabs.groups.enabled", true);
 pref("browser.tabs.groups.smart.enabled", false);
+
+/* Чат-бот в контекстном меню и в боковой панели. Пункт «Спросить
+ * ИИ-чат-бота» отправляет выделенный текст стороннему сервису — ChatGPT,
+ * Claude, Gemini или другому из списка Mozilla. Это ровно то, чего
+ * браузер с упором на защиту данных делать не должен, тем более молча
+ * из меню правого щелчка. */
+pref("browser.ml.chat.enabled", false);
+pref("browser.ml.chat.menu", false);
+pref("browser.ml.chat.page", false);
+pref("browser.ml.chat.sidebar", false);
 pref("browser.download.autohideButton", false);
 pref("vantara.newtab.enabled", true);
 pref("browser.startup.homepage.abouthome_cache.enabled", false);

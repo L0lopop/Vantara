@@ -53,6 +53,11 @@
      только её цвет. Глобальное правило :focus-visible обводило всю область
      страницы, когда фокус оказывался внутри неё. */
   --focus-outline-color: var(--vn-accent) !important;
+
+  /* Текст кнопок в панелях (moz-button): у Firefox он задан цветом
+     #15141A прямо, мимо --toolbar-color, и в светлой схеме холодный
+     чёрный стоял рядом с нашей тёплой тушью. */
+  --button-text-color: var(--vn-fg-primary) !important;
 }
 
 /* --- Окно ----------------------------------------------------------------- */
@@ -63,7 +68,14 @@
   font-family: var(--vn-font-ui) !important;
 }
 
-/* Верхняя панель — единый блок без родных разделителей. */
+/* Верхняя панель — единый блок без родных разделителей. Цвет текста здесь
+   же и на самих панелях: в Firefox 156 они не наследуют его от окна, и в
+   светлой схеме рядом с нашей тёплой тушью стоял холодный чёрный. */
+#navigator-toolbox,
+#navigator-toolbox toolbar {
+  color: var(--vn-fg-primary) !important;
+}
+
 #navigator-toolbox {
   background: var(--vn-bg-chrome) !important;
   border-bottom: 1px solid var(--vn-border) !important;
