@@ -247,7 +247,7 @@ tab-group > .tabbrowser-tab .tab-background[selected] > .tab-group-line {
   content: "";
   display: inline-block;
   width: 3px;
-  height: 14px;
+  height: 16px;
   margin-inline-end: var(--vn-space-2);
   vertical-align: middle;
   border-radius: var(--vn-radius-pill);

@@ -8,7 +8,9 @@
   background: var(--vn-bg-chrome) !important;
   border: none !important;
   box-shadow: none !important;
-  padding: var(--vn-space-2) var(--vn-space-3) var(--vn-space-3) !important;
+  /* Поля сверху и снизу одинаковые: иначе строка адреса стоит выше
+     середины панели, и вся шапка выглядит съехавшей. */
+  padding: calc(var(--vn-space-3) - var(--vn-space-1)) var(--vn-space-3) !important;
 }
 
 /* --- Адресная строка -------------------------------------------------------

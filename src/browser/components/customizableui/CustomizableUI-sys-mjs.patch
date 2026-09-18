@@ -1,5 +1,5 @@
 diff --git a/browser/components/customizableui/CustomizableUI.sys.mjs b/browser/components/customizableui/CustomizableUI.sys.mjs
-index 875f8b03d979353ef44a57c15ef1ae09d33ab730..a9c0ff683672617f45264e58d99015016be957d8 100644
+index 875f8b03d979353ef44a57c15ef1ae09d33ab730..3171db556d23eb9bd667f365d6365eed9bb13b59 100644
 --- a/browser/components/customizableui/CustomizableUI.sys.mjs
 +++ b/browser/components/customizableui/CustomizableUI.sys.mjs
 @@ -357,22 +357,21 @@ var CustomizableUIInternal = {
@@ -28,11 +28,11 @@ index 875f8b03d979353ef44a57c15ef1ae09d33ab730..a9c0ff683672617f45264e58d9901501
        lazy.resetPBMToolbarButtonEnabled ? "reset-pbm-toolbar-button" : null,
      ].filter(name => name);
  
-@@ -412,6 +411,7 @@ var CustomizableUIInternal = {
+@@ -411,6 +410,7 @@ var CustomizableUIInternal = {
+         defaultPlacements: [
            "tabbrowser-tabs",
            "new-tab-button",
-           "spring",
 +          "vantara-group-button",
+           "spring",
            "alltabs-button",
            "smartwindow-group-tabs-button",
-           "ai-window-toggle",
