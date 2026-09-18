@@ -93,10 +93,10 @@ interface will keep changing.
 
 **Tab groups.** Ctrl+click the tabs you want and press the group button
 on the tab strip, or drag one tab onto another: as you bring it closer,
-both fill with the colour of the group to be. A group is not a line under
-the tabs but a pool they lie in, and they are pulled into it. The group
-marker is a thin bar in its colour: it takes the width of a line and
-opens the group panel.
+both are outlined in the colour of the group to be. A group is a single
+plate: its marker and its tabs lie in one recess instead of under a line.
+The colour is only on the bar at the left, which also opens the group
+panel. Merging pulls the tabs into the group.
 
 <p align="center">
   <img src="docs/screenshots/readme/tab-groups-merge-en.gif" width="884"
