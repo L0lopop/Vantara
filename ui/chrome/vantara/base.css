@@ -114,6 +114,76 @@ toolbarbutton:not([disabled]):hover:active > :is(.toolbarbutton-icon, .toolbarbu
   transform: scale(0.92);
 }
 
+/* --- Кнопки окна -------------------------------------------------------------
+   Свернуть, развернуть и закрыть у Windows рисует системный шрифт, а
+   подсветка — прямоугольник во всю высоту полосы. Рядом с нашими кнопками
+   это другой язык. Значки берутся из набора Vantara, подсветка — та же
+   пластина, что у «плюса» и кнопки группы, у «закрыть» — цвета угрозы.
+
+   Сами кнопки остаются кнопками Windows: -moz-default-appearance на них не
+   трогаем, иначе пропадёт меню раскладок Windows 11 при наведении на
+   «развернуть». Площадь щелчка прежняя, во всю высоту полосы и до самого
+   угла окна: в угол попадают, не целясь. В режиме высокой контрастности
+   остаются системные значки. */
+@media not (prefers-contrast) {
+  .titlebar-button {
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 var(--vn-space-2) !important;
+    background-color: transparent !important;
+    /* Тот же цвет, что у кнопок полосы вкладок рядом: бледнее они
+       выглядели бы недоступными. */
+    color: var(--vn-fg-primary) !important;
+  }
+
+  .titlebar-button::before {
+    display: none !important;
+  }
+
+  .titlebar-button > .toolbarbutton-icon {
+    display: block !important;
+    box-sizing: border-box;
+    width: 38px;
+    height: var(--vn-tab-height);
+    padding: calc((var(--vn-tab-height) - 16px) / 2) 11px;
+    border-radius: var(--vn-radius-md);
+    -moz-context-properties: fill;
+    fill: currentColor;
+    transition: background-color var(--vn-dur-fast) var(--vn-ease-standard),
+                color var(--vn-dur-fast) var(--vn-ease-standard);
+  }
+
+  .titlebar-min { list-style-image: url("icons/window-min.svg") !important; }
+  .titlebar-max { list-style-image: url("icons/window-max.svg") !important; }
+  .titlebar-restore { list-style-image: url("icons/window-restore.svg") !important; }
+  .titlebar-close { list-style-image: url("icons/window-close.svg") !important; }
+
+  .titlebar-button:hover > .toolbarbutton-icon {
+    background-color: var(--vn-bg-hover);
+  }
+
+  .titlebar-button:hover:active > .toolbarbutton-icon {
+    background-color: var(--vn-bg-active);
+  }
+
+  .titlebar-close:hover {
+    color: var(--vn-accent-fg) !important;
+  }
+
+  .titlebar-close:hover > .toolbarbutton-icon {
+    background-color: var(--vn-threat);
+  }
+
+  .titlebar-close:hover:active > .toolbarbutton-icon {
+    background-color: color-mix(in srgb, var(--vn-threat) 80%, black);
+  }
+
+  /* Неактивное окно: кнопки тише, как и весь заголовок. */
+  :root:-moz-window-inactive .titlebar-button:not(:hover) {
+    color: var(--vn-fg-muted) !important;
+  }
+}
+
 /* --- Полосы прокрутки в интерфейсе ---------------------------------------- */
 #navigator-toolbox scrollbar,
 panel scrollbar {

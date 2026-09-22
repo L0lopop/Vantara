@@ -1,8 +1,8 @@
 diff --git a/browser/themes/shared/jar.inc.mn b/browser/themes/shared/jar.inc.mn
-index 6dc7a8fa3098a9c93e4e17d8b7782a66d64a81b0..007fd67d4490e8ef890c03c50dc7b55723fe182a 100644
+index 6dc7a8fa3098a9c93e4e17d8b7782a66d64a81b0..ae75ad3f9c40a858c88c9681a36dc1f124f6fe39 100644
 --- a/browser/themes/shared/jar.inc.mn
 +++ b/browser/themes/shared/jar.inc.mn
-@@ -372,3 +372,66 @@
+@@ -372,3 +372,70 @@
    skin/classic/browser/illustrations/market-opt-in.svg         (../shared/illustrations/market-opt-in.svg)
    skin/classic/browser/illustrations/tab-groups.svg            (../shared/illustrations/tab-groups.svg)
    skin/classic/browser/illustrations/yelpRealtime-opt-in.svg   (../shared/illustrations/yelpRealtime-opt-in.svg)
@@ -38,6 +38,10 @@ index 6dc7a8fa3098a9c93e4e17d8b7782a66d64a81b0..007fd67d4490e8ef890c03c50dc7b557
 +  skin/classic/browser/vantara/icons/star-on.svg             (../shared/vantara/icons/star-on.svg)
 +  skin/classic/browser/vantara/icons/star.svg                (../shared/vantara/icons/star.svg)
 +  skin/classic/browser/vantara/icons/stop.svg                (../shared/vantara/icons/stop.svg)
++  skin/classic/browser/vantara/icons/window-close.svg        (../shared/vantara/icons/window-close.svg)
++  skin/classic/browser/vantara/icons/window-max.svg          (../shared/vantara/icons/window-max.svg)
++  skin/classic/browser/vantara/icons/window-min.svg          (../shared/vantara/icons/window-min.svg)
++  skin/classic/browser/vantara/icons/window-restore.svg      (../shared/vantara/icons/window-restore.svg)
 +  skin/classic/browser/vantara/tokens.css                    (../shared/vantara/tokens.css)
 +  skin/classic/browser/vantara/animations.css                (../shared/vantara/animations.css)
 +  skin/classic/browser/vantara/base.css                      (../shared/vantara/base.css)
