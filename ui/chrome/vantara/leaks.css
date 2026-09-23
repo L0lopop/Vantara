@@ -3,6 +3,7 @@
 
    Цвет метки читается как смысл, а не как украшение:
      заблокирован — зелёный: защита сработала;
+     запрещён вами — зелёный с заливкой: сработал ваш запрет;
      трекер       — красный: следящий адрес, который защита пропустила;
      сторонний    — янтарный: чужой сайт, не обязательно плохой;
      этот сайт    — приглушённый: запросы к самой странице.
@@ -95,6 +96,10 @@
 }
 
 .vn-leaks-badge[kind="blocked"] { color: var(--vn-guard); }
+.vn-leaks-badge[kind="denied"]  {
+  color: var(--vn-guard);
+  background-color: color-mix(in srgb, var(--vn-guard) 14%, transparent);
+}
 .vn-leaks-badge[kind="tracker"] { color: var(--vn-threat); }
 .vn-leaks-badge[kind="third"]   { color: var(--vn-warn); }
 .vn-leaks-badge[kind="first"]   { color: var(--vn-fg-muted); }
@@ -112,4 +117,90 @@
   color: var(--vn-fg-muted);
   font-size: var(--vn-text-xs);
   line-height: 1.5;
+}
+
+/* --- Запрет адреса -----------------------------------------------------------
+   Кнопка в строке видна под курсором и сразу в полную силу — полупрозрачных
+   кнопок в интерфейсе нет. У запрещённого адреса она видна всегда: снять
+   запрет должно быть так же просто, как поставить. */
+.vn-leaks-action {
+  flex: none;
+  display: none;
+  padding: 2px 8px;
+  border: 1px solid var(--vn-border-strong);
+  border-radius: var(--vn-radius-sm);
+  background-color: var(--vn-bg-raised);
+  color: var(--vn-fg-primary);
+  font: inherit;
+  font-size: var(--vn-text-xs);
+  cursor: default;
+}
+
+.vn-leaks-action[hidden] {
+  display: none !important;
+}
+
+.vn-leaks-row:hover .vn-leaks-action,
+.vn-leaks-row[vn-denied] .vn-leaks-action,
+.vn-leaks-denied .vn-leaks-action {
+  display: block;
+}
+
+.vn-leaks-action:hover {
+  border-color: var(--vn-accent);
+  background-color: var(--vn-bg-hover);
+}
+
+/* Под курсором кнопка встаёт на место счётчика: строка не удлиняется. */
+.vn-leaks-row:hover:not([vn-denied]) .vn-leaks-count {
+  display: none;
+}
+
+/* --- Подвал: запрещённое и отчёт ------------------------------------------ */
+.vn-leaks-footer {
+  margin-top: var(--vn-space-3);
+  padding-top: var(--vn-space-3);
+  border-top: 1px solid var(--vn-border);
+}
+
+.vn-leaks-footer-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--vn-space-3);
+}
+
+.vn-leaks-denied-toggle,
+.vn-leaks-export {
+  padding: 4px 10px;
+  border: 1px solid var(--vn-border-strong);
+  border-radius: var(--vn-radius-md);
+  background-color: transparent;
+  color: var(--vn-fg-primary);
+  font: inherit;
+  font-size: var(--vn-text-sm);
+  cursor: default;
+}
+
+.vn-leaks-denied-toggle:hover,
+.vn-leaks-export:hover {
+  background-color: var(--vn-bg-hover);
+}
+
+.vn-leaks-denied-toggle[vn-open] {
+  border-color: var(--vn-accent);
+}
+
+.vn-leaks-denied {
+  list-style: none;
+  margin: var(--vn-space-2) 0 0;
+  padding: 0;
+  max-height: 12em;
+  overflow-y: auto;
+}
+
+.vn-leaks-denied-empty {
+  padding: 6px;
+  color: var(--vn-fg-muted);
+  font-size: var(--vn-text-sm);
 }

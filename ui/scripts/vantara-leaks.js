@@ -18,6 +18,10 @@
  * начинается заново при переходе на другую страницу. Он не пишется на
  * диск и не собирает историю: панель про эту страницу и сейчас.
  *
+ * Любой адрес из журнала можно запретить одним нажатием — на всех сайтах
+ * сразу (ui/modules/VantaraBlocklist.sys.mjs). Отчёт о странице
+ * сохраняется в текстовый файл только по просьбе человека.
+ *
  * Создаётся tools/sync-ui.py из ui/scripts/. Править там.
  */
 
@@ -57,6 +61,10 @@ var gVantaraLeaks = {
   ]),
 
   init() {
+    this._blocklist = ChromeUtils.importESModule(
+      "chrome://browser/content/vantara/modules/VantaraBlocklist.sys.mjs"
+    ).VantaraBlocklist;
+    this._blocklist.init();
     this._ensureView();
     this._registerWidget();
     Services.obs.addObserver(this, "http-on-opening-request");
@@ -104,7 +112,23 @@ var gVantaraLeaks = {
       badgeTracker: "трекер",
       badgeThird: "сторонний",
       badgeFirst: "этот сайт",
+      badgeDenied: "запрещён вами",
       more: "и ещё",
+      deny: "Запретить",
+      allow: "Разрешить",
+      denyTitle: "Запретить запросы к {host} на всех сайтах",
+      allowTitle: "Снова разрешить запросы к {host}",
+      denied: "Запрещено вами",
+      deniedEmpty: "Вы пока ничего не запрещали.",
+      export: "Сохранить отчёт",
+      exportTitle: "Сохранить отчёт о запросах этой страницы",
+      reportTitle: "Журнал запросов Vantara",
+      reportPage: "Страница",
+      reportMade: "Составлен",
+      reportHost: "Адрес",
+      reportRequests: "Запросов",
+      reportState: "Состояние",
+      reportFile: "Текст",
     },
     en: {
       title: "Request log",
@@ -120,7 +144,23 @@ var gVantaraLeaks = {
       badgeTracker: "tracker",
       badgeThird: "third-party",
       badgeFirst: "this site",
+      badgeDenied: "blocked by you",
       more: "and",
+      deny: "Block",
+      allow: "Allow",
+      denyTitle: "Block requests to {host} on every site",
+      allowTitle: "Allow requests to {host} again",
+      denied: "Blocked by you",
+      deniedEmpty: "You have not blocked anything yet.",
+      export: "Save report",
+      exportTitle: "Save a report of this page's requests",
+      reportTitle: "Vantara request log",
+      reportPage: "Page",
+      reportMade: "Made",
+      reportHost: "Host",
+      reportRequests: "Requests",
+      reportState: "State",
+      reportFile: "Text",
     },
   },
 
@@ -207,10 +247,11 @@ var gVantaraLeaks = {
     summary.className = "vn-leaks-summary";
     let list = this._html("ul");
     list.className = "vn-leaks-list";
+    let footer = this._footer();
     let note = this._html("p");
     note.className = "vn-leaks-note";
     note.textContent = this._t("note");
-    body.append(summary, list, note);
+    body.append(summary, list, footer, note);
 
     view.append(header, separator, body);
     cache.content.append(view);
@@ -223,6 +264,7 @@ var gVantaraLeaks = {
   onViewShowing() {
     this._viewShown = true;
     this._renderAll();
+    this._renderFooter();
   },
 
   onViewHiding() {
@@ -313,7 +355,8 @@ var gVantaraLeaks = {
       journal.requests++;
       changed = true;
     }
-    if (this.BLOCKED_STATUSES.has(channel.status)) {
+    if (this.BLOCKED_STATUSES.has(channel.status) ||
+        channel.status == this._blocklist.STATUS) {
       entry.blocked++;
       journal.blocked++;
       changed = true;
@@ -399,6 +442,9 @@ var gVantaraLeaks = {
   },
 
   _kind(entry, journal) {
+    if (this._blocklist.isBlocked(entry.host)) {
+      return "denied";
+    }
     if (entry.blocked) {
       return "blocked";
     }
@@ -411,7 +457,7 @@ var gVantaraLeaks = {
   // Порядок: сначала то, что стоит внимания. Заблокированное и
   // пропущенные трекеры, затем сторонние адреса, свой сайт — в конце.
   _rank(kind) {
-    return { tracker: 0, blocked: 1, third: 2, first: 3 }[kind];
+    return { tracker: 0, denied: 1, blocked: 1, third: 2, first: 3 }[kind];
   },
 
   _parts() {
@@ -519,7 +565,16 @@ var gVantaraLeaks = {
     let count = this._html("span");
     count.className = "vn-leaks-count";
 
-    row.append(host, badge, count);
+    // Кнопка запрета: видна под курсором, у запрещённого адреса — всегда,
+    // чтобы разрешить его обратно было так же просто.
+    let action = this._html("button");
+    action.className = "vn-leaks-action";
+    action.addEventListener("click", event => {
+      event.stopPropagation();
+      this._toggleBlock(entry.host);
+    });
+
+    row.append(host, badge, count, action);
     this._rows.set(entry.host, row);
     this._fillRow(row, entry, journal);
     return row;
@@ -530,10 +585,183 @@ var gVantaraLeaks = {
     let badge = row.querySelector(".vn-leaks-badge");
     badge.setAttribute("kind", kind);
     badge.textContent = this._t(
-      { blocked: "badgeBlocked", tracker: "badgeTracker",
+      { blocked: "badgeBlocked", tracker: "badgeTracker", denied: "badgeDenied",
         third: "badgeThird", first: "badgeFirst" }[kind]
     );
     row.querySelector(".vn-leaks-count").textContent = this._number(entry.requests);
+
+    let action = row.querySelector(".vn-leaks-action");
+    let denied = kind == "denied";
+    // Запрещённый родительский адрес снимается целиком: иначе кнопка
+    // «Разрешить» у поддомена ничего бы не делала.
+    let target = denied ? this._blocklist.ruleFor(entry.host) : entry.host;
+    action.textContent = this._t(denied ? "allow" : "deny");
+    action.title = this._t(denied ? "allowTitle" : "denyTitle").replace("{host}", target);
+    row.toggleAttribute("vn-denied", denied);
+    // Адрес открытой страницы не запрещается: документ вкладки запрет
+    // всё равно пропускает, а кнопка обещала бы то, чего не будет.
+    action.hidden = !denied && entry.host == this._pageHost();
+  },
+
+  _pageHost() {
+    try {
+      return gBrowser.currentURI.host;
+    } catch (e) {
+      return "";
+    }
+  },
+
+  _toggleBlock(host) {
+    let rule = this._blocklist.ruleFor(host);
+    if (rule) {
+      this._blocklist.remove(rule);
+    } else {
+      this._blocklist.add(host);
+    }
+    this._refreshRows();
+  },
+
+  // Запрет меняет вид всех строк с этим адресом и его поддоменами.
+  _refreshRows() {
+    let journal = this._journals.get(gBrowser.selectedBrowser);
+    if (journal) {
+      for (let [host, row] of this._rows) {
+        let entry = journal.hosts.get(host);
+        if (entry) {
+          this._fillRow(row, entry, journal);
+        }
+      }
+    }
+    this._renderFooter();
+  },
+
+  /* --- Подвал: запрещённое и отчёт --------------------------------------- */
+
+  _footer() {
+    let footer = this._html("div");
+    footer.className = "vn-leaks-footer";
+
+    let toggle = this._html("button");
+    toggle.className = "vn-leaks-denied-toggle";
+    toggle.addEventListener("click", () => {
+      let list = footer.querySelector(".vn-leaks-denied");
+      list.hidden = !list.hidden;
+      toggle.toggleAttribute("vn-open", !list.hidden);
+      this._renderFooter();
+    });
+
+    let save = this._html("button");
+    save.className = "vn-leaks-export";
+    save.textContent = this._t("export");
+    save.title = this._t("exportTitle");
+    save.addEventListener("click", () => this._exportReport());
+
+    let bar = this._html("div");
+    bar.className = "vn-leaks-footer-bar";
+    bar.append(toggle, save);
+
+    let list = this._html("ul");
+    list.className = "vn-leaks-denied";
+    list.hidden = true;
+
+    footer.append(bar, list);
+    return footer;
+  },
+
+  _renderFooter() {
+    let view = PanelMultiView.getViewNode(document, this.VIEW_ID);
+    if (!view) {
+      return;
+    }
+    let hosts = this._blocklist.hosts;
+    let toggle = view.querySelector(".vn-leaks-denied-toggle");
+    toggle.textContent = `${this._t("denied")}: ${this._number(hosts.length)}`;
+
+    let list = view.querySelector(".vn-leaks-denied");
+    if (list.hidden) {
+      return;
+    }
+    list.textContent = "";
+    if (!hosts.length) {
+      let empty = this._html("li");
+      empty.className = "vn-leaks-denied-empty";
+      empty.textContent = this._t("deniedEmpty");
+      list.append(empty);
+      return;
+    }
+    for (let host of hosts) {
+      let item = this._html("li");
+      item.className = "vn-leaks-row";
+      let name = this._html("span");
+      name.className = "vn-leaks-host";
+      name.textContent = host;
+      let allow = this._html("button");
+      allow.className = "vn-leaks-action";
+      allow.textContent = this._t("allow");
+      allow.title = this._t("allowTitle").replace("{host}", host);
+      allow.addEventListener("click", () => {
+        this._blocklist.remove(host);
+        this._refreshRows();
+      });
+      item.append(name, allow);
+      list.append(item);
+    }
+  },
+
+  /** Отчёт о запросах открытой страницы — в файл по выбору человека. */
+  async _exportReport() {
+    let journal = this._journals.get(gBrowser.selectedBrowser);
+    if (!journal) {
+      return;
+    }
+    let text = this._reportText(journal);
+
+    let picker = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
+    picker.init(window.browsingContext, this._t("export"), Ci.nsIFilePicker.modeSave);
+    let day = new Date().toISOString().slice(0, 10);
+    picker.defaultString = `vantara-${journal.site || "page"}-${day}.txt`;
+    picker.defaultExtension = "txt";
+    picker.appendFilter(this._t("reportFile"), "*.txt");
+    let result = await new Promise(resolve => picker.open(resolve));
+    if (result == Ci.nsIFilePicker.returnCancel || !picker.file) {
+      return;
+    }
+    await IOUtils.writeUTF8(picker.file.path, text);
+  },
+
+  /** Текст отчёта: страница, итог и все адреса с состоянием. */
+  _reportText(journal) {
+    let page = gBrowser.currentURI.spec;
+    let made = new Date().toLocaleString(this._lang == "ru" ? "ru-RU" : "en-US");
+    let entries = [...journal.hosts.values()].sort((a, b) =>
+      this._rank(this._kind(a, journal)) - this._rank(this._kind(b, journal)) ||
+      b.requests - a.requests ||
+      a.host.localeCompare(b.host)
+    );
+    let width = Math.max(this._t("reportHost").length,
+                         ...entries.map(e => e.host.length)) + 2;
+    let state = entry => this._t(
+      { blocked: "badgeBlocked", tracker: "badgeTracker", denied: "badgeDenied",
+        third: "badgeThird", first: "badgeFirst" }[this._kind(entry, journal)]
+    );
+    let lines = [
+      this._t("reportTitle"),
+      `${this._t("reportPage")}: ${page}`,
+      `${this._t("reportMade")}: ${made}`,
+      "",
+      `${this._number(journal.requests)} ${this._plural(journal.requests, "requests")} ` +
+        `${this._t("to")} ${this._number(journal.hosts.size)} ` +
+        `${this._plural(journal.hosts.size, "hosts")} · ` +
+        `${this._t("blocked")} ${this._number(journal.blocked)}`,
+      "",
+      this._t("reportHost").padEnd(width) +
+        this._t("reportRequests").padStart(10) + "   " + this._t("reportState"),
+      ...entries.map(e =>
+        e.host.padEnd(width) + String(e.requests).padStart(10) + "   " + state(e)),
+      "",
+    ];
+    // Окончания строк Windows: отчёт откроют в Блокноте.
+    return lines.join("\r\n");
   },
 
   /* --- Слушатель прогресса --------------------------------------------- */

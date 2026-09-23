@@ -1,8 +1,8 @@
 diff --git a/browser/base/jar.mn b/browser/base/jar.mn
-index 783c67d397a541a0e78374dc93c930fbd8d2e7e7..28aba2025fa42d5c99bfbecc4924f479cd1cb166 100644
+index 783c67d397a541a0e78374dc93c930fbd8d2e7e7..fc6007a8407455907213f7ef4559f26364e0fd4b 100644
 --- a/browser/base/jar.mn
 +++ b/browser/base/jar.mn
-@@ -47,6 +47,23 @@ browser.jar:
+@@ -47,6 +47,24 @@ browser.jar:
          content/browser/browser-fullScreenAndPointerLock.js (content/browser-fullScreenAndPointerLock.js)
          content/browser/browser-gestureSupport.js           (content/browser-gestureSupport.js)
          content/browser/browser-init.js                     (content/browser-init.js)
@@ -23,6 +23,7 @@ index 783c67d397a541a0e78374dc93c930fbd8d2e7e7..28aba2025fa42d5c99bfbecc4924f479
 +        content/browser/vantara/modules/VantaraNewTab.sys.mjs   (content/vantara/modules/VantaraNewTab.sys.mjs)
 +        content/browser/vantara/vantara-groups.js               (content/vantara/vantara-groups.js)
 +        content/browser/vantara/vantara-frameless.js            (content/vantara/vantara-frameless.js)
++        content/browser/vantara/modules/VantaraBlocklist.sys.mjs (content/vantara/modules/VantaraBlocklist.sys.mjs)
          content/browser/browser-main.js                     (content/browser-main.js)
          content/browser/browser-menubar.js                  (content/browser-menubar.js)
          content/browser/browser-pageActions.js              (content/browser-pageActions.js)

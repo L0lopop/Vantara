@@ -58,7 +58,9 @@ installer, with its own name, icon and application ID.
 **Features Firefox doesn't have**
 
 - **Request log** — where the page sends data, what was blocked and which
-  trackers got through. Live, separate for each tab, kept in memory only
+  trackers got through. Live, separate for each tab, kept in memory only.
+  Any host in it can be blocked with one click — on every site, cancelled
+  before the request leaves; a report of the page saves to a file
 - **Shield** next to the address bar — marks every block and keeps an
   all-time counter with no addresses and no history
 - **New tab page** that makes no network requests: favorites and recently
