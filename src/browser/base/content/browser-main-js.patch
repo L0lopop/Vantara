@@ -1,11 +1,12 @@
 diff --git a/browser/base/content/browser-main.js b/browser/base/content/browser-main.js
-index f7f364290e0e49ff8c0382e6761d72e5e411a0a2..0ee0a2acb4722f37f0102c28f160d4f9a394742c 100644
+index f7f364290e0e49ff8c0382e6761d72e5e411a0a2..5b745581c09b677d3fbbce386aa3b8f9893a75f3 100644
 --- a/browser/base/content/browser-main.js
 +++ b/browser/base/content/browser-main.js
-@@ -17,6 +17,14 @@
+@@ -17,6 +17,15 @@
    Services.scriptloader.loadSubScript("chrome://browser/content/browser-pageActions.js", this);
    Services.scriptloader.loadSubScript("chrome://browser/content/sidebar/browser-sidebar.js", this);
    Services.scriptloader.loadSubScript("chrome://browser/content/browser-customtitlebar.js", this);
++  Services.scriptloader.loadSubScript("chrome://browser/content/vantara/vantara-palette.js", this);
 +  Services.scriptloader.loadSubScript("chrome://browser/content/vantara/vantara-frameless.js", this);
 +  Services.scriptloader.loadSubScript("chrome://browser/content/vantara/vantara-groups.js", this);
 +  Services.scriptloader.loadSubScript("chrome://browser/content/vantara/vantara-theme.js", this);

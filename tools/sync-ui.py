@@ -42,7 +42,8 @@ PLATFORM_CSS = [THEMES / "windows" / "browser.css",
 # Порядок значим: токены объявляют переменные, движение — ключевые кадры,
 # дальше компоненты в порядке слоёв интерфейса.
 ORDER = ["tokens.css", "animations.css", "base.css", "icons.css",
-         "tabs.css", "navbar.css", "sidebar.css", "menus.css", "leaks.css"]
+         "tabs.css", "navbar.css", "sidebar.css", "menus.css", "leaks.css",
+         "palette.css"]
 
 # Иконки интерфейса. Спрайт — вариант для веб-страниц (currentColor),
 # в интерфейсе браузера он не работает и в тему не копируется.

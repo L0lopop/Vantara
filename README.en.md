@@ -68,6 +68,9 @@ installer, with its own name, icon and application ID.
 - **Frameless mode** — `Ctrl+Shift+F`: the toolbars slide off the top edge,
   the page fills the whole window, and the toolbar slides back when you
   bring the pointer to the edge
+- **Command palette** — `F2`: type a couple of letters to jump to a tab in
+  any window or run a browser action without remembering which menu it
+  lives in. Searches in Russian and English
 
 **Interface**
 
@@ -79,8 +82,9 @@ installer, with its own name, icon and application ID.
 - Russian and English, following the system language
 
 [Stage 1](docs/ROADMAP.md) — the living interface — is done. Next is
-stage 2: behaviour Firefox does not have (vertical tabs, a command palette,
-blocking an address from the request log), and the first release.
+stage 2: behaviour Firefox does not have. Blocking an address from the
+request log and the command palette are in; vertical tabs and a tray icon
+come next. Then the first release.
 
 ## What it looks like
 

@@ -1,8 +1,8 @@
 diff --git a/browser/themes/shared/jar.inc.mn b/browser/themes/shared/jar.inc.mn
-index 6dc7a8fa3098a9c93e4e17d8b7782a66d64a81b0..ae75ad3f9c40a858c88c9681a36dc1f124f6fe39 100644
+index 6dc7a8fa3098a9c93e4e17d8b7782a66d64a81b0..8ac19f2963da1652cea6b33be273a995c566712e 100644
 --- a/browser/themes/shared/jar.inc.mn
 +++ b/browser/themes/shared/jar.inc.mn
-@@ -372,3 +372,70 @@
+@@ -372,3 +372,73 @@
    skin/classic/browser/illustrations/market-opt-in.svg         (../shared/illustrations/market-opt-in.svg)
    skin/classic/browser/illustrations/tab-groups.svg            (../shared/illustrations/tab-groups.svg)
    skin/classic/browser/illustrations/yelpRealtime-opt-in.svg   (../shared/illustrations/yelpRealtime-opt-in.svg)
@@ -27,6 +27,7 @@ index 6dc7a8fa3098a9c93e4e17d8b7782a66d64a81b0..ae75ad3f9c40a858c88c9681a36dc1f1
 +  skin/classic/browser/vantara/icons/palette.svg             (../shared/vantara/icons/palette.svg)
 +  skin/classic/browser/vantara/icons/pin.svg                 (../shared/vantara/icons/pin.svg)
 +  skin/classic/browser/vantara/icons/plus.svg                (../shared/vantara/icons/plus.svg)
++  skin/classic/browser/vantara/icons/print.svg               (../shared/vantara/icons/print.svg)
 +  skin/classic/browser/vantara/icons/private.svg             (../shared/vantara/icons/private.svg)
 +  skin/classic/browser/vantara/icons/reload.svg              (../shared/vantara/icons/reload.svg)
 +  skin/classic/browser/vantara/icons/search.svg              (../shared/vantara/icons/search.svg)
@@ -38,6 +39,7 @@ index 6dc7a8fa3098a9c93e4e17d8b7782a66d64a81b0..ae75ad3f9c40a858c88c9681a36dc1f1
 +  skin/classic/browser/vantara/icons/star-on.svg             (../shared/vantara/icons/star-on.svg)
 +  skin/classic/browser/vantara/icons/star.svg                (../shared/vantara/icons/star.svg)
 +  skin/classic/browser/vantara/icons/stop.svg                (../shared/vantara/icons/stop.svg)
++  skin/classic/browser/vantara/icons/trash.svg               (../shared/vantara/icons/trash.svg)
 +  skin/classic/browser/vantara/icons/window-close.svg        (../shared/vantara/icons/window-close.svg)
 +  skin/classic/browser/vantara/icons/window-max.svg          (../shared/vantara/icons/window-max.svg)
 +  skin/classic/browser/vantara/icons/window-min.svg          (../shared/vantara/icons/window-min.svg)
@@ -51,6 +53,7 @@ index 6dc7a8fa3098a9c93e4e17d8b7782a66d64a81b0..ae75ad3f9c40a858c88c9681a36dc1f1
 +  skin/classic/browser/vantara/sidebar.css                   (../shared/vantara/sidebar.css)
 +  skin/classic/browser/vantara/menus.css                     (../shared/vantara/menus.css)
 +  skin/classic/browser/vantara/leaks.css                     (../shared/vantara/leaks.css)
++  skin/classic/browser/vantara/palette.css                   (../shared/vantara/palette.css)
 +  skin/classic/browser/vantara/vantara.css                   (../shared/vantara/vantara.css)
 +  skin/classic/browser/vantara/about-pages.css               (../shared/vantara/about-pages.css)
 +  skin/classic/browser/vantara/illustration.svg              (../shared/vantara/illustration.svg)

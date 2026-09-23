@@ -1,0 +1,104 @@
+/* ==========================================================================
+   Vantara — палитра команд (ui/scripts/vantara-palette.js)
+
+   Строка ввода и список под ней, без обводки поля: панель сама и есть
+   поле. Выбранная строка — той же подложкой, что вкладка под курсором,
+   чтобы клавиатура и мышь показывали выбор одинаково.
+   ========================================================================== */
+
+#vantara-palette {
+  --panel-padding: 0;
+  --panel-shadow: var(--vn-shadow-lg);
+}
+
+.vn-palette-box {
+  display: flex;
+  flex-direction: column;
+  width: 560px;
+  max-width: calc(100vw - 2 * var(--vn-space-4));
+}
+
+.vn-palette-input {
+  appearance: none;
+  height: 44px;
+  margin: 0;
+  padding: 0 var(--vn-space-4);
+  border: none;
+  border-bottom: 1px solid var(--vn-border);
+  background: transparent;
+  color: var(--vn-fg-primary);
+  font: inherit;
+  font-size: var(--vn-text-lg);
+  outline: none;
+}
+
+.vn-palette-input::placeholder {
+  color: var(--vn-fg-muted);
+  opacity: 1;
+}
+
+.vn-palette-list {
+  list-style: none;
+  margin: 0;
+  padding: var(--vn-space-1) var(--vn-space-2) var(--vn-space-2);
+  max-height: 420px;
+  overflow-y: auto;
+}
+
+.vn-palette-section {
+  padding: var(--vn-space-2) var(--vn-space-2) var(--vn-space-1);
+  color: var(--vn-fg-muted);
+  font-size: var(--vn-text-xs);
+}
+
+.vn-palette-item {
+  display: flex;
+  align-items: center;
+  gap: var(--vn-space-3);
+  min-height: 32px;
+  padding: 0 var(--vn-space-2);
+  border-radius: var(--vn-radius-md);
+  font-size: var(--vn-text-sm);
+  cursor: default;
+}
+
+.vn-palette-item[aria-selected="true"] {
+  background: var(--vn-bg-hover);
+}
+
+.vn-palette-icon {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  -moz-context-properties: fill;
+  fill: var(--vn-fg-secondary);
+}
+
+.vn-palette-item[aria-selected="true"] .vn-palette-icon {
+  fill: var(--vn-fg-primary);
+}
+
+.vn-palette-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.vn-palette-hint {
+  flex: none;
+  max-width: 40%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--vn-fg-muted);
+  font-size: var(--vn-text-xs);
+}
+
+.vn-palette-empty {
+  padding: var(--vn-space-4) var(--vn-space-2);
+  color: var(--vn-fg-muted);
+  font-size: var(--vn-text-sm);
+  text-align: center;
+}
