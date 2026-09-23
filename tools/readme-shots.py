@@ -382,6 +382,16 @@ def main() -> int:
         save(capture(m), f"palettes{suffix}.png")
 
         # Прежний вид для следующего запуска.
+        # Боковая панель: открытые вкладки, история и закладки в одном месте.
+        run_async(m, ARRANGE, [GROUP_TABS, False, "forge", "dark"])
+        m.script("""
+            SidebarController.show("viewOpenTabsSidebar");
+            document.documentElement.removeAttribute("remotecontrol");
+            return 1;""")
+        time.sleep(2.5)
+        save(capture(m), f"sidebar{suffix}.png")
+        m.script("SidebarController.hide(); return 1;")
+
         home(m, "forge", "system")
     return 0
 

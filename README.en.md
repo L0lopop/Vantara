@@ -63,16 +63,22 @@ installer, with its own name, icon and application ID.
   all-time counter with no addresses and no history
 - **New tab page** that makes no network requests: favorites and recently
   visited sites with icons from the local history
+- **Frameless mode** — `Ctrl+Shift+F`: the toolbars slide off the top edge,
+  the page fills the whole window, and the toolbar slides back when you
+  bring the pointer to the edge
 
 **Interface**
 
-- Own icon set, tabs, menus, panels and animations
-- Tab groups with a merge animation
+- Own icon set drawn for the screen: lines sit exactly on pixels
+- Own tabs, menus, panels, window buttons and animations
+- Tab groups with a merge animation and a group panel
+- A sidebar with open tabs, history and bookmarks in one place
 - Five palettes and a light, dark or system scheme
 - Russian and English, following the system language
 
-Work in progress — [stage 1](docs/ROADMAP.md): internal pages, a custom
-window title bar, the sidebar. Next up is the first release.
+[Stage 1](docs/ROADMAP.md) — the living interface — is done. Next is
+stage 2: behaviour Firefox does not have (vertical tabs, a command palette,
+blocking an address from the request log), and the first release.
 
 ## What it looks like
 
@@ -89,6 +95,12 @@ interface will keep changing.
   <img src="docs/screenshots/readme/palettes-en.png" width="900"
        alt="Appearance panel with the Pine palette selected">
   <br><sub>Appearance panel: scheme and five palettes, Pine shown here</sub>
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/readme/sidebar-en.png" width="900"
+       alt="Sidebar with the list of open tabs and a strip of icons: tabs, history, bookmarks">
+  <br><sub>The sidebar: open tabs, history and bookmarks in one place</sub>
 </p>
 
 **Tab groups.** Ctrl+click the tabs you want and press the group button

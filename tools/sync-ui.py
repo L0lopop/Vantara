@@ -66,6 +66,12 @@ PAGES_URLS = [
     "about:blocked", "about:unloads", "about:translations",
     "about:serviceworkers", "about:crashes", "about:editprofile",
     "about:profilemanager", "about:deleteprofile", "about:loginsimportreport",
+    # Списки боковой панели: открытые вкладки, история, закладки. Это не
+    # about-страницы, но красит их та же дизайн-система Firefox — без
+    # этого поиск в панели обведён бирюзовым, а текст холодно-белый.
+    "chrome://browser/content/sidebar/",
+    "chrome://browser/content/places/bookmarksSidebar.xhtml",
+    "chrome://browser/content/places/historySidebar.xhtml",
 ]
 MARKER = "# Vantara"
 

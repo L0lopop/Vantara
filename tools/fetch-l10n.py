@@ -26,6 +26,21 @@ CHANGESETS = ENGINE / "browser" / "locales" / "l10n-changesets.json"
 L10N_BASE = ROOT / ".l10n"
 REPO = "https://github.com/mozilla-l10n/firefox-l10n.git"
 
+# Ошибки перевода, которые видны в интерфейсе Vantara. Правятся поверх
+# скачанных файлов при каждом запуске; если строку исправили и у Mozilla,
+# скрипт об этом скажет, и правку можно убрать.
+CORRECTIONS: dict[str, dict[str, list[tuple[str, str]]]] = {
+    "ru": {
+        # Заголовок панели открытых вкладок: «Open tabs» переведено как
+        # «из открытых вкладок» — со строчной буквы и не тем смыслом.
+        "browser/browser/sidebar.ftl": [
+            ("    .heading = из открытых вкладок", "    .heading = Открытые вкладки"),
+            ("sidebar-opentabs-title = из открытых вкладок",
+             "sidebar-opentabs-title = Открытые вкладки"),
+        ],
+    },
+}
+
 
 def git(*args: str) -> str:
     result = subprocess.run(["git", "-C", str(L10N_BASE), *args],
@@ -60,6 +75,10 @@ def main(locales: list[str]) -> int:
         git("remote", "add", "origin", REPO)
 
     git("sparse-checkout", "set", *locales)
+    # Прежние правки из CORRECTIONS снимаются: переход на другую ревизию
+    # с изменёнными файлами git не выполнит, а правки наложатся заново.
+    if current_revision():
+        git("reset", "-q", "--hard")
 
     if current_revision() != revision:
         print(f"Загрузка переводов {', '.join(locales)} @ {revision[:12]}")
@@ -71,9 +90,28 @@ def main(locales: list[str]) -> int:
     for loc in locales:
         files = sum(1 for _ in (L10N_BASE / loc).rglob("*.ftl"))
         print(f"  {loc}: файлов .ftl {files}")
+        apply_corrections(loc)
 
     print(f"Готово: {L10N_BASE}")
     return 0
+
+
+def apply_corrections(loc: str) -> None:
+    for name, pairs in CORRECTIONS.get(loc, {}).items():
+        path = L10N_BASE / loc / name
+        if not path.exists():
+            print(f"  {loc}/{name}: файла нет, правка не нужна")
+            continue
+        text = path.read_text(encoding="utf-8")
+        done = 0
+        for wrong, right in pairs:
+            if wrong in text:
+                text = text.replace(wrong, right)
+                done += 1
+            else:
+                print(f"  {loc}/{name}: не найдено «{wrong.strip()}» — возможно, уже исправлено")
+        path.write_text(text, encoding="utf-8")
+        print(f"  {loc}/{name}: исправлено строк {done}")
 
 
 def current_revision() -> str:

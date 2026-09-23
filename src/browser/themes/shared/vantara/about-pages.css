@@ -31,7 +31,10 @@
   url-prefix("about:editprofile"),
   url-prefix("about:profilemanager"),
   url-prefix("about:deleteprofile"),
-  url-prefix("about:loginsimportreport") {
+  url-prefix("about:loginsimportreport"),
+  url-prefix("chrome://browser/content/sidebar/"),
+  url-prefix("chrome://browser/content/places/bookmarksSidebar.xhtml"),
+  url-prefix("chrome://browser/content/places/historySidebar.xhtml") {
 
 /* ==========================================================================
    Vantara — дизайн-токены «Forge»

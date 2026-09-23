@@ -185,6 +185,42 @@ toolbarbutton:not([disabled]):hover:active > :is(.toolbarbutton-icon, .toolbarbu
   }
 }
 
+/* --- Режим без рамки ---------------------------------------------------------
+   ui/scripts/vantara-frameless.js ставит vn-frameless (Ctrl+Shift+F или пункт
+   главного меню). Полоса вкладок и панель навигации уезжают за верхний
+   край, и страница занимает окно целиком. От панели остаётся полоска в
+   четыре пикселя: подведёшь к ней курсор — панель выезжает поверх страницы.
+   Она не прячется, пока в ней фокус (набирается адрес) или из неё открыто
+   меню (vn-reveal). В полноэкранном режиме Firefox прячет панели сам, и
+   этот режим там не вмешивается. */
+:root[vn-frameless]:not([inFullscreen]) #navigator-toolbox {
+  position: fixed !important;
+  top: 0;
+  inset-inline: 0;
+  z-index: 10;
+  translate: 0 calc(-100% + 4px);
+  transition: translate var(--vn-dur-base) var(--vn-ease-decel),
+              box-shadow var(--vn-dur-base) var(--vn-ease-standard);
+}
+
+:root[vn-frameless]:not([inFullscreen]) #navigator-toolbox:is(:hover, :focus-within, [vn-reveal]) {
+  translate: 0 0;
+  box-shadow: var(--vn-shadow-md);
+}
+
+/* Строка адреса в Firefox 156 — всплывающий элемент верхнего слоя
+   (popover): сдвиг панели её не двигает, и без этого правила она висела
+   бы над страницей одна. Прячется и появляется вместе с панелью. */
+:root[vn-frameless]:not([inFullscreen]) #urlbar {
+  transition: opacity var(--vn-dur-fast) var(--vn-ease-standard);
+}
+
+:root[vn-frameless]:not([inFullscreen])
+  #navigator-toolbox:not(:hover, :focus-within, [vn-reveal]) #urlbar {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
 /* --- Полосы прокрутки в интерфейсе ---------------------------------------- */
 #navigator-toolbox scrollbar,
 panel scrollbar {

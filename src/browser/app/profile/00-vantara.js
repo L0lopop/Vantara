@@ -295,6 +295,15 @@ pref("browser.ml.chat.enabled", false);
 pref("browser.ml.chat.menu", false);
 pref("browser.ml.chat.page", false);
 pref("browser.ml.chat.sidebar", false);
+
+/* Боковая панель — один контейнер для открытых вкладок, истории и
+ * закладок: слева полоса значков, по щелчку открывается нужный список.
+ * Всё это есть в Firefox 156, но в выпускной сборке выключено. Из набора
+ * инструментов по умолчанию убраны чат-бот (он выключен выше) и вкладки
+ * с других устройств — они требуют аккаунта Mozilla, которого у нас нет. */
+pref("sidebar.revamp", true);
+pref("sidebar.openTabsPanel.enabled", true);
+pref("sidebar.main.tools", "opentabs,history,bookmarks");
 pref("browser.download.autohideButton", false);
 pref("vantara.newtab.enabled", true);
 pref("browser.startup.homepage.abouthome_cache.enabled", false);
