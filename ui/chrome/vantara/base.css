@@ -145,7 +145,8 @@ toolbarbutton:not([disabled]):hover:active > :is(.toolbarbutton-icon, .toolbarbu
     box-sizing: border-box;
     width: 38px;
     height: var(--vn-tab-height);
-    padding: calc((var(--vn-tab-height) - 16px) / 2) 11px;
+    /* Целые поля: значок на сетке 16 чёткий только в целых пикселях. */
+    padding: 7px 11px 8px;
     border-radius: var(--vn-radius-md);
     -moz-context-properties: fill;
     fill: currentColor;
