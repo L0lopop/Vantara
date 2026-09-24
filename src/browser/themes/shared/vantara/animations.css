@@ -103,6 +103,12 @@
   to   { background-position: 220% 0; }
 }
 
+/* Та же волна в столбце вкладок — сверху вниз. */
+@keyframes vn-group-wave-down {
+  from { background-position: 0 -120%; }
+  to   { background-position: 0 220%; }
+}
+
 /* Вкладка, к которой подтаскивают другую: поверхность дышит, как капля
    перед слиянием. */
 @keyframes vn-magnet {

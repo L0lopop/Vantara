@@ -259,6 +259,7 @@ found». Плюс вторая запись — в `browser/installer/package-ma
 | `vantara-groups.js` | Кнопка «Сгруппировать вкладки» и анимация слияния |
 | `vantara-frameless.js` | Режим без рамки: `Ctrl+Shift+F`, пункт в меню |
 | `vantara-palette.js` | Палитра команд по `F2`: вкладки и действия браузера |
+| `vantara-vertical.js` | Пункт «Вертикальные вкладки» в меню, черта в `sidebar-main` |
 
 Скрипты работают в окне Firefox 156, и старые привычки из расширений
 там подводят молча: у элементов нет `ownerGlobal` (теперь

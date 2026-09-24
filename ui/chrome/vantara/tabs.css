@@ -21,6 +21,12 @@
    а вокруг неё появляется пустое поле. */
 :root {
   --tab-min-height: var(--vn-tab-height) !important;
+  /* Ширина вкладки, от которой остался один значок: закреплённой и
+     вкладки в узком столбце. У Firefox она равна высоте, 31 пиксель, и
+     значок посередине встаёт на полпикселя — мылится. При 32 значок
+     стоит ровно, и в столбце выравниваются по нему же палочки групп и
+     «плюс» новой вкладки. */
+  --tab-collapsed-background-width: 32px !important;
 }
 
 #tabbrowser-tabs {
@@ -33,6 +39,8 @@
      поверх неё дал бы двойную обводку. */
   --tab-selected-outline-color: transparent !important;
   --tab-hover-outline-color: transparent !important;
+  /* Точка у вкладки, у которой сменился заголовок, пока на неё не смотрели. */
+  --tab-attention-dot-color: var(--vn-accent) !important;
   border-inline-start: none !important;
 }
 
@@ -110,27 +118,41 @@
    Пластины лежат вплотную, и полоса вкладок читается как один длинный
    блок. Тонкая черта в промежутке разделяет соседей и пропадает там, где
    граница видна и так: у активной вкладки и под курсором. Черта нарисована
-   фоном самой вкладки — в промежутке между пластинами, а не внутри них. */
-.tabbrowser-tab {
+   фоном самой вкладки — в промежутке между пластинами, а не внутри них.
+   В ряд вкладок черта стоит слева от вкладки, в столбец — над ней. */
+#tabbrowser-tabs .tabbrowser-tab {
   background-image: linear-gradient(var(--vn-border), var(--vn-border));
   background-repeat: no-repeat;
+}
+
+#tabbrowser-tabs[orient="horizontal"] .tabbrowser-tab {
   background-position: left center;
   background-size: 1px 16px;
 }
 
-.tabbrowser-tab:dir(rtl) {
+#tabbrowser-tabs[orient="horizontal"] .tabbrowser-tab:dir(rtl) {
   background-position: right center;
 }
 
-/* Первая вкладка полосы и первая в группе: слева от них разделять нечего.
+/* В столбце черта начинается там, где начинаются названия, и не доходит
+   до края пластины: значки стоят отдельной колонкой и черта их не режет. */
+#tabbrowser-tabs[orient="vertical"] .tabbrowser-tab {
+  --vn-rule-start: calc(var(--tab-inline-padding) + 16px + var(--tab-icon-end-margin));
+  background-position: var(--vn-rule-start) top;
+  background-size: calc(100% - var(--vn-rule-start) - var(--tab-inner-inline-margin) - var(--vn-space-3)) 1px;
+}
+
+#tabbrowser-tabs[orient="vertical"] .tabbrowser-tab:dir(rtl) {
+  background-position: right var(--vn-rule-start) top;
+}
+
+/* Первая вкладка полосы и первая в группе: перед ними разделять нечего.
    Вкладки лежат в #tabbrowser-arrowscrollbox, поэтому :first-of-type здесь
-   считается от него, а внутри группы — от неё. */
-.tabbrowser-tab:first-of-type,
-.tabbrowser-tab[pinned],
-.tabbrowser-tab[selected],
-.tabbrowser-tab[selected] + .tabbrowser-tab,
-.tabbrowser-tab:hover,
-.tabbrowser-tab:hover + .tabbrowser-tab {
+   считается от него, а внутри группы — от неё. В столбце не нужна черта
+   и сразу под группой: её край виден и так. */
+#tabbrowser-tabs .tabbrowser-tab:is(:first-of-type, [pinned], [selected], :hover),
+#tabbrowser-tabs .tabbrowser-tab:is([selected], :hover) + .tabbrowser-tab,
+#tabbrowser-tabs[orient="vertical"] tab-group + .tabbrowser-tab {
   background-image: none;
 }
 
@@ -161,7 +183,7 @@
   height: 31px !important;
 }
 
-#tabs-newtab-button {
+#tabbrowser-tabs[orient="horizontal"] #tabs-newtab-button {
   margin-inline-start: var(--vn-space-2) !important;
 }
 
@@ -183,8 +205,11 @@
 
    Линию движка мы не прячем, а растягиваем на всю пластину: он сам показывает
    её ровно у вкладок группы и продлевает в промежутки между ними. Поэтому
-   углубление получается сплошным, без вычислений в скрипте. */
-.tab-group-line {
+   углубление получается сплошным, без вычислений в скрипте.
+
+   Так — в ряд вкладок. В столбец группа устроена иначе, см. раздел
+   «Вертикальные вкладки» в конце файла. */
+#tabbrowser-tabs[orient="horizontal"] .tab-group-line {
   /* Ровно по пластине: движок держит эту черту тоньше и ниже вкладки,
      и растянутая заливка выпирала бы из ряда. */
   inset-block: var(--tab-margin-block) !important;
@@ -200,7 +225,7 @@
 /* Внутри группы заливка переходит через промежутки между пластинами,
    а по краям обрывается ровно по их углам: движок иначе не доводит её
    до конца последней вкладки, и правый край выглядит обрубленным. */
-tab-group > .tabbrowser-tab:first-of-type .tab-group-line {
+#tabbrowser-tabs[orient="horizontal"] tab-group > .tabbrowser-tab:first-of-type .tab-group-line {
   inset-inline-start: 0 !important;
   border-inline-start: 1px solid light-dark(rgba(0, 0, 0, 0.08),
                                             rgba(255, 255, 255, 0.07)) !important;
@@ -208,7 +233,7 @@ tab-group > .tabbrowser-tab:first-of-type .tab-group-line {
   border-end-start-radius: var(--vn-radius-md) !important;
 }
 
-tab-group > .tabbrowser-tab:last-of-type .tab-group-line {
+#tabbrowser-tabs[orient="horizontal"] tab-group > .tabbrowser-tab:last-of-type .tab-group-line {
   inset-inline-end: 0 !important;
   border-inline-end: 1px solid light-dark(rgba(0, 0, 0, 0.08),
                                           rgba(255, 255, 255, 0.07)) !important;
@@ -304,13 +329,13 @@ tab-group[label="\200b"] > .tab-group-label-container .tab-group-label::before {
 /* Раскрытая группа — одна пластина: метка и вкладки лежат в общем
    углублении. У метки скруглены только внешние углы, а заливка первой
    вкладки начинается ровно там, где метка кончается, — стыка не видно. */
-tab-group:not([collapsed]) > .tab-group-label-container .tab-group-label {
+#tabbrowser-tabs[orient="horizontal"] tab-group:not([collapsed]) > .tab-group-label-container .tab-group-label {
   border-start-end-radius: 0 !important;
   border-end-end-radius: 0 !important;
   border-inline-end: none !important;
 }
 
-tab-group:not([collapsed]) > .tabbrowser-tab:first-of-type .tab-group-line {
+#tabbrowser-tabs[orient="horizontal"] tab-group:not([collapsed]) > .tabbrowser-tab:first-of-type .tab-group-line {
   inset-inline-start: calc(-1 * var(--tab-overflow-clip-margin)) !important;
   border-inline-start: none !important;
   border-start-start-radius: 0 !important;
@@ -368,4 +393,175 @@ tab-group[vn-merging] .tab-group-line {
 
 tab-group[vn-merging] .tab-group-label {
   animation: vn-group-pop var(--vn-dur-slower) var(--vn-ease-spring);
+}
+
+/* --- Вертикальные вкладки ------------------------------------------------------
+   Столбец вкладок в боковой панели (настройка sidebar.verticalTabs). Пластины
+   те же, что в ряд, и между ними те же два пикселя: у Firefox строка
+   в столбце на девять пикселей выше пластины, и список выглядел редким.
+
+   Группа в столбце — карточка: имя и вкладки лежат на общей подложке,
+   углы карточки скруглены так же, как пластины внутри неё, только на
+   ширину поля больше. Цвет группы — всё та же палочка у имени. Карточку
+   рисует сам элемент tab-group: у Firefox он не даёт своей коробки
+   (display: contents), и вкладки группы стоят в столбце вперемешку
+   с остальными. Строки группы выходят за края карточки, поэтому значки
+   и названия в группе стоят вровень с остальными вкладками. */
+#tabbrowser-tabs[orient="vertical"] {
+  --tab-padding-block-start: 0px !important;
+  --tab-padding-block-end: 0px !important;
+  --tab-margin-block: 1px !important;
+  /* Высота строки, по которой движок ведёт прокрутку и сетку закреплённых. */
+  --tab-height-with-margin-padding: calc(var(--tab-min-height) + 2px) !important;
+  /* У Firefox 7,5: названия и всё, что выровнено по ним, встали бы на полпикселя. */
+  --tab-icon-end-margin: 7px !important;
+  /* Поле между краем карточки группы и пластинами внутри неё. */
+  --vn-group-inset: 4px;
+  --vn-group-margin: calc(var(--tab-inner-inline-margin) - var(--vn-group-inset));
+}
+
+#tabbrowser-tabs[orient="vertical"] tab-group {
+  display: flex;
+  flex-direction: column;
+  flex: none;
+  margin: 3px var(--vn-group-margin);
+  padding-block-end: calc(var(--vn-group-inset) - var(--tab-margin-block) - 1px);
+  border: 1px solid light-dark(rgba(0, 0, 0, 0.08), rgba(255, 255, 255, 0.07));
+  border-radius: calc(var(--vn-radius-md) + var(--vn-group-inset));
+  background-color: light-dark(rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.3));
+  transition: background-color var(--vn-dur-base) var(--vn-ease-standard),
+              border-color var(--vn-dur-base) var(--vn-ease-standard);
+}
+
+/* Слияние в столбце: вкладки слетаются в карточку (vantara-groups.js),
+   а по карточке сверху вниз проходит та же волна, что по группе в ряд. */
+#tabbrowser-tabs[orient="vertical"] tab-group[vn-merging] {
+  background-image: linear-gradient(170deg,
+      transparent 38%,
+      light-dark(rgba(0, 0, 0, 0.06), rgba(255, 255, 255, 0.08)) 50%,
+      transparent 62%);
+  background-size: 100% 220%;
+  background-repeat: no-repeat;
+  animation: vn-group-wave-down var(--vn-dur-slower) var(--vn-ease-decel);
+}
+
+/* Группу целиком тащат, двигая её строки: карточка осталась бы на месте
+   пустой рамкой. */
+#tabbrowser-tabs[orient="vertical"] tab-group[movingtabgroup] {
+  background-color: transparent;
+  border-color: transparent;
+}
+
+/* Строки группы на всю ширину столбца, как строки вне группы. Отступ,
+   которым Firefox сдвигает вкладки группы вправо, не нужен: группу
+   выделяет карточка. */
+#tabbrowser-tabs[orient="vertical"] tab-group > :is(.tabbrowser-tab, .tab-group-label-container) {
+  margin-inline: calc(-1 * var(--vn-group-margin) - 1px) !important;
+}
+
+#tabbrowser-tabs[orient="vertical"] .tab-group-line {
+  display: none !important;
+}
+
+#tabbrowser-tabs[orient="vertical"] .tab-group-label-container {
+  margin-block: 0 !important;
+  padding-block: calc(var(--vn-group-inset) - 1px) var(--tab-margin-block) !important;
+}
+
+#tabbrowser-tabs[orient="vertical"] .tab-group-label-hover-highlight {
+  margin: 0 !important;
+  padding: 0 !important;
+  background: none !important;
+  box-shadow: none !important;
+}
+
+/* Имя — строка карточки на всю ширину, как вкладка. Своей подложки нет:
+   она у карточки. Палочка стоит в столбце значков, имя — вровень
+   с названиями вкладок. */
+#tabbrowser-tabs[orient="vertical"] .tab-group-label {
+  align-self: stretch !important;
+  width: auto !important;
+  max-width: none !important;
+  margin-inline: var(--tab-inner-inline-margin) !important;
+  padding-inline: calc(var(--tab-inline-padding) - var(--tab-inner-inline-margin) + 16px + var(--tab-icon-end-margin))
+                  var(--vn-space-3) !important;
+  background-color: transparent !important;
+  border: none !important;
+}
+
+#tabbrowser-tabs[orient="vertical"] .tab-group-label::before {
+  /* Середина палочки — на середине значков вкладок. */
+  inset-inline-start: calc(var(--tab-inline-padding) - var(--tab-inner-inline-margin) + 6px);
+  translate: 0 -50%;
+}
+
+#tabbrowser-tabs[orient="vertical"] .tab-group-label:hover {
+  background-color: var(--vn-bg-hover) !important;
+}
+
+/* Узкая панель — только значки: имя группы не помещается, остаётся
+   палочка посередине пластины. */
+#tabbrowser-tabs[orient="vertical"]:not([expanded]) .tab-group-label {
+  padding-inline: 0 !important;
+  color: transparent !important;
+}
+
+#tabbrowser-tabs[orient="vertical"]:not([expanded]) .tab-group-label::before {
+  inset-inline-start: 50%;
+  translate: -50% -50%;
+}
+
+/* Группа без имени в раскрытом столбце: вместо пустой строки заголовка —
+   узкая полоска, палочка в ней лежит поперёк, над столбцом значков.
+   Свёрнутая группа остаётся полной строкой: это единственное, что от неё
+   видно, и по ней щёлкают, чтобы раскрыть. */
+#tabbrowser-tabs[orient="vertical"][expanded] tab-group[label="\200b"]:not([collapsed]) .tab-group-label {
+  min-height: 14px !important;
+  height: 14px !important;
+  line-height: 14px !important;
+}
+
+#tabbrowser-tabs[orient="vertical"][expanded] tab-group[label="\200b"]:not([collapsed]) .tab-group-label::before {
+  inset-inline-start: calc(var(--tab-inline-padding) - var(--tab-inner-inline-margin));
+  width: 16px;
+  height: 4px;
+}
+
+/* Закреплённые вкладки над столбцом стояли вплотную к панели навигации. */
+#pinned-tabs-container[orient="vertical"] {
+  padding-block-start: var(--vn-space-2) !important;
+}
+
+/* Разделитель под закреплёнными вкладками — тот же волосок, что над
+   кнопками внизу панели (его стиль в vantara-vertical.js). У Firefox
+   в узкой панели это яркий штрих цвета значков, похожий на кнопку,
+   а в широкой — пустое место. За разделитель тянут, меняя высоту
+   закреплённой части, поэтому под курсором он подсвечивается. */
+#vertical-pinned-tabs-splitter {
+  background-image: linear-gradient(var(--vn-border), var(--vn-border)) !important;
+  background-size: 100% 1px !important;
+  background-position: center !important;
+  transition: background-color var(--vn-dur-fast) var(--vn-ease-standard);
+}
+
+#vertical-pinned-tabs-splitter:hover {
+  background-image: none !important;
+  background-color: var(--vn-accent) !important;
+  border-radius: var(--vn-radius-pill) !important;
+}
+
+/* «Новая вкладка» внизу столбца: плюс в колонке значков, подпись вровень
+   с названиями вкладок. */
+#tabbrowser-tabs[orient="vertical"] #tabs-newtab-button {
+  margin-inline: var(--tab-inner-inline-margin) !important;
+  padding: 0 !important;
+}
+
+#tabbrowser-tabs[orient="vertical"] #tabs-newtab-button > .toolbarbutton-icon {
+  padding: 7px 7px 8px calc(var(--tab-inline-padding) - var(--tab-inner-inline-margin)) !important;
+  width: auto !important;
+}
+
+#tabbrowser-tabs[orient="vertical"] #tabs-newtab-button > .toolbarbutton-text {
+  padding-inline-start: 0 !important;
 }

@@ -294,6 +294,11 @@ user_pref("browser.ml.chat.sidebar", false);
 user_pref("sidebar.revamp", true);
 user_pref("sidebar.openTabsPanel.enabled", true);
 user_pref("sidebar.main.tools", "opentabs,history,bookmarks");
+/* Вертикальные вкладки включаются из меню или палитры команд. Карточка
+ * «перетащите сюда важные вкладки» над столбцом — реклама закрепления
+ * с лисой Mozilla на фиолетовом фоне: закрепить вкладку можно и из её
+ * меню, а карточка занимает треть экрана. */
+user_pref("sidebar.verticalTabs.dragToPinPromo.dismissed", true);
 user_pref("browser.download.autohideButton", false);
 user_pref("vantara.newtab.enabled", true);
 user_pref("browser.startup.homepage.abouthome_cache.enabled", false);

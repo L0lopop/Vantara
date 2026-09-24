@@ -106,3 +106,7 @@ sidebar-main {
   --sidebar-text-color: var(--vn-fg-primary) !important;
   --sidebar-border-color: var(--vn-border) !important;
 }
+
+/* Черта между вкладками и кнопками внизу панели живёт в теневом дереве
+   sidebar-main, куда этот файл не достаёт. Её стиль подключает
+   ui/scripts/vantara-vertical.js. */

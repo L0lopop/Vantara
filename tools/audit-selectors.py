@@ -44,6 +44,9 @@ CONDITIONAL = re.compile(
     r"tab-group|\.vn-group-|"
     # палитра команд создаётся при первом нажатии F2 (vantara-palette.js)
     r"\.vn-palette-|#vantara-palette|"
+    # столбец вкладок: правила действуют, только когда включены
+    # вертикальные вкладки (sidebar.verticalTabs), а проверка идёт в ряду
+    r'\[orient="vertical"\]|'
     # правила для языков справа налево: в ru и en не срабатывают
     r":dir\(rtl\)|"
     # классы состояния панели доверия (browser-trustPanel.js)

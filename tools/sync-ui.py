@@ -108,6 +108,14 @@ ICON_OVERRIDES = {
     "chrome://browser/skin/trustpanel-graphic-enabled.svg": "icons/shield.svg",
     "chrome://browser/skin/trustpanel-graphic-disabled.svg": "icons/shield-off.svg",
     "chrome://browser/skin/trustpanel-graphic-warning.svg": "icons/shield-off.svg",
+    # Кнопки внизу боковой панели. Они живут в теневом дереве sidebar-main,
+    # и стилем их значок не заменить — только самим файлом. Заодно эти
+    # значки становятся нашими везде, где Firefox их показывает: в адресной
+    # строке, меню и настройках.
+    "chrome://browser/skin/history.svg": "icons/history.svg",
+    "chrome://browser/skin/bookmark-hollow.svg": "icons/star.svg",
+    "chrome://browser/skin/open-tabs.svg": "icons/tabs.svg",
+    "chrome://global/skin/icons/settings.svg": "icons/settings.svg",
 }
 # Цвет защиты (--vn-guard), чуть темнее, чтобы щит читался и на светлом фоне.
 SHIELD_PAGE_COLOR = "#4FA37E"

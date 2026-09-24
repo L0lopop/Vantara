@@ -77,14 +77,17 @@ installer, with its own name, icon and application ID.
 - Own icon set drawn for the screen: lines sit exactly on pixels
 - Own tabs, menus, panels, window buttons and animations
 - Tab groups with a merge animation and a group panel
+- Vertical tabs from the main menu or the command palette: a column in
+  the sidebar, where a group is one card, and a narrow mode with icons
+  only
 - A sidebar with open tabs, history and bookmarks in one place
 - Five palettes and a light, dark or system scheme
 - Russian and English, following the system language
 
 [Stage 1](docs/ROADMAP.md) — the living interface — is done. Next is
 stage 2: behaviour Firefox does not have. Blocking an address from the
-request log and the command palette are in; vertical tabs and a tray icon
-come next. Then the first release.
+request log, the command palette and vertical tabs are in; a tray icon
+comes next. Then the first release.
 
 ## What it looks like
 

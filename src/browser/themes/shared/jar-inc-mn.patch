@@ -1,8 +1,8 @@
 diff --git a/browser/themes/shared/jar.inc.mn b/browser/themes/shared/jar.inc.mn
-index 6dc7a8fa3098a9c93e4e17d8b7782a66d64a81b0..8ac19f2963da1652cea6b33be273a995c566712e 100644
+index 6dc7a8fa3098a9c93e4e17d8b7782a66d64a81b0..1f4414df7f0ab978550797e1e2d19f72cf22f9ad 100644
 --- a/browser/themes/shared/jar.inc.mn
 +++ b/browser/themes/shared/jar.inc.mn
-@@ -372,3 +372,73 @@
+@@ -372,3 +372,78 @@
    skin/classic/browser/illustrations/market-opt-in.svg         (../shared/illustrations/market-opt-in.svg)
    skin/classic/browser/illustrations/tab-groups.svg            (../shared/illustrations/tab-groups.svg)
    skin/classic/browser/illustrations/yelpRealtime-opt-in.svg   (../shared/illustrations/yelpRealtime-opt-in.svg)
@@ -39,6 +39,7 @@ index 6dc7a8fa3098a9c93e4e17d8b7782a66d64a81b0..8ac19f2963da1652cea6b33be273a995
 +  skin/classic/browser/vantara/icons/star-on.svg             (../shared/vantara/icons/star-on.svg)
 +  skin/classic/browser/vantara/icons/star.svg                (../shared/vantara/icons/star.svg)
 +  skin/classic/browser/vantara/icons/stop.svg                (../shared/vantara/icons/stop.svg)
++  skin/classic/browser/vantara/icons/tabs.svg                (../shared/vantara/icons/tabs.svg)
 +  skin/classic/browser/vantara/icons/trash.svg               (../shared/vantara/icons/trash.svg)
 +  skin/classic/browser/vantara/icons/window-close.svg        (../shared/vantara/icons/window-close.svg)
 +  skin/classic/browser/vantara/icons/window-max.svg          (../shared/vantara/icons/window-max.svg)
@@ -76,3 +77,7 @@ index 6dc7a8fa3098a9c93e4e17d8b7782a66d64a81b0..8ac19f2963da1652cea6b33be273a995
 +% override chrome://browser/skin/trustpanel-graphic-enabled.svg chrome://browser/skin/vantara/icons/shield.svg
 +% override chrome://browser/skin/trustpanel-graphic-disabled.svg chrome://browser/skin/vantara/icons/shield-off.svg
 +% override chrome://browser/skin/trustpanel-graphic-warning.svg chrome://browser/skin/vantara/icons/shield-off.svg
++% override chrome://browser/skin/history.svg chrome://browser/skin/vantara/icons/history.svg
++% override chrome://browser/skin/bookmark-hollow.svg chrome://browser/skin/vantara/icons/star.svg
++% override chrome://browser/skin/open-tabs.svg chrome://browser/skin/vantara/icons/tabs.svg
++% override chrome://global/skin/icons/settings.svg chrome://browser/skin/vantara/icons/settings.svg
